@@ -25,6 +25,7 @@ class _SetupViewState extends State<SetupView> with MessageViewMixin, Responsive
 
   final _stepCompanyKey = GlobalKey<StepCompanyFormState>();
   final _stepAdminKey = GlobalKey<StepAdminUserFormState>();
+  final StepperController _steperController = StepperController();
 
   @override
   void initState() {
@@ -35,7 +36,10 @@ class _SetupViewState extends State<SetupView> with MessageViewMixin, Responsive
   void _onNext() {
     if (viewModel.currentStep.value == 0) {
       final isValid = _stepCompanyKey.currentState?.validateForm() ?? false;
-      if (isValid) viewModel.nextStep();
+      if (isValid) {
+        viewModel.nextStep();
+        _steperController.nextStep();
+      }
     }
   }
 
@@ -56,11 +60,11 @@ class _SetupViewState extends State<SetupView> with MessageViewMixin, Responsive
   Widget build(BuildContext context) {
     updateScreenSize();
     final theme = Theme.of(context);
-
+    final formHeight = MediaQuery.of(context).size.height - 150;
     return Scaffold(
       child: Row(
         children: [
-          // Left branding panel
+          // ------------------------------------------------------------------Left branding panel
           if (isLargeScreen)
             Expanded(
               flex: 4,
@@ -78,7 +82,11 @@ class _SetupViewState extends State<SetupView> with MessageViewMixin, Responsive
                   children: [
                     Assets.images.common.logos.logo02.image(width: 180, fit: BoxFit.contain),
                     const SizedBox(height: 40),
-                    Text('Bem-vindo à\nVerSystems Platform', textAlign: TextAlign.center, style: TextStyle(fontSize: 32)).h1,
+                    Text(
+                      'Bem-vindo à\nVerSystems Platform',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 32),
+                    ).h1,
                     const SizedBox(height: 16),
                     Text(
                       'Configure sua empresa e crie o\n'
@@ -90,13 +98,21 @@ class _SetupViewState extends State<SetupView> with MessageViewMixin, Responsive
                       crossAxisAlignment: .start,
                       spacing: 16,
                       children: [
-                        _InfoItem(icon: Symbols.business, label: 'Cadastre os dados da sua empresa', foreground: theme.colorScheme.primaryForeground),
+                        _InfoItem(
+                          icon: Symbols.business,
+                          label: 'Cadastre os dados da sua empresa',
+                          foreground: theme.colorScheme.primaryForeground,
+                        ),
                         _InfoItem(
                           icon: Symbols.admin_panel_settings,
                           label: 'Crie o usuário administrador',
                           foreground: theme.colorScheme.primaryForeground,
                         ),
-                        _InfoItem(icon: Symbols.rocket_launch, label: 'Comece a usar o sistema', foreground: theme.colorScheme.primaryForeground),
+                        _InfoItem(
+                          icon: Symbols.rocket_launch,
+                          label: 'Comece a usar o sistema',
+                          foreground: theme.colorScheme.primaryForeground,
+                        ),
                       ],
                     ),
                   ],
@@ -104,92 +120,76 @@ class _SetupViewState extends State<SetupView> with MessageViewMixin, Responsive
               ),
             ),
 
-          // Right wizard panel
+          // ------------------------------------------------------------------ Right wizard panel
           Expanded(
             flex: 7,
-            child: Column(
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: theme.colorScheme.border)),
-                    color: theme.colorScheme.background,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      if (isMediumScreen || isSmallScreen) ...[Assets.images.common.logos.logo01.image(height: 36), const SizedBox(height: 16)],
-                      Obx(() => SetupStepper(currentStep: viewModel.currentStep.value, steps: const ['Empresa', 'Administrador'])),
-                    ],
-                  ),
-                ),
-
-                // Form content
-                Expanded(
-                  child: Obx(() {
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-                      child: viewModel.currentStep.value == 0
-                          ? StepCompanyForm(key: _stepCompanyKey, model: CompanyModel.empty())
-                          : StepAdminUserForm(key: _stepAdminKey, model: UserModel.empty()),
-                    );
-                  }),
-                ),
-
-                // Footer actions
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: theme.colorScheme.border)),
-                    color: theme.colorScheme.background,
-                  ),
-                  child: Obx(() {
-                    final isLastStep = viewModel.currentStep.value == 1;
-                    final isSaving = viewModel.isSaving.value;
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Back button
-                        if (viewModel.currentStep.value > 0)
-                          SecondaryButton(
-                            onPressed: isSaving ? null : () => viewModel.previousStep(),
-                            child: const Row(spacing: 8, children: [Icon(Symbols.arrow_back, size: 18), Text('Voltar')]),
-                          )
-                        else
-                          const SizedBox.shrink(),
-
-                        // Next / Finish button
-                        PrimaryButton(
-                          onPressed: isSaving
-                              ? null
-                              : isLastStep
-                              ? _onFinish
-                              : _onNext,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              if (isSaving)
-                                const CircularProgressIndicator(size: 16)
-                              else
-                                Icon(isLastStep ? Symbols.check_circle : Symbols.arrow_forward, size: 18),
-                              Text(
-                                isSaving
-                                    ? 'Salvando...'
-                                    : isLastStep
-                                    ? 'Concluir'
-                                    : 'Próximo',
-                              ),
-                            ],
-                          ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Stepper(
+                controller: _steperController,
+                steps: [
+                  Step(
+                    icon: StepNumber(
+                      onPressed: () {
+                        _steperController.jumpToStep(0);
+                      },
+                    ),
+                    title: const Text('Empresa'),
+                    contentBuilder: (context) {
+                      return StepContainer(
+                        actions: [PrimaryButton(onPressed: _onNext, child: const Text('Continuar'))],
+                        child: SizedBox(
+                          height: formHeight,
+                          child: StepCompanyForm(key: _stepCompanyKey, model: CompanyModel.empty()),
                         ),
-                      ],
-                    );
-                  }),
-                ),
-              ],
+                      );
+                    },
+                  ),
+                  Step(
+                    icon: StepNumber(
+                      onPressed: () {
+                        _steperController.jumpToStep(1);
+                      },
+                    ),
+                    title: const Text('Administrador'),
+                    contentBuilder: (context) {
+                      return Obx(() {
+                        final isSaving = viewModel.isSaving.value;
+                        return StepContainer(
+                          actions: [
+                            OutlineButton(
+                              onPressed: isSaving
+                                  ? null
+                                  : () {
+                                      viewModel.previousStep();
+                                      _steperController.previousStep();
+                                    },
+                              child: const Text('Voltar'),
+                            ),
+                            PrimaryButton(
+                              onPressed: isSaving ? null : _onFinish,
+                              child: Row(
+                                spacing: 8,
+                                children: [
+                                  if (isSaving)
+                                    const CircularProgressIndicator(size: 16)
+                                  else
+                                    const Icon(Symbols.check_circle, size: 18),
+                                  Text(isSaving ? 'Salvando...' : 'Concluir'),
+                                ],
+                              ),
+                            ),
+                          ],
+                          child: SizedBox(
+                            height: formHeight,
+                            child: StepAdminUserForm(key: _stepAdminKey, model: UserModel.empty()),
+                          ),
+                        );
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ],
