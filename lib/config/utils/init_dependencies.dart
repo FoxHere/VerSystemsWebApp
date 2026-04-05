@@ -25,7 +25,6 @@ import 'package:versystems_app/data/services/dev/dev_services.dart';
 import 'package:versystems_app/data/services/firebase_functions/firebase_functions_service_impl.dart';
 import 'package:versystems_app/data/services/image/image_services.dart';
 import 'package:versystems_app/data/services/profile/profile_services_impl.dart';
-import 'package:versystems_app/data/services/settings/settings_services_impl.dart';
 import 'package:versystems_app/data/services/user/user_services_impl.dart';
 
 Future<void> initDependencies() async {
@@ -58,11 +57,9 @@ Future<void> initDependencies() async {
   Get.put(ActivityServices(), permanent: true);
   Get.put(ImageServices(), permanent: true);
   Get.put(DevServices(), permanent: true);
-  Get.put(SettingsServicesImpl(), permanent: true);
   Get.put(CompanyServices(), permanent: true);
   Get.put(CompanyRepositoryImpl(
     companyServices: Get.find<CompanyServices>(),
-    settingsServices: Get.find<SettingsServicesImpl>(),
   ), permanent: true);
   Get.put(FirebaseFunctionsServiceImpl(), permanent: true);
   Get.put(

@@ -8,7 +8,6 @@ import 'package:versystems_app/config/utils/env.dart';
 import 'package:versystems_app/data/models/company/company_model.dart';
 import 'package:versystems_app/data/repositories/company/company_repository.dart';
 import 'package:versystems_app/data/services/company/company_services.dart';
-import 'package:versystems_app/data/services/settings/settings_services_impl.dart';
 
 const _dashboardInitialData = {
   'formularies': {'profile': 1000, 'total': 0, 'total_this_month': 0},
@@ -19,11 +18,9 @@ const _dashboardInitialData = {
 
 class CompanyRepositoryImpl implements CompanyRepository {
   final CompanyServices _companyServices;
-  final SettingsServicesImpl _settingsServices;
 
-  CompanyRepositoryImpl({required CompanyServices companyServices, required SettingsServicesImpl settingsServices})
-    : _companyServices = companyServices,
-      _settingsServices = settingsServices;
+  CompanyRepositoryImpl({required CompanyServices companyServices})
+    : _companyServices = companyServices;
 
   @override
   Future<Either<RepositoryException, CompanyModel?>> findOneById(String id) async {
@@ -97,7 +94,6 @@ class CompanyRepositoryImpl implements CompanyRepository {
           if (isNewCompany) {
             await _initializeDashboard(savedCompanyId);
           }
-          await _settingsServices.createMenuItems();
           return Right(savedCompanyId);
         },
       );

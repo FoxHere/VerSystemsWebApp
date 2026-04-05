@@ -36,7 +36,8 @@ class ImagePickerWidget extends StatefulWidget {
   State<ImagePickerWidget> createState() => _ImagePickerWidgetState();
 }
 
-class _ImagePickerWidgetState extends State<ImagePickerWidget> with FormValueSupplier<List<ImageItemModel>, ImagePickerWidget> {
+class _ImagePickerWidgetState extends State<ImagePickerWidget>
+    with FormValueSupplier<List<ImageItemModel>, ImagePickerWidget> {
   final _images = RxList<ImageItemModel>();
   final ImagePicker picker = ImagePicker();
   final convertProcess = RxDouble(0.0);
@@ -55,44 +56,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> with FormValueSup
       _images.value = value;
     }
   }
-
-  // @override
-  // void didUpdateWidget(ImagePickerWidget oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   // When the widget rebuilds with new initialImageUrls (e.g. after saving the form and the backend gives the URLs)
-  //   // We should update our local state with the actual remote URLs instead of keeping the null URLs.
-  //   if (widget.initialImageUrls != oldWidget.initialImageUrls) {
-  //     // _syncInitialUrls();
-  //   }
-  // }
-
-  // Future<void> _syncInitialUrls() async {
-  //   if (widget.initialImageUrls == null || widget.initialImageUrls!.isEmpty) {
-  //     return;
-  //   }
-
-  //   // Convert current URLs array to a simpler list of URL strings for quick lookup
-  //   final currentUrls = _images.where((img) => img.url != null).map((img) => img.url!).toList();
-
-  //   // Add new images that we don't have yet, or match by name if we originally had them local
-  //   for (final updatedUrl in widget.initialImageUrls!) {
-  //     if (updatedUrl.isEmpty) continue;
-
-  //     // Attempt to find if we already had this image as local (url == null) but same name
-  //     // This is slightly tricky, we can fetch the remote metadata to get the name
-  //     final newImageItem = await fromUrl(updatedUrl);
-
-  //     final existingLocalIndex = _images.indexWhere((img) => img.url == null && img.name == newImageItem.name);
-
-  //     if (existingLocalIndex != -1) {
-  //       // We match a local image with the newly uploaded image! Update its URL
-  //       _images[existingLocalIndex] = _images[existingLocalIndex].copyWith(url: newImageItem.url);
-  //     } else if (!currentUrls.contains(updatedUrl)) {
-  //       // Did not have this image at all, append it
-  //       _images.add(newImageItem);
-  //     }
-  //   }
-  // }
 
   Future<void> initialize() async {
     /// this function get the initial image urls and add them to the list of images
@@ -168,12 +131,19 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> with FormValueSup
         // 1. Criar progresso individual
         final progress = 0.0.obs;
         // 2. Criar placeholder com isLoading
-        final placeholder = ImageItemModel(bytes: Uint8List(0), name: file.name, sizeBytes: originalBytes.length, isLoading: true);
+        final placeholder = ImageItemModel(
+          bytes: Uint8List(0),
+          name: file.name,
+          sizeBytes: originalBytes.length,
+          isLoading: true,
+        );
         // 3. Adicionar à lista visível
         _images.add(placeholder);
         convertProgressMap[placeholder] = progress;
         // 4. Iniciar conversão em paralelo
-        final future = widget.imageServices.convertToJpg(originalBytes, progress, maxWidth: 720, quality: 80).then((convertedBytes) {
+        final future = widget.imageServices.convertToJpg(originalBytes, progress, maxWidth: 720, quality: 80).then((
+          convertedBytes,
+        ) {
           // 5. Se foi cancelado, ignore
           if (canceledConversions.contains(file.name)) return;
           final index = _images.indexWhere((img) => img.name == file.name && img.isLoading);
@@ -218,7 +188,11 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> with FormValueSup
                     const SizedBox(height: 8),
                     Text(
                       'Upload Imagem',
-                      style: TextStyle(color: Theme.of(context).colorScheme.foreground, fontSize: 18, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.foreground,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -243,7 +217,9 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> with FormValueSup
                 height: 260,
                 width: double.infinity,
                 child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse}),
+                  behavior: ScrollConfiguration.of(
+                    context,
+                  ).copyWith(dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse}),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: IntrinsicHeight(
@@ -280,13 +256,19 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> with FormValueSup
                               width: 140,
                               height: 260,
                               decoration: BoxDecoration(
-                                border: Border.all(color: Theme.of(context).colorScheme.border, width: 1.5, style: BorderStyle.solid),
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.border,
+                                  width: 1.5,
+                                  style: BorderStyle.solid,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(
                                 child: GhostButton(
                                   leading: Icon(Symbols.image),
-                                  onPressed: widget.isReadMode ? null : () => _pickImages(ImageSource.gallery, context: context),
+                                  onPressed: widget.isReadMode
+                                      ? null
+                                      : () => _pickImages(ImageSource.gallery, context: context),
                                   child: Text('Adicionar'),
                                 ),
                               ),

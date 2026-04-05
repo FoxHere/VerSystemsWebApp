@@ -4,7 +4,6 @@ import 'package:versystems_app/data/repositories/client/client_repository_impl.d
 import 'package:versystems_app/data/repositories/company/company_repository_impl.dart';
 import 'package:versystems_app/data/services/client/client_services.dart';
 import 'package:versystems_app/data/services/company/company_services.dart';
-import 'package:versystems_app/data/services/settings/settings_services_impl.dart';
 import 'package:versystems_app/ui/modules/client_manager/client_list/client_list_view_model.dart';
 
 class ClientListBindings extends AutoDisposeBindings {
@@ -20,7 +19,6 @@ class ClientListBindings extends AutoDisposeBindings {
     autoLazyPut(
       CompanyRepositoryImpl(
         companyServices: Get.find<CompanyServices>(),
-        settingsServices: Get.find<SettingsServicesImpl>(),
       ),
     );
     autoPut(

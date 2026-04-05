@@ -7,7 +7,6 @@ import 'package:versystems_app/data/repositories/user/user_repository_impl.dart'
 import 'package:versystems_app/data/services/company/company_services.dart';
 import 'package:versystems_app/data/services/department/department_services_impl.dart';
 import 'package:versystems_app/data/services/profile/profile_services_impl.dart';
-import 'package:versystems_app/data/services/settings/settings_services_impl.dart';
 import 'package:versystems_app/data/services/user/user_services_impl.dart';
 import 'package:versystems_app/ui/modules/user_manager/user_form/user_form_view_model.dart';
 
@@ -31,11 +30,9 @@ class UserFormBindings extends AutoDisposeBindings {
     );
     // CompanyRepository para carregar lista de empresas no formulário de usuário
     autoPut(CompanyServices());
-    autoPut(SettingsServicesImpl());
     autoLazyPut(
       CompanyRepositoryImpl(
         companyServices: Get.find<CompanyServices>(),
-        settingsServices: Get.find<SettingsServicesImpl>(),
       ),
     );
     autoLazyPut(
