@@ -1,0 +1,58 @@
+{
+    "items": [
+        {
+            "icon": "dashboard",
+            "name": "Dashboard",
+            "route": "/dashboard",
+            "category": ""
+        },
+        {
+            "icon": "format_list_bulleted",
+            "name": "Gestão de formulários",
+            "route": "/formularies",
+            "category": ""
+        },
+        {
+            "icon": "editor_choice",
+            "name": "Gestão de Atividades",
+            "route": "/activities",
+            "category": ""
+        },
+        {
+            "icon": "fact_check",
+            "name": "Minhas Tarefas",
+            "route": "/tasks",
+            "category": ""
+        },
+        {
+            "icon": "business_center",
+            "name": "Minhas Empresas",
+            "route": "/companies",
+            "category": ""
+        },
+        {
+            "icon": "support_agent",
+            "name": "Clientes",
+            "route": "/clients",
+            "category": ""
+        },
+        {
+            "icon": "group",
+            "name": "Usuários",
+            "route": "/users",
+            "category": ""
+        },
+        {
+            "icon": "category_search",
+            "name": "Departamentos",
+            "route": "/departments",
+            "category": ""
+        },
+        {
+            "icon": "badge",
+            "name": "Perfis",
+            "route": "/profiles",
+            "category": ""
+        }
+    ]
+}

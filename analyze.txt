@@ -1,0 +1,14 @@
+Analyzing versystems_app...
+
+warning - lib\data\repositories\user\user_repository_impl.dart:26:23 - The value of the field '_imageServices' isn't used. Try removing the field, or using it. - unused_field
+warning - lib\ui\modules\client_manager\client_list\client_list_view.dart:13:8 - Unused import: 'package:versystems_app/ui/shared/lists/components/table_columns/tc_description.dart'. Try removing the import directive. - unused_import
+warning - lib\ui\modules\client_manager\client_list\client_list_view.dart:14:8 - Unused import: 'package:versystems_app/ui/shared/lists/components/table_columns/tc_icon_text.dart'. Try removing the import directive. - unused_import
+warning - lib\ui\modules\company_manager\company_list\company_list_view.dart:15:8 - Unused import: 'package:versystems_app/ui/shared/lists/components/table_columns/tc_icon_text.dart'. Try removing the import directive. - unused_import
+warning - lib\ui\modules\dashboard\components\dashboard_quick_actions.dart:2:8 - Unused import: 'package:get/get.dart'. Try removing the import directive. - unused_import
+warning - lib\ui\modules\dashboard\dashboard_view.dart:11:8 - Unused import: 'package:versystems_app/config/utils/app_page_status.dart'. Try removing the import directive. - unused_import
+warning - lib\ui\modules\home\home_view_model.dart:22:26 - The value of the local variable 'items' isn't used. Try removing the variable or using it. - unused_local_variable
+warning - lib\ui\modules\user_manager\user_list\user_list_view.dart:13:8 - Unused import: 'package:versystems_app/ui/shared/lists/components/table_columns/tc_icon_text.dart'. Try removing the import directive. - unused_import
+warning - lib\ui\shared\components\image_picker\image_picker_widget.dart:116:15 - The value of the local variable 'ref' isn't used. Try removing the variable or using it. - unused_local_variable
+   info - lib\ui\modules\fomulary_manager\formulary_form\components\question_widget.dart:54:47 - Unnecessary use of multiple underscores. Try using '_'. - unnecessary_underscores
+
+10 issues found.

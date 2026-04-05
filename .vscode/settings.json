@@ -1,0 +1,10 @@
+{
+  "debug.javascript.autoAttachFilter": "smart",
+  "dart.lineLength": 150,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "dart.flutterSdkPath": ".fvm/versions/3.41.5"
+}

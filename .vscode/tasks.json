@@ -1,0 +1,53 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "functions:tsc:watch",
+        "type": "shell",
+        "isBackground": true,
+        "command": "npm --prefix ./functions run build:watch",
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": "$tsc-watch"
+      },
+      {
+        "label": "firebase:emulators:start",
+        "type": "shell",
+        "isBackground": true,
+        "command": "npx firebase-tools emulators:start --inspect-functions=9229 --import=./emulators_data --export-on-exit=./emulators_data",
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "line": 1,
+                            "column": 1,
+                            "message": 1
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": {
+                            "regexp": "."
+                        },
+                        "endsPattern": {
+                            "regexp": "."
+                        }
+                    }
+                }
+            ]
+      },
+      {
+        "label": "start_firebase_emulator",
+        "dependsOn": ["functions:tsc:watch", "firebase:emulators:start"],
+        "dependsOrder": "parallel",
+        "problemMatcher": []
+      }
+    ]
+  }
+  

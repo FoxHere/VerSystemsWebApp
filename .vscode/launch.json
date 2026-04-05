@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run web",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "chrome",
+            "flutterMode": "debug",
+            "toolArgs": [
+                "--dart-define=DART_VM_OPTIONS=--old_gen_heap_size=2048"
+            ],
+            "args": [
+                "-d",
+                "chrome",
+                "--dart-define-from-file",
+                "./config/env.json"
+            ]
+        },
+        {
+            "name": "Run Emulator & Functions",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "restart": true,
+            "cwd": "${workspaceFolder}/functions",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "preLaunchTask": "start_firebase_emulator",
+            "outFiles": [
+                "${workspaceFolder}/functions/lib/**/*.js"
+            ],
+            "smartStep": true
+        }
+    ]
+}

@@ -1,0 +1,85 @@
+{
+    "items": [
+        {
+            "icon": "dashboard",
+            "initiallyExpanded": false,
+            "level": 1000,
+            "name": "Dashboard",
+            "route": "/dashboard",
+            "subItems": []
+        },
+        {
+            "icon": "format_list_bulleted",
+            "initiallyExpanded": false,
+            "level": 1000,
+            "name": "Gestão de formulários",
+            "route": "/formularies",
+            "subItems": []
+        },
+        {
+            "icon": "editor_choice",
+            "initiallyExpanded": false,
+            "level": 1000,
+            "name": "Gestão de Atividades",
+            "route": "/activities",
+            "subItems": []
+        },
+        {
+            "icon": "fact_check",
+            "initiallyExpanded": false,
+            "level": 1000,
+            "name": "Minhas Tarefas",
+            "route": "/tasks",
+            "subItems": []
+        },
+        {
+            "icon": "checkbook",
+            "initiallyExpanded": false,
+            "level": 1000,
+            "name": "Cadastros",
+            "route": "/tasks",
+            "subItems": [
+                {
+                    "icon": "business_center",
+                    "initiallyExpanded": false,
+                    "level": 1000,
+                    "name": "Minhas Empresas",
+                    "route": "/companies",
+                    "subItems": []
+                },
+                {
+                    "icon": "support_agent",
+                    "initiallyExpanded": false,
+                    "level": 1000,
+                    "name": "Clientes",
+                    "route": "/clients",
+                    "subItems": []
+                },
+                {
+                    "icon": "group",
+                    "initiallyExpanded": false,
+                    "level": 1000,
+                    "name": "Usuários",
+                    "route": "/users",
+                    "subItems": []
+                },
+                {
+                    "icon": "category_search",
+                    "initiallyExpanded": false,
+                    "level": 1000,
+                    "name": "Departamentos",
+                    "route": "/departments",
+                    "subItems": []
+                },
+                {
+                    "icon": "badge",
+                    "initiallyExpanded": false,
+                    "level": 1000,
+                    "name": "Perfis",
+                    "route": "/profiles",
+                    "subItems": []
+                }
+            ]
+        }
+    ]
+}
