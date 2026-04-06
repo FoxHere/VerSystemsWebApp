@@ -93,18 +93,22 @@ class _DashboardViewState extends State<DashboardView> with SingleTickerProvider
   Widget _buildHeader() {
     final userName = authController.localUserModel.value?.name ?? 'Usuário';
     final firstName = userName.split(' ').first;
+    final currentCompany = dashboardViewModel.currentCompanyName.value;
+    final companyText = currentCompany.isNotEmpty ? currentCompany : 'nossa plataforma';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Olá, $firstName!', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: -1)),
-            const SizedBox(height: 4),
-            Text('Aqui está o resumo do seu sistema hoje.', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.mutedForeground)),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Olá $firstName, seja bem-vindo(a) a $companyText!', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: -1)),
+              const SizedBox(height: 4),
+              Text('Aqui está o resumo do seu sistema hoje.', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.mutedForeground)),
+            ],
+          ),
         ),
         OutlineButton(
           onPressed: _refreshDashboard,

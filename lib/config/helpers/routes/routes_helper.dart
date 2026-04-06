@@ -23,4 +23,5 @@ abstract class RoutesHelper {
   static const clientManager = PathsHelper.clients + PathsHelper.manager;
   static const companies = PathsHelper.companies;
   static const companyManager = PathsHelper.companies + PathsHelper.manager;
+  static const switchCompany = PathsHelper.switchCompany;
 }

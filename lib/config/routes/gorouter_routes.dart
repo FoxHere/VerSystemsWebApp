@@ -59,6 +59,9 @@ import 'package:versystems_app/ui/modules/user_manager/user_list/user_list_view.
 import 'package:versystems_app/ui/modules/user_profile/user_profile_bindings.dart';
 import 'package:versystems_app/ui/modules/user_profile/user_profile_view.dart';
 
+import 'package:versystems_app/ui/modules/company_switcher/company_switcher_bindings.dart';
+import 'package:versystems_app/ui/modules/company_switcher/company_switcher_view.dart';
+
 final AuthController authController = Get.find<AuthController>();
 final AppStateController appstateController = Get.find<AppStateController>();
 final ActivityServices activityServices = Get.find<ActivityServices>();
@@ -127,6 +130,19 @@ final GoRouter router = GoRouter(
             : true;
         if (hasCompany) return RoutesHelper.login;
         return null;
+      },
+    ),
+    GoRoute(
+      name: 'switch-company',
+      path: RoutesHelper.switchCompany,
+      builder: (context, state) {
+        return GetBindingsWrapper(
+          binding: CompanySwitcherBindings(),
+          child: const CompanySwitcherView(),
+        );
+      },
+      redirect: (context, state) {
+        return RouteGuard.apply(state, [AuthGuardImpl()]);
       },
     ),
     StatefulShellRoute.indexedStack(

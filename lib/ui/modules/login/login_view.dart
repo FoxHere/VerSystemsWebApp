@@ -19,7 +19,8 @@ class LoginView extends StatefulWidget {
   State<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> with MessageViewMixin, ResponsiveDeviceMixin, SingleTickerProviderStateMixin {
+class _LoginViewState extends State<LoginView>
+    with MessageViewMixin, ResponsiveDeviceMixin, SingleTickerProviderStateMixin {
   final viewModel = Get.find<LoginViewModel>();
   final authController = Get.find<AuthController>();
 
@@ -99,7 +100,7 @@ class _LoginViewState extends State<LoginView> with MessageViewMixin, Responsive
                         validator: EmailValidator(message: 'E-mail inválido'),
                         label: const Text('E-mail'),
                         child: TextField(
-                          initialValue: 'vitor.lima777@gmail.com',
+                          initialValue: 'vflorencio@email.com',
                           autocorrect: true,
                           keyboardType: TextInputType.emailAddress,
                           features: [
@@ -114,7 +115,7 @@ class _LoginViewState extends State<LoginView> with MessageViewMixin, Responsive
                         validator: LengthValidator(min: 8, message: 'Mínimo de 8 caractéres'),
                         label: const Text('Senha'),
                         child: TextField(
-                          initialValue: '123321789',
+                          initialValue: 'Mudar@123',
                           placeholder: Text('••••••••'),
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,
@@ -128,7 +129,9 @@ class _LoginViewState extends State<LoginView> with MessageViewMixin, Responsive
                         builder: (context, error, child) {
                           return Obx(() {
                             final bool isLoading = validatingForm.value;
-                            final Widget icon = isLoading ? CircularProgressIndicator(color: Colors.white) : Icon(Symbols.login, color: Colors.white);
+                            final Widget icon = isLoading
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Icon(Symbols.login, color: Colors.white);
                             final String label = isLoading ? 'Validando...' : 'Entrar';
                             return PrimaryButton(
                               density: ButtonDensity.normal,

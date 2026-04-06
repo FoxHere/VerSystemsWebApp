@@ -219,6 +219,14 @@ class _MyWidgetState extends State<SidebarWidget> {
                               widget.onExpanded(!widget.expanded.value);
                             },
                           ),
+                          if (loggedUser?.isAppAdmin == true)
+                            MenuButton(
+                              leading: const Icon(LucideIcons.building2),
+                              child: const Text('Alternar Empresa'),
+                              onPressed: (ctx) {
+                                ctx.go(RoutesHelper.switchCompany);
+                              },
+                            ),
                           const MenuDivider(),
                           MenuButton(
                             leading: const Icon(Icons.logout),

@@ -219,6 +219,8 @@ class UserModel implements HasModelStatus<UserStatusVisual> {
     updatedAt: updatedAt,
   );
 
+  bool get isAppAdmin => profile.level >= 1000 && profile.name.toLowerCase().contains("administrador");
+
   UserModel copyWith({
     String? id,
     UserStatusEnum? userStatus,

@@ -15,4 +15,5 @@ abstract class PathsHelper {
   static const users = '/users';
   static const clients = '/clients';
   static const companies = '/companies';
+  static const switchCompany = '/switch-company';
 }
