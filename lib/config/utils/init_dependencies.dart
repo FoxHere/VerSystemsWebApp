@@ -30,20 +30,20 @@ import 'package:versystems_app/data/services/user/user_services_impl.dart';
 Future<void> initDependencies() async {
   // -----------------------------------------------Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  String host = '127.0.0.1';
-  if (!kIsWeb && Platform.isAndroid) host = '10.0.2.2'; // Android emulator
+  // String host = '127.0.0.1';
+  //if (!kIsWeb && Platform.isAndroid) host = '10.0.2.2'; // Android emulator
   // Verificar se o app está dem debug mode para usar o firebase local emulator
-  if (kDebugMode) {
-    try {
-      debugPrint('Initializing Firebase emulators...');
-      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
-      await FirebaseStorage.instance.useStorageEmulator(host, 9199);
-      FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-      FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
-    } catch (e) {
-      print(e);
-    }
-  }
+  // if (kDebugMode) {
+  //   try {
+  //     debugPrint('Initializing Firebase emulators...');
+  //     await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+  //     await FirebaseStorage.instance.useStorageEmulator(host, 9199);
+  //     FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+  //     FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   Get.put(ThemeController(), permanent: true);
   // Initial bindings
@@ -58,9 +58,7 @@ Future<void> initDependencies() async {
   Get.put(ImageServices(), permanent: true);
   Get.put(DevServices(), permanent: true);
   Get.put(CompanyServices(), permanent: true);
-  Get.put(CompanyRepositoryImpl(
-    companyServices: Get.find<CompanyServices>(),
-  ), permanent: true);
+  Get.put(CompanyRepositoryImpl(companyServices: Get.find<CompanyServices>()), permanent: true);
   Get.put(FirebaseFunctionsServiceImpl(), permanent: true);
   Get.put(
     AuthRepositoryImpl(
@@ -70,11 +68,7 @@ Future<void> initDependencies() async {
       profileServivesImpl: Get.find<ProfileServicesImpl>(),
     ),
   );
-  Get.put(
-    DashboardFunctionsServiceImpl(
-      firebaseFunctionsService: Get.find<FirebaseFunctionsServiceImpl>(),
-    ),
-  );
+  Get.put(DashboardFunctionsServiceImpl(firebaseFunctionsService: Get.find<FirebaseFunctionsServiceImpl>()));
   Get.put(
     UserRepositoryImpl(
       dashboardFunctionsService: Get.find<DashboardFunctionsServiceImpl>(),

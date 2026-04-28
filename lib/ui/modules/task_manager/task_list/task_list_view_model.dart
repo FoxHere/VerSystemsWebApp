@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:versystems_app/config/constants/boudaries.dart';
 import 'package:versystems_app/config/controllers/auth/auth_controller.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/data/models/activity/activity_status.dart';
@@ -36,7 +37,11 @@ class TaskListViewModel extends BaseViewModel with MessageStateMixin {
   List<ActivityModel> smallScreenFilter(List<ActivityModel> all, int tabIndex) {
     switch (tabIndex) {
       case 0:
-        return all.where((t) => t.activityStatus == ActivityStatusEnum.active || t.activityStatus == ActivityStatusEnum.editing).toList();
+        return all
+            .where(
+              (t) => t.activityStatus == ActivityStatusEnum.active || t.activityStatus == ActivityStatusEnum.editing,
+            )
+            .toList();
       case 1:
         return all.where((t) => t.activityStatus == ActivityStatusEnum.done).toList();
       case 2:
@@ -72,6 +77,7 @@ class TaskListViewModel extends BaseViewModel with MessageStateMixin {
 
   Future<void> findAllTasks(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
+    await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));
     final result = await _taskRepositoryImpl.findAllTasks(filters);
     result.fold(
       (exception) {
@@ -80,7 +86,10 @@ class TaskListViewModel extends BaseViewModel with MessageStateMixin {
       },
       (List<ActivityModel> taskStructure) {
         if (taskStructure.isEmpty) {
-          return pageStatus.value = PageStatusEmpty(title: 'Hora de descansar! ☕', description: 'Não existem nenhuma Tarefa para você nesse momento');
+          return pageStatus.value = PageStatusEmpty(
+            title: 'Hora de descansar! ☕',
+            description: 'Não existem nenhuma Tarefa para você nesse momento',
+          );
         }
         taskModelList.assignAll(taskStructure);
         filteredTaskModelList.assignAll(taskStructure);

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:versystems_app/config/constants/boudaries.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/data/models/activity/activity_status.dart';
 import 'package:versystems_app/config/utils/app_page_status.dart';
@@ -10,7 +11,8 @@ import 'package:versystems_app/ui/modules/task_manager/task_list/task_list_view_
 class ActivityListViewModel extends BaseViewModel with MessageStateMixin {
   final ActivityRepositoryImpl _activityRepository;
 
-  ActivityListViewModel({required ActivityRepositoryImpl activityRepository}) : _activityRepository = activityRepository;
+  ActivityListViewModel({required ActivityRepositoryImpl activityRepository})
+    : _activityRepository = activityRepository;
 
   final activities = RxList<ActivityModel>();
   final filteredActivities = RxList<ActivityModel>();
@@ -52,6 +54,7 @@ class ActivityListViewModel extends BaseViewModel with MessageStateMixin {
 
   Future<void> findAllActivities(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
+    await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));
     final result = await _activityRepository.findAllActivities(filters);
     result.fold(
       (exception) {
@@ -144,7 +147,8 @@ class ActivityListViewModel extends BaseViewModel with MessageStateMixin {
 
   Future<bool> canEditActivity(String activityId) async {
     final activity = activities.firstWhere((activity) => activity.id == activityId);
-    if (activity.activityStatus != ActivityStatusEnum.editing && activity.activityStatus != ActivityStatusEnum.inactive) {
+    if (activity.activityStatus != ActivityStatusEnum.editing &&
+        activity.activityStatus != ActivityStatusEnum.inactive) {
       showWarning('Só é possível editar atividades inativas');
       return false;
     }

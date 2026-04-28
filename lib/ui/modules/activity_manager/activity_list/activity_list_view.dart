@@ -88,7 +88,7 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
             spacing: 5,
             children: [
               Icon(Symbols.person, size: 16, color: Colors.slate),
-              Text(item.responsable?.name ?? '—').xSmall(color: Colors.slate.shade500),
+              Text(item.responsible?.name ?? '—').xSmall(color: Colors.slate.shade500),
             ],
           ),
           cardPosition: (content) => Positioned(
@@ -131,7 +131,11 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
               },
               icon: Symbols.edit_square_rounded,
             ),
-            AppTableColumnActionPress(label: 'Excluir', onPressed: (context) => viewModel.deleteActivity(item.id), icon: Symbols.scan_delete_rounded),
+            AppTableColumnActionPress(
+              label: 'Excluir',
+              onPressed: (context) => viewModel.deleteActivity(item.id),
+              icon: Symbols.scan_delete_rounded,
+            ),
             AppTableColumnSwitchAction(
               label: 'Ativo',
               onPressed: (context) {},

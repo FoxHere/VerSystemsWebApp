@@ -11,7 +11,6 @@ import 'package:versystems_app/config/fp/unit.dart';
 import 'package:versystems_app/config/helpers/firebase/firestore_collections_helper.dart';
 import 'package:versystems_app/config/helpers/firebase/handle_fb_message_helper.dart';
 
-
 class TaskServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   /*
@@ -40,24 +39,25 @@ class TaskServices {
     }
   }
 
-  Future<Either<ServiceException, List<Map<String, dynamic>>>> findAll({
-    Map<String, dynamic>? filters,
-  }) async {
+  Future<Either<ServiceException, List<Map<String, dynamic>>>> findAll({Map<String, dynamic>? filters}) async {
     try {
-      QuerySnapshot snapshot = await _firestore
+      Query query = await _firestore
           .collection(FirestoreCollectionsHelper.branches)
           .doc(AppSessionController.instance.companyId)
           .collection(FirestoreCollectionsHelper.tasks)
-          .get();
-
+          .orderBy('createdAt', descending: true);
+      // --------------------------------------------------------------- filters
+      if (filters?['userId'] != null) {
+        query = query.where('.id', isEqualTo: filters?['userId']);
+      }
+      // --------------------------------------------------------------- Snapshot
+      QuerySnapshot snapshot = await query.get();
       final result = snapshot.docs.where((doc) => doc.data() != null).map((doc) {
         final data = doc.data() as Map<String, dynamic>? ?? {};
         data['id'] = doc.id;
         return data;
       }).toList();
-      if (result.isEmpty) {
-        return Right([]); // Lista vazia explícita
-      }
+
       return Right(result);
     } on FirebaseException catch (e) {
       return Left(ServiceException(message: HandleFbMessageHelper.handleFBException(e)));

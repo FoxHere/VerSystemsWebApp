@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:versystems_app/config/constants/boudaries.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/config/utils/app_page_status.dart';
 import 'package:versystems_app/config/utils/base_view_model.dart';
@@ -21,6 +22,7 @@ class CompanyListViewModel extends BaseViewModel with MessageStateMixin {
 
   Future<void> findAllCompanies(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
+    await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));
     final result = await _companyRepository.findAllCompanies(filters);
     result.fold(
       (exception) {

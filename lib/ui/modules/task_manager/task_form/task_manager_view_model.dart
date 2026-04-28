@@ -52,16 +52,29 @@ class TaskManagerViewModel extends BaseViewModel with MessageStateMixin {
         pageStatus.value = PageStatusSuccess(taskModel.value!);
       },
       (unit) {
+        // Atualiza a lista de tarefas se estiver registrada
         final index = taskListViewModel.taskModelList.indexWhere((task) => task.id == taskModel.value!.id);
         if (index != -1) taskListViewModel.taskModelList[index] = taskModel.value!;
         taskListViewModel.taskModelList.refresh();
-
+        // Atualiza a lista filtrada de tarefas se estiver registrada
+        final filteredIndex = taskListViewModel.filteredTaskModelList.indexWhere(
+          (task) => task.id == taskModel.value!.id,
+        );
+        if (filteredIndex != -1) taskListViewModel.filteredTaskModelList[filteredIndex] = taskModel.value!;
+        taskListViewModel.filteredTaskModelList.refresh();
+        // Atualiza a lista de atividades se estiver registrada
         if (Get.isRegistered<ActivityListViewModel>()) {
           final activityVM = Get.find<ActivityListViewModel>();
           final activityIndex = activityVM.activities.indexWhere((a) => a.id == taskModel.value!.id);
           if (activityIndex != -1) {
             activityVM.activities[activityIndex] = taskModel.value!;
             activityVM.activities.refresh();
+            // Atualiza a lista filtrada de atividades se estiver registrada
+            final filteredActivityIndex = activityVM.filteredActivities.indexWhere((a) => a.id == taskModel.value!.id);
+            if (filteredActivityIndex != -1) {
+              activityVM.filteredActivities[filteredActivityIndex] = taskModel.value!;
+              activityVM.filteredActivities.refresh();
+            }
           }
         }
 

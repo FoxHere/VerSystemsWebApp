@@ -169,9 +169,7 @@ class DevServices {
       log('✅ Empresas normalizadas: $companiesResult');
 
       // 5. Normalizar subcoleções dentro de branches/{companyId}
-      final branchesSnapshot = await _firestore
-          .collection(FirestoreCollectionsHelper.branches)
-          .get();
+      final branchesSnapshot = await _firestore.collection(FirestoreCollectionsHelper.branches).get();
 
       for (final branchDoc in branchesSnapshot.docs) {
         final companyId = branchDoc.id;
@@ -194,7 +192,7 @@ class DevServices {
           dateFields: ['createdAt', 'updatedAt', 'startDateTime', 'endDateTime'],
           nestedDateFields: {
             'formulary': ['createdAt', 'updatedAt'],
-            'responsable': ['createdAt', 'updatedAt'],
+            'responsible': ['createdAt', 'updatedAt'],
             'client': ['createdAt', 'updatedAt'],
           },
         );
@@ -234,9 +232,7 @@ class DevServices {
       log('❌ Erro no Firebase durante normalização: ${e.message}');
       return Left(ServiceException(message: HandleFbMessageHelper.handleFBException(e)));
     } on SocketException catch (_) {
-      return Left(
-        ServiceException(message: 'Sem conexão com a internet. Verifique sua conexão.'),
-      );
+      return Left(ServiceException(message: 'Sem conexão com a internet. Verifique sua conexão.'));
     } catch (e) {
       log('❌ Erro desconhecido durante normalização: $e');
       return Left(ServiceException(message: 'Erro desconhecido durante normalização: $e'));
@@ -244,10 +240,7 @@ class DevServices {
   }
 
   /// Normaliza uma coleção na raiz do Firestore
-  Future<int> _normalizeCollection({
-    required String collectionPath,
-    required List<String> dateFields,
-  }) async {
+  Future<int> _normalizeCollection({required String collectionPath, required List<String> dateFields}) async {
     int normalizedCount = 0;
 
     try {
@@ -319,10 +312,7 @@ class DevServices {
         return 0;
       }
 
-      final collectionRef = _firestore
-          .collection(parentParts[0])
-          .doc(parentParts[1])
-          .collection(collectionName);
+      final collectionRef = _firestore.collection(parentParts[0]).doc(parentParts[1]).collection(collectionName);
 
       final snapshot = await collectionRef.get();
 
@@ -357,8 +347,7 @@ class DevServices {
             final objectKey = entry.key;
             final dateFields = entry.value;
 
-            if (normalizedData.containsKey(objectKey) &&
-                normalizedData[objectKey] is Map<String, dynamic>) {
+            if (normalizedData.containsKey(objectKey) && normalizedData[objectKey] is Map<String, dynamic>) {
               final nestedObject = normalizedData[objectKey] as Map<String, dynamic>;
 
               // Verificar se algum campo de data precisa ser normalizado
@@ -392,8 +381,7 @@ class DevServices {
 
           if (nestedDateFields != null) {
             for (final entry in nestedDateFields.entries) {
-              if (normalizedData.containsKey(entry.key) &&
-                  normalizedData[entry.key] != data[entry.key]) {
+              if (normalizedData.containsKey(entry.key) && normalizedData[entry.key] != data[entry.key]) {
                 updateData[entry.key] = normalizedData[entry.key];
               }
             }

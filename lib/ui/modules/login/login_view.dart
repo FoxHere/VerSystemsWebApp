@@ -100,7 +100,7 @@ class _LoginViewState extends State<LoginView>
                         validator: EmailValidator(message: 'E-mail inválido'),
                         label: const Text('E-mail'),
                         child: TextField(
-                          initialValue: 'vflorencio@email.com',
+                          // initialValue: '',
                           autocorrect: true,
                           keyboardType: TextInputType.emailAddress,
                           features: [
@@ -115,7 +115,7 @@ class _LoginViewState extends State<LoginView>
                         validator: LengthValidator(min: 8, message: 'Mínimo de 8 caractéres'),
                         label: const Text('Senha'),
                         child: TextField(
-                          initialValue: 'Mudar@123',
+                          // initialValue: '',
                           placeholder: Text('••••••••'),
                           obscureText: true,
                           keyboardType: TextInputType.visiblePassword,

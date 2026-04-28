@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:versystems_app/config/constants/boudaries.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/config/utils/app_page_status.dart';
 import 'package:versystems_app/config/utils/base_view_model.dart';
@@ -11,9 +12,11 @@ class ClientListViewModel extends BaseViewModel with MessageStateMixin {
   final ClientRepositoryImpl _clientRepository;
   final CompanyRepositoryImpl _companyRepository;
 
-  ClientListViewModel({required ClientRepositoryImpl clientRepository, required CompanyRepositoryImpl companyRepository})
-    : _clientRepository = clientRepository,
-      _companyRepository = companyRepository;
+  ClientListViewModel({
+    required ClientRepositoryImpl clientRepository,
+    required CompanyRepositoryImpl companyRepository,
+  }) : _clientRepository = clientRepository,
+       _companyRepository = companyRepository;
 
   final clients = RxList<ClientModel>();
   final pageStatus = Rx<PageStatus>(PageStatusIdle());
@@ -27,6 +30,7 @@ class ClientListViewModel extends BaseViewModel with MessageStateMixin {
 
   Future<void> findAllClients(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
+    await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));
     final result = await _clientRepository.findAllClients(filters);
     result.fold(
       (exception) {

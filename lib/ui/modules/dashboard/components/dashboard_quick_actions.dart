@@ -24,7 +24,11 @@ class DashboardQuickActions extends StatelessWidget {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [Icon(LucideIcons.filePlus, size: 16), const SizedBox(width: 8), const Text('Novo Formulário')],
+                children: [
+                  Icon(LucideIcons.filePlus, size: 16),
+                  const SizedBox(width: 8),
+                  const Text('Novo Formulário'),
+                ],
               ),
             ),
             OutlineButton(
@@ -44,7 +48,25 @@ class DashboardQuickActions extends StatelessWidget {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [Icon(LucideIcons.userPlus, size: 16), const SizedBox(width: 8), const Text('Adicionar Membro')],
+                children: [
+                  Icon(LucideIcons.userPlus, size: 16),
+                  const SizedBox(width: 8),
+                  const Text('Adicionar Usuário'),
+                ],
+              ),
+            ),
+            OutlineButton(
+              onPressed: () {
+                // Navigate to manage members
+                context.go(RoutesHelper.clientManager);
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(LucideIcons.building2, size: 16),
+                  const SizedBox(width: 8),
+                  const Text('Adicionar Cliente'),
+                ],
               ),
             ),
           ],

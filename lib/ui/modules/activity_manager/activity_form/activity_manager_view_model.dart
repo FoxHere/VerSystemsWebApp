@@ -12,6 +12,9 @@ import 'package:versystems_app/data/models/client/client_model.dart';
 import 'package:versystems_app/data/models/formulary/formulary_model.dart';
 import 'package:versystems_app/data/models/user/user_model.dart';
 import 'package:versystems_app/data/models/activity/activity_model.dart';
+import 'package:versystems_app/data/models/user/user_status.dart';
+import 'package:versystems_app/data/models/formulary/formulary_status_enum.dart';
+import 'package:versystems_app/data/models/client/client_status.dart';
 import 'package:versystems_app/config/exceptions/repository_exception.dart';
 import 'package:versystems_app/ui/modules/task_manager/task_list/task_list_view_model.dart';
 
@@ -76,7 +79,7 @@ class ActivityManagerViewModel extends BaseViewModel with MessageStateMixin {
         },
         (List<ClientModel> clientModelList) {
           if (clientModelList.isNotEmpty) {
-            availableClientsList.value = clientModelList;
+            availableClientsList.value = clientModelList.where((c) => c.clientStatus == ClientStatusEnum.active).toList();
           }
         },
       );
@@ -96,7 +99,7 @@ class ActivityManagerViewModel extends BaseViewModel with MessageStateMixin {
         },
         (List<UserModel> userModelList) {
           if (userModelList.isNotEmpty) {
-            availableUsersList.value = userModelList;
+            availableUsersList.value = userModelList.where((u) => u.userStatus == UserStatusEnum.active).toList();
           }
         },
       );
@@ -116,7 +119,7 @@ class ActivityManagerViewModel extends BaseViewModel with MessageStateMixin {
         },
         (List<FormularyModel> formularyModelList) {
           if (formularyModelList.isNotEmpty) {
-            availableFormularyList.value = formularyModelList;
+            availableFormularyList.value = formularyModelList.where((f) => f.formStatus == FormStatusEnum.active).toList();
           }
         },
       );

@@ -19,7 +19,7 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
     this.formulary,
     required this.startDateTime,
     required this.endDateTime,
-    this.responsable,
+    this.responsible,
     this.client,
     required this.createdAt,
     required this.updatedAt,
@@ -38,7 +38,7 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
   FormularyModel? formulary;
   DateTime startDateTime;
   DateTime endDateTime;
-  UserModel? responsable;
+  UserModel? responsible;
   ClientModel? client;
   DateTime? createdAt;
   DateTime? updatedAt;
@@ -53,9 +53,13 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
       name: json['name'],
       instructions: json['instructions'],
       formulary: FormularyModel.fromJson(json['formulary']),
-      startDateTime: json['startDateTime'] is Timestamp ? json['startDateTime'].toDate() : DateTime.parse(json['startDateTime']),
-      endDateTime: json['endDateTime'] is Timestamp ? json['endDateTime'].toDate() : DateTime.parse(json['endDateTime']),
-      responsable: UserModel.fromJson(json['responsable']),
+      startDateTime: json['startDateTime'] is Timestamp
+          ? json['startDateTime'].toDate()
+          : DateTime.parse(json['startDateTime']),
+      endDateTime: json['endDateTime'] is Timestamp
+          ? json['endDateTime'].toDate()
+          : DateTime.parse(json['endDateTime']),
+      responsible: UserModel.fromJson(json['responsible']),
       client: json['client'] != null ? ClientModel.fromJson(json['client']) : null,
       createdAt: createdAtRaw is Timestamp ? createdAtRaw.toDate() : DateTime.parse(createdAtRaw),
       updatedAt: updatedAtRaw is Timestamp ? updatedAtRaw.toDate() : DateTime.parse(updatedAtRaw),
@@ -64,7 +68,7 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
 
   factory ActivityModel.empty() => ActivityModel(
     id: '',
-    activityStatus: ActivityStatusEnum.inactive,
+    activityStatus: ActivityStatusEnum.active,
     name: '',
     instructions: '',
     formulary: null,
@@ -81,7 +85,7 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
       'name': name,
       'instructions': instructions,
       'formulary': formulary?.toJson(),
-      'responsable': responsable?.toJson(),
+      'responsible': responsible?.toJson(),
       'client': client?.toJson(),
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
@@ -97,7 +101,7 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
       'name': name,
       'instructions': instructions,
       'formulary': formulary?.toJsonForFirebase(),
-      'responsable': responsable?.toJsonForFirebase(),
+      'responsible': responsible?.toJsonForFirebase(),
       'client': client?.toJsonForFirebase(),
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
@@ -114,7 +118,7 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
     FormularyModel? formulary,
     DateTime? startDateTime,
     DateTime? endDateTime,
-    UserModel? responsable,
+    UserModel? responsible,
     ClientModel? client,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -127,7 +131,7 @@ class ActivityModel implements HasModelStatus<ActivityStatusVisual> {
       formulary: formulary ?? this.formulary,
       startDateTime: startDateTime ?? this.startDateTime,
       endDateTime: endDateTime ?? this.endDateTime,
-      responsable: responsable ?? this.responsable,
+      responsible: responsible ?? this.responsible,
       client: client ?? this.client,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

@@ -7,7 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import { setGlobalOptions } from "firebase-functions/v2";
+import {setGlobalOptions} from "firebase-functions/v2";
 
 // import { onRequest } from "firebase-functions/https";
 // import * as logger from "firebase-functions/logger";
@@ -25,19 +25,19 @@ import { setGlobalOptions } from "firebase-functions/v2";
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({maxInstances: 10});
 
 // export const helloWorld = onRequest((request, response) => {
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { onDocumentCreated, onDocumentUpdated, onDocumentDeleted } from "firebase-functions/v2/firestore";
-import { initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
+import {onCall, HttpsError} from "firebase-functions/v2/https";
+import {onDocumentCreated, onDocumentUpdated, onDocumentDeleted} from "firebase-functions/v2/firestore";
+import {initializeApp} from "firebase-admin/app";
+import {getAuth} from "firebase-admin/auth";
+import {getFirestore} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import { getStorage } from "firebase-admin/storage";
+import {getStorage} from "firebase-admin/storage";
 
 initializeApp();
 
@@ -51,11 +51,9 @@ type CreateAuthUserPayload = {
 };
 
 export const createAuthUser = onCall(async (request) => {
-
   const auth = request.auth;
-  const { isFirstUser } = request.data as { isFirstUser: boolean };
+  const {isFirstUser} = request.data as { isFirstUser: boolean };
   if (!isFirstUser) {
-
     if (!auth || auth.token?.admin !== true) {
       throw new HttpsError(
         "permission-denied",
@@ -64,7 +62,7 @@ export const createAuthUser = onCall(async (request) => {
     }
   }
   try {
-    const { email, password, displayName, customClaims } =
+    const {email, password, displayName, customClaims} =
       (request.data.userModel as CreateAuthUserPayload) ?? {};
 
     if (!email) throw new HttpsError("invalid-argument", "Email is required.");
@@ -80,7 +78,7 @@ export const createAuthUser = onCall(async (request) => {
       await getAuth().setCustomUserClaims(user.uid, customClaims);
     }
     await changeUserDisabled(user.uid, false);
-    return { uid: user.uid };
+    return {uid: user.uid};
   } catch (e: any) {
     throw new HttpsError("internal", e?.message || "Error creating user.");
   }
@@ -96,18 +94,18 @@ export const deleteAuthUser = onCall(async (request) => {
   }
 
   try {
-    const { uid } = request.data as { uid: string };
+    const {uid} = request.data as { uid: string };
 
     if (!uid) throw new HttpsError("invalid-argument", "User ID is required");
     await getAuth().deleteUser(uid);
-    return { success: true };
+    return {success: true};
   } catch (e: any) {
     throw new HttpsError("internal", e?.message || "Error deleting user");
   }
 });
 
 async function changeUserDisabled(uid: string, disabled: boolean) {
-  await getAuth().updateUser(uid, { disabled });
+  await getAuth().updateUser(uid, {disabled});
 }
 
 export const changeAuthUser = onCall(async (request) => {
@@ -119,11 +117,11 @@ export const changeAuthUser = onCall(async (request) => {
     );
   }
   try {
-    const { uid, disabled } = request.data as { uid: string, disabled: boolean };
+    const {uid, disabled} = request.data as { uid: string, disabled: boolean };
     if (!uid) throw new HttpsError("invalid-argument", "User ID is required");
     await changeUserDisabled(uid, disabled);
 
-    return { success: true };
+    return {success: true};
   } catch (e: any) {
     throw new HttpsError("internal", e?.message || "Error changing user");
   }
@@ -138,7 +136,7 @@ export const updateDashboardOnActivityChange = onDocumentCreated(
   "branches/{companyId}/activities/{activityId}",
   async (event) => {
     const companyId = event.params.companyId;
-    logger.info("Activity created, updating dashboard", { activityId: event.params.activityId });
+    logger.info("Activity created, updating dashboard", {activityId: event.params.activityId});
     await updateDashboardActivities(companyId);
     await updateDashboardPendentTasks(companyId);
   }
@@ -147,7 +145,7 @@ export const updateDashboardOnActivityChange = onDocumentCreated(
 export const updateDashboardOnActivityUpdate = onDocumentUpdated(
   "branches/{companyId}/activities/{activityId}",
   async (event) => {
-    logger.info("Activity updated, updating dashboard", { activityId: event.params.activityId });
+    logger.info("Activity updated, updating dashboard", {activityId: event.params.activityId});
     const companyId = event.params.companyId;
     await updateDashboardActivities(companyId);
     await updateDashboardPendentTasks(companyId);
@@ -157,7 +155,7 @@ export const updateDashboardOnActivityUpdate = onDocumentUpdated(
 export const updateDashboardOnActivityDelete = onDocumentDeleted(
   "branches/{companyId}/activities/{activityId}",
   async (event) => {
-    logger.info("Activity deleted, updating dashboard", { activityId: event.params.activityId });
+    logger.info("Activity deleted, updating dashboard", {activityId: event.params.activityId});
     const companyId = event.params.companyId;
     const taskId = event.params.activityId;
 
@@ -173,7 +171,7 @@ export const updateDashboardOnActivityDelete = onDocumentDeleted(
 export const updateDashboardOnFormularyChange = onDocumentCreated(
   "branches/{companyId}/formularies/{formularyId}",
   async (event) => {
-    logger.info("Formulary created, updating dashboard", { formularyId: event.params.formularyId });
+    logger.info("Formulary created, updating dashboard", {formularyId: event.params.formularyId});
     const companyId = event.params.companyId;
     await updateDashboardFormularies(companyId);
   }
@@ -182,7 +180,7 @@ export const updateDashboardOnFormularyChange = onDocumentCreated(
 export const updateDashboardOnFormularyUpdate = onDocumentUpdated(
   "branches/{companyId}/formularies/{formularyId}",
   async (event) => {
-    logger.info("Formulary updated, updating dashboard", { formularyId: event.params.formularyId });
+    logger.info("Formulary updated, updating dashboard", {formularyId: event.params.formularyId});
     const companyId = event.params.companyId;
     await updateDashboardFormularies(companyId);
   }
@@ -191,7 +189,7 @@ export const updateDashboardOnFormularyUpdate = onDocumentUpdated(
 export const updateDashboardOnFormularyDelete = onDocumentDeleted(
   "branches/{companyId}/formularies/{formularyId}",
   async (event) => {
-    logger.info("Formulary deleted, updating dashboard", { formularyId: event.params.formularyId });
+    logger.info("Formulary deleted, updating dashboard", {formularyId: event.params.formularyId});
     const companyId = event.params.companyId;
     await updateDashboardFormularies(companyId);
   }
@@ -204,7 +202,7 @@ export const updateDashboardOnUserChange = onDocumentCreated(
   "branches/{companyId}/users/{userId}",
   async (event) => {
     const companyId = event.params.companyId;
-    logger.info("User created, updating dashboard", { userId: event.params.userId });
+    logger.info("User created, updating dashboard", {userId: event.params.userId});
     await updateDashboardMembers(companyId);
     await updateDashboardPendentTasks(companyId);
   }
@@ -214,7 +212,7 @@ export const updateDashboardOnUserUpdate = onDocumentUpdated(
   "branches/{companyId}/users/{userId}",
   async (event) => {
     const companyId = event.params.companyId;
-    logger.info("User updated, updating dashboard", { userId: event.params.userId });
+    logger.info("User updated, updating dashboard", {userId: event.params.userId});
     await updateDashboardMembers(companyId);
     await updateDashboardPendentTasks(companyId);
   }
@@ -224,7 +222,7 @@ export const updateDashboardOnUserDelete = onDocumentDeleted(
   "branches/{companyId}/users/{userId}",
   async (event) => {
     const companyId = event.params.companyId;
-    logger.info("User deleted, updating dashboard", { userId: event.params.userId });
+    logger.info("User deleted, updating dashboard", {userId: event.params.userId});
     await updateDashboardMembers(companyId);
     await updateDashboardPendentTasks(companyId);
   }
@@ -246,7 +244,7 @@ export const initializeDashboard = onCall(async (request) => {
     );
   }
 
-  const { companyId } = request.data;
+  const {companyId} = request.data;
   if (!companyId) {
     throw new HttpsError("invalid-argument", "Company ID is required");
   }
@@ -260,7 +258,7 @@ export const initializeDashboard = onCall(async (request) => {
     await updateDashboardPendentTasks(companyId);
 
     logger.info("Dashboard initialized successfully");
-    return { success: true, message: "Dashboard initialized successfully" };
+    return {success: true, message: "Dashboard initialized successfully"};
   } catch (error) {
     logger.error("Error initializing dashboard", error);
     throw new HttpsError("internal", "Error initializing dashboard");
@@ -273,8 +271,8 @@ async function deleteTaskImages(companyId: string) {
     const folder = `tasks/${companyId}`;
 
     // Deleta todas as imagens da pasta
-    await bucket.deleteFiles({ prefix: folder });
-    logger.info("Task images deleted successfully", { folder });
+    await bucket.deleteFiles({prefix: folder});
+    logger.info("Task images deleted successfully", {folder});
   } catch (error) {
     logger.error("Error deleting task images", error);
     throw error;
@@ -292,7 +290,7 @@ async function updateDashboardActivities(companyId: string) {
 
     let total = 0;
     let totalThisMonth = 0;
-    let profile = 0;
+    const profile = 0;
 
     activitiesSnapshot.forEach((doc) => {
       const data = doc.data();
@@ -315,7 +313,7 @@ async function updateDashboardActivities(companyId: string) {
       total_this_month: totalThisMonth,
     });
 
-    logger.info("Dashboard activities updated", { total, totalThisMonth, profile });
+    logger.info("Dashboard activities updated", {total, totalThisMonth, profile});
   } catch (error) {
     logger.error("Error updating dashboard activities", error);
     throw error;
@@ -333,7 +331,7 @@ async function updateDashboardFormularies(companyId: string) {
 
     let total = 0;
     let totalThisMonth = 0;
-    let profile = 0;
+    const profile = 0;
 
     formulariesSnapshot.forEach((doc) => {
       const data = doc.data();
@@ -356,7 +354,7 @@ async function updateDashboardFormularies(companyId: string) {
       total_this_month: totalThisMonth,
     });
 
-    logger.info("Dashboard formularies updated", { total, totalThisMonth, profile });
+    logger.info("Dashboard formularies updated", {total, totalThisMonth, profile});
   } catch (error) {
     logger.error("Error updating dashboard formularies", error);
     throw error;
@@ -368,13 +366,13 @@ async function updateDashboardFormularies(companyId: string) {
  */
 async function updateDashboardMembers(companyId: string) {
   try {
-    const usersSnapshot = await db.collection(`users`).get();
+    const usersSnapshot = await db.collection("users").get();
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     let total = 0;
     let totalThisMonth = 0;
-    let profile = 0;
+    const profile = 0;
 
     usersSnapshot.forEach((doc) => {
       const data = doc.data();
@@ -397,7 +395,7 @@ async function updateDashboardMembers(companyId: string) {
       total_this_month: totalThisMonth,
     });
 
-    logger.info("Dashboard members updated", { total, totalThisMonth, profile });
+    logger.info("Dashboard members updated", {total, totalThisMonth, profile});
   } catch (error) {
     logger.error("Error updating dashboard members", error);
     throw error;
@@ -420,12 +418,12 @@ async function updateDashboardPendentTasks(companyId: string) {
       const data = doc.data();
 
       // Verifica se a atividade tem um responsável e está ativa
-      if (data.responsable && data.responsable.id && data.status === 'active') {
-        const userId = data.responsable.id;
+      if (data.responsible && data.responsible.id && data.status === "active") {
+        const userId = data.responsible.id;
 
         // Inicializa o usuário no mapa se não existir
         if (!usersMap.has(userId)) {
-          usersMap.set(userId, { total: 0, totalThisMonth: 0, profile: 0 });
+          usersMap.set(userId, {total: 0, totalThisMonth: 0, profile: 0});
         }
 
         const userStats = usersMap.get(userId)!;
@@ -437,7 +435,7 @@ async function updateDashboardPendentTasks(companyId: string) {
         }
 
         // Conta atividades com perfil específico (ajuste conforme sua lógica)
-        // if (data.responsable.profile) {
+        // if (data.responsible.profile) {
         //   userStats.profile++;
         //   totalProfile++;
         // }
@@ -462,7 +460,7 @@ async function updateDashboardPendentTasks(companyId: string) {
     logger.info("Dashboard pendentTasks updated", {
       totalUsers: usersMap.size,
       totalProfile: 0,
-      users: Object.keys(usersObject)
+      users: Object.keys(usersObject),
     });
   } catch (error) {
     logger.error("Error updating dashboard pendentTasks", error);
@@ -481,10 +479,10 @@ async function updateDashboardField(companyId: string, fieldName: string, data: 
     if (!dashboardDoc.exists) {
       // Se o documento não existe, cria com estrutura vazia
       await dashboardRef.set({
-        formularies: { profile: 1000, total: 0, total_this_month: 0 },
-        activities: { profile: 1000, total: 0, total_this_month: 0 },
-        pendentTasks: { profile: 0, users: {} },
-        members: { profile: 1000, total: 0, total_this_month: 0 },
+        formularies: {profile: 1000, total: 0, total_this_month: 0},
+        activities: {profile: 1000, total: 0, total_this_month: 0},
+        pendentTasks: {profile: 0, users: {}},
+        members: {profile: 1000, total: 0, total_this_month: 0},
       });
     }
 

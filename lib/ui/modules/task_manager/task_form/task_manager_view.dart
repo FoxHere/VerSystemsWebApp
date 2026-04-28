@@ -149,7 +149,7 @@ class _FormExecViewState extends State<TaskManagerView> with SingleTickerProvide
                                   final formState = formWidgetKey.currentState;
                                   if (formState != null && formState.validateForm()) {
                                     final activityForm = formState.formStructure;
-                                    await taskManagerViewModel.saveTaskForm(activityForm, ActivityStatusEnum.editing);
+                                    await taskManagerViewModel.saveTaskForm(activityForm, ActivityStatusEnum.done);
                                     if (taskManagerViewModel.pageStatus.value is PageStatusSuccess && context.mounted) {
                                       context.go(RoutesHelper.tasks);
                                     }

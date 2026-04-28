@@ -38,9 +38,7 @@ class ActivityServices {
     }
   }
 
-  Future<Either<ServiceException, List<Map<String, dynamic>>>> findOneByFormulary(
-    String formularyId,
-  ) async {
+  Future<Either<ServiceException, List<Map<String, dynamic>>>> findOneByFormulary(String formularyId) async {
     try {
       QuerySnapshot snapshot = await _firestore
           .collection(FirestoreCollectionsHelper.branches)
@@ -61,24 +59,24 @@ class ActivityServices {
     }
   }
 
-  Future<Either<ServiceException, List<Map<String, dynamic>>>> findAll({
-    Map<String, dynamic>? filters,
-  }) async {
+  Future<Either<ServiceException, List<Map<String, dynamic>>>> findAll({Map<String, dynamic>? filters}) async {
     try {
       // --------------------------------------------------------------- Query
-      Query query = _firestore
+      Query<Map<String, dynamic>> query = _firestore
           .collection(FirestoreCollectionsHelper.branches)
           .doc(AppSessionController.instance.companyId)
-          .collection(FirestoreCollectionsHelper.activities)
-          .orderBy('createdAt', descending: true);
+          .collection(FirestoreCollectionsHelper.activities);
 
       // --------------------------------------------------------------- filters
       if (filters?['userId'] != null) {
-        query = query.where('responsable.id', isEqualTo: filters?['userId']);
+        query = query.where('responsible.id', isEqualTo: filters?['userId']);
       }
+      // --------------------------------------------------------------- Order
+      query = query.orderBy('createdAt', descending: true);
 
       // --------------------------------------------------------------- Snapshot
       QuerySnapshot snapshot = await query.get();
+
       final result = snapshot.docs.where((doc) => doc.data() != null).map((doc) {
         final data = doc.data() as Map<String, dynamic>? ?? {};
         data['id'] = doc.id;
@@ -87,6 +85,8 @@ class ActivityServices {
 
       return Right(result);
     } on FirebaseException catch (e) {
+      log('FirebaseException code: ${e.code}');
+      log('FirebaseException message: ${e.message}');
       return Left(ServiceException(message: HandleFbMessageHelper.handleFBException(e)));
     } on SocketException catch (_) {
       return Left(ServiceException(message: 'Sem conexão com a internet. Verifique sua conexão.'));
@@ -147,9 +147,7 @@ class ActivityServices {
     }
   }
 
-  Future<Either<ServiceException, Unit>> updateActivityStatus(
-    Map<String, dynamic> activity,
-  ) async {
+  Future<Either<ServiceException, Unit>> updateActivityStatus(Map<String, dynamic> activity) async {
     try {
       await _firestore
           .collection(FirestoreCollectionsHelper.branches)

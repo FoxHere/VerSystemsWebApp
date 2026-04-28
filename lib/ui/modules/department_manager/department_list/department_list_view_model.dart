@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:versystems_app/config/constants/boudaries.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/config/utils/app_page_status.dart';
 import 'package:versystems_app/config/utils/base_view_model.dart';
@@ -8,7 +9,8 @@ import 'package:versystems_app/data/repositories/department/department_repositor
 class DepartmentListViewModel extends BaseViewModel with MessageStateMixin {
   final DepartmentRepositoryImpl _departmentRepository;
 
-  DepartmentListViewModel({required DepartmentRepositoryImpl departmentRepository}) : _departmentRepository = departmentRepository;
+  DepartmentListViewModel({required DepartmentRepositoryImpl departmentRepository})
+    : _departmentRepository = departmentRepository;
 
   final departmentList = <DepartmentModel>[].obs;
   final pageStatus = Rx<PageStatus>(PageStatusIdle());
@@ -21,7 +23,7 @@ class DepartmentListViewModel extends BaseViewModel with MessageStateMixin {
 
   Future<void> findAllDepartments(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));
     final result = await _departmentRepository.findAllDepartments(filters);
     result.fold(
       (exception) {

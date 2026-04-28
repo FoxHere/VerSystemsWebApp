@@ -86,7 +86,7 @@ pw.Widget buildHeader(FxPdfStyles styles, ActivityModel data, pw.MemoryImage? lo
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _infoRow('Responsável', data.responsable?.name ?? '-'),
+                  _infoRow('Responsável', data.responsible?.name ?? '-'),
                   pw.SizedBox(height: 4),
                   _infoRow('Cliente', data.client?.name ?? '-'),
                 ],
@@ -215,12 +215,12 @@ Future<List<pw.Widget>> buildBody(ActivityModel data, FxPdfStyles styles) async 
 Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
   // Trata campo de resposta antigo (string) e nova estrutura
   final String textResponse = question.response?.toString().trim() ?? '';
-  
+
   // Assinatura
   if (question.questionType == 'signatureInput') {
     try {
       pw.ImageProvider? imageProvider;
-      
+
       // 1. Tenta obter do model signatureResponse
       final sig = question.signatureResponse;
       if (sig != null) {
@@ -230,7 +230,7 @@ Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
           imageProvider = pw.MemoryImage(sig.bytes);
         }
       }
-      
+
       // 2. Tenta do imagesResponse caso esteja usando imagens genericas para assinatura
       if (imageProvider == null && question.imagesResponse != null && question.imagesResponse!.isNotEmpty) {
         final img = question.imagesResponse!.first;
@@ -240,12 +240,12 @@ Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
           imageProvider = pw.MemoryImage(img.bytes);
         }
       }
-      
+
       // 3. Fallback pra string antiga
       if (imageProvider == null && textResponse.isNotEmpty) {
         imageProvider = await networkImage(textResponse);
       }
-      
+
       if (imageProvider != null) {
         return pw.Container(
           height: 60,
@@ -253,7 +253,10 @@ Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
           child: pw.Image(imageProvider, fit: pw.BoxFit.contain),
         );
       } else {
-        return pw.Text('Sem assinatura', style: pw.TextStyle(fontSize: 11, color: PdfColors.grey500, fontStyle: pw.FontStyle.italic));
+        return pw.Text(
+          'Sem assinatura',
+          style: pw.TextStyle(fontSize: 11, color: PdfColors.grey500, fontStyle: pw.FontStyle.italic),
+        );
       }
     } catch (_) {
       return pw.Text('[Erro ao carregar assinatura]', style: const pw.TextStyle(color: PdfColors.red));
@@ -264,16 +267,16 @@ Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
   if (question.questionType == 'imagePickerInput') {
     bool hasImages = (question.imagesResponse != null && question.imagesResponse!.isNotEmpty);
     bool hasStringUrls = textResponse.isNotEmpty;
-    
+
     if (!hasImages && !hasStringUrls) {
       return pw.Text(
         'Sem resposta',
         style: pw.TextStyle(fontSize: 11, color: PdfColors.grey500, fontStyle: pw.FontStyle.italic),
       );
     }
-    
+
     List<pw.Widget> imageWidgets = [];
-    
+
     if (hasImages) {
       for (var img in question.imagesResponse!) {
         final imageName = img.name.isNotEmpty ? img.name : 'Imagem';
@@ -284,34 +287,30 @@ Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
           } else if (img.bytes.isNotEmpty) {
             imageProvider = pw.MemoryImage(img.bytes);
           }
-          
+
           if (imageProvider != null) {
             imageWidgets.add(_buildImageContainer(imageProvider, imageName));
           }
         } catch (_) {
-           imageWidgets.add(_buildImageErrorContainer());
+          imageWidgets.add(_buildImageErrorContainer());
         }
       }
     } else if (hasStringUrls) {
       // Fallback para string separada por ';'
       final imagesUrls = textResponse.split(';').where((e) => e.isNotEmpty).toList();
       for (var img in imagesUrls) {
-         final uriParts = img.split('?').first.split('_');
-         final imageName = uriParts.isNotEmpty ? Uri.decodeFull(uriParts.last) : 'Imagem';
-         try {
-           final imageProvider = await networkImage(img);
-           imageWidgets.add(_buildImageContainer(imageProvider, imageName));
-         } catch (_) {
-            imageWidgets.add(_buildImageErrorContainer());
-         }
+        final uriParts = img.split('?').first.split('_');
+        final imageName = uriParts.isNotEmpty ? Uri.decodeFull(uriParts.last) : 'Imagem';
+        try {
+          final imageProvider = await networkImage(img);
+          imageWidgets.add(_buildImageContainer(imageProvider, imageName));
+        } catch (_) {
+          imageWidgets.add(_buildImageErrorContainer());
+        }
       }
     }
-    
-    return pw.Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: imageWidgets,
-    );
+
+    return pw.Wrap(spacing: 12, runSpacing: 12, children: imageWidgets);
   }
 
   // Texto normal

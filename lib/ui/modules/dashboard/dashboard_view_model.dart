@@ -22,7 +22,7 @@ class DashboardViewModel extends BaseViewModel with MessageStateMixin {
     pageStatus.value = PageStatusLoading();
 
     /// Aqui precisaremos colocar um tipo de limitador para atualizar o dashboard a cada x minutos
-    await _maybeUpdateBackgroundDashboard();
+    _maybeUpdateBackgroundDashboard();
 
     // Fetch company name
     final companyId = AppSessionController.instance.companyId;

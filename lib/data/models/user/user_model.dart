@@ -69,8 +69,12 @@ class UserModel implements HasModelStatus<UserStatusVisual> {
       emails: _parseStringList(emailsRaw),
       cellphones: _parseStringList(cellphonesRaw),
       telephones: _parseStringList(telephonesRaw),
-      department: DepartmentModel.fromJson(json['department']),
-      profile: ProfileModel.fromJson(json['profile']),
+      department: json['department'] is Map
+          ? DepartmentModel.fromJson(Map<String, dynamic>.from(json['department']))
+          : DepartmentModel.empty().copyWith(id: json['department'] is String ? json['department'] : ''),
+      profile: json['profile'] is Map
+          ? ProfileModel.fromJson(Map<String, dynamic>.from(json['profile']))
+          : ProfileModel.empty().copyWith(id: json['profile'] is String ? json['profile'] : ''),
       company: json['company'],
       profileImage: ImageItemModel.fromFirebase(json['profileImage']),
       cpf: json['cpf'],

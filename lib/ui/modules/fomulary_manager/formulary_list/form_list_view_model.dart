@@ -52,6 +52,7 @@ class FormListViewModel extends BaseViewModel with MessageStateMixin {
 
   Future<Unit> findAllFormulary(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
+    await Future.delayed(const Duration(seconds: 2));
     final result = await _formularyRepository.findAllFormularies();
     result.fold(
       (exception) {

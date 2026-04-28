@@ -32,7 +32,7 @@ class ActivityFormState extends State<ActivityForm> {
   final _instructionsKey = const FormKey<String>(#instructions);
   final _startDateKey = const FormKey<DateTime>(#startDate);
   final _endDateKey = const FormKey<DateTime>(#endDate);
-  final _responsableKey = const FormKey<UserModel>(#responsable);
+  final _responsibleKey = const FormKey<UserModel>(#responsible);
   final _formularyKey = const FormKey<FormularyModel>(#formulary);
   final _clientKey = const FormKey<ClientModel>(#client);
 
@@ -56,7 +56,7 @@ class ActivityFormState extends State<ActivityForm> {
       instructions: _formController.getValue(_instructionsKey) ?? widget.model.instructions,
       startDateTime: _formController.getValue(_startDateKey) ?? widget.model.startDateTime,
       endDateTime: _formController.getValue(_endDateKey) ?? widget.model.endDateTime,
-      responsable: _formController.getValue(_responsableKey) ?? widget.model.responsable,
+      responsible: _formController.getValue(_responsibleKey) ?? widget.model.responsible,
       formulary: _formController.getValue(_formularyKey) ?? widget.model.formulary,
       client: _formController.getValue(_clientKey) ?? widget.model.client,
       createdAt: widget.model.createdAt,
@@ -80,7 +80,10 @@ class ActivityFormState extends State<ActivityForm> {
                   key: _nameKey,
                   label: const Text('Nome da Atividade'),
                   validator: const NotEmptyValidator(message: 'Nome da Atividade é obrigatório'),
-                  child: TextField(initialValue: widget.model.name, placeholder: const Text('Digite o nome da atividade...')),
+                  child: TextField(
+                    initialValue: widget.model.name,
+                    placeholder: const Text('Digite o nome da atividade...'),
+                  ),
                 ).paddingOnly(bottom: 24),
               ),
             ],
@@ -172,24 +175,22 @@ class ActivityFormState extends State<ActivityForm> {
             children: [
               Expanded(
                 child: FormField<UserModel>(
-                  key: _responsableKey,
+                  key: _responsibleKey,
                   label: const Text('Responsável'),
                   validator: const NonNullValidator(message: 'Responsável é obrigatório'),
                   child: Select<UserModel>(
-                    value: widget.model.responsable,
+                    value: widget.model.responsible,
                     placeholder: const Text('Selecione um usuário'),
                     onChanged: (user) {
                       setState(() {
-                        widget.model.responsable = user;
+                        widget.model.responsible = user;
                       });
                     },
                     itemBuilder: (context, user) => Text(user.name),
                     popup: (context) => SelectPopup.builder(
                       searchPlaceholder: const Text('Pesquisar responsável...'),
-                      emptyBuilder: (context) => const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text('Nenhum responsável encontrado'),
-                      ),
+                      emptyBuilder: (context) =>
+                          const Padding(padding: EdgeInsets.all(16.0), child: Text('Nenhum responsável encontrado')),
                       builder: (context, searchQuery) {
                         final query = searchQuery?.toLowerCase() ?? '';
                         final filtered = widget.availableUsersList
@@ -221,10 +222,8 @@ class ActivityFormState extends State<ActivityForm> {
                     },
                     popup: (context) => SelectPopup.builder(
                       searchPlaceholder: const Text('Pesquisar formulário...'),
-                      emptyBuilder: (context) => const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text('Nenhum formulário encontrado'),
-                      ),
+                      emptyBuilder: (context) =>
+                          const Padding(padding: EdgeInsets.all(16.0), child: Text('Nenhum formulário encontrado')),
                       builder: (context, searchQuery) {
                         final query = searchQuery?.toLowerCase() ?? '';
                         final filtered = widget.availableFormularyList
@@ -260,10 +259,8 @@ class ActivityFormState extends State<ActivityForm> {
                     },
                     popup: (context) => SelectPopup.builder(
                       searchPlaceholder: const Text('Pesquisar cliente...'),
-                      emptyBuilder: (context) => const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text('Nenhum cliente encontrado'),
-                      ),
+                      emptyBuilder: (context) =>
+                          const Padding(padding: EdgeInsets.all(16.0), child: Text('Nenhum cliente encontrado')),
                       builder: (context, searchQuery) {
                         final query = searchQuery?.toLowerCase() ?? '';
                         final filtered = widget.availableClientsList

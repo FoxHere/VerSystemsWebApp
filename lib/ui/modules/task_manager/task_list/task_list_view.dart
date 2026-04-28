@@ -96,7 +96,7 @@ class _TaskListViewState extends State<TaskListView> with MessageViewMixin, Resp
             spacing: 5,
             children: [
               Icon(Symbols.person, size: 16, color: Colors.slate),
-              Text(item.responsable?.name ?? '—').xSmall(color: Colors.slate.shade500),
+              Text(item.responsible?.name ?? '—').xSmall(color: Colors.slate.shade500),
             ],
           ),
           cardPosition: (content) => Positioned(
