@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:js_interop';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +45,9 @@ class _ImportExcelDialogState extends State<ImportExcelDialog> {
                     const Text('Passo 1: Obter o modelo').medium(),
                   ],
                 ),
-                const Text('Baixe o template padrão para garantir que os dados sejam importados corretamente.').muted().small(),
+                const Text(
+                  'Baixe o template padrão para garantir que os dados sejam importados corretamente.',
+                ).muted().small(),
                 OutlineButton(
                   onPressed: () async {
                     await ExcelTemplateService.downloadTemplate();
@@ -77,13 +82,31 @@ class _ImportExcelDialogState extends State<ImportExcelDialog> {
                         onPressed: isUploading.value
                             ? null
                             : () async {
-                                final picked = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx']);
+                                final picked = await FilePicker.platform.pickFiles(
+                                  type: FileType.custom,
+                                  allowedExtensions: ['xlsx'],
+                                );
                                 if (picked != null) {
                                   isUploading.value = true;
+
+                                  // Permite que a interface atualize e mostre o loading antes de bloquear a thread
+                                  await Future.delayed(const Duration(milliseconds: 100));
+
                                   try {
                                     final fileBytes = picked.files.single.bytes!;
+                                    final importedForm = await ExcelTemplateService.parseExcel(
+                                      fileBytes,
+                                      widget.formularyId,
+                                    );
                                     fileName.value = picked.files.single.name;
-                                    formulary.value = await ExcelTemplateService.parseExcel(fileBytes, widget.formularyId);
+                                    formulary.value = importedForm;
+                                  } catch (e) {
+                                    log('Erro ao importar planilha: $e');
+                                    // Feedback visual de erro
+                                    Get.snackbar(
+                                      'Erro de Importação',
+                                      'Não foi possível importar a planilha. Verifique o formato.',
+                                    );
                                   } finally {
                                     isUploading.value = false;
                                   }
@@ -93,7 +116,10 @@ class _ImportExcelDialogState extends State<ImportExcelDialog> {
                           mainAxisSize: MainAxisSize.min,
                           spacing: 8,
                           children: [
-                            if (isUploading.value) const CircularProgressIndicator() else const Icon(Symbols.attach_file, size: 18),
+                            if (isUploading.value)
+                              const CircularProgressIndicator()
+                            else
+                              const Icon(Symbols.attach_file, size: 18),
                             Text(fileName.value != null ? 'Trocar Arquivo' : 'Selecionar Arquivo'),
                           ],
                         ),

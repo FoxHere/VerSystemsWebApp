@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 /// Todos os serviços do Firebase devem usar [AppSessionController.instance.companyId]
 /// em vez de [Env.companyId] para garantir o funcionamento multi-tenant.
 class AppSessionController extends GetxController {
-  static AppSessionController get instance => Get.find();
+  static AppSessionController get instance => Get.find<AppSessionController>();
 
   final _companyId = ''.obs;
 

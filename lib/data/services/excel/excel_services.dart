@@ -118,7 +118,7 @@ class ExcelTemplateService {
     web.URL.revokeObjectURL(url);
   }
 
-  static Future parseExcel(Uint8List fileBytes, String formularyId) async {
+  static Future<FormularyModel> parseExcel(Uint8List fileBytes, String formularyId) async {
     final excel = Excel.decodeBytes(fileBytes);
     final formularySheet = excel.tables['Formulario'];
     if (formularySheet == null) {
@@ -128,29 +128,43 @@ class ExcelTemplateService {
     final sectionsMap = <String, SectionModel>{};
 
     for (var i = 1; i < formularySheet.rows.length; i++) {
-      final uuid = const Uuid().v4();
+      final sectionId = const Uuid().v4();
+      final questionId = const Uuid().v4();
       final row = formularySheet.rows[i];
       if (row.isEmpty) continue;
-      final sectionTitle = row[0]?.value.toString().trim() ?? '';
-      final questionName = row[1]?.value.toString().trim() ?? '';
-      final questionType = row[2]?.value.toString().trim() ?? '';
-      final isRequired = row[3]?.value.toString().trim() ?? '0';
-      final options = row[4]?.value.toString().trim();
-      final instructions = row[5]?.value.toString().trim();
+
+      // Protect from empty rows that have null cells
+      if (row.every((cell) => cell?.value == null || cell!.value.toString().trim().isEmpty)) {
+        continue;
+      }
+
+      final sectionTitle = row[0]?.value?.toString().trim() ?? '';
+      final questionName = row[1]?.value?.toString().trim() ?? '';
+
+      if (sectionTitle.isEmpty || questionName.isEmpty) continue;
+
+      final questionType = row[2]?.value?.toString().trim() ?? '';
+      final isRequired = row[3]?.value?.toString().trim() ?? '0';
+      final options = row[4]?.value?.toString().trim();
+      final instructions = row[5]?.value?.toString().trim();
 
       final question = QuestionModel(
-        id: uuid,
+        id: questionId,
         question: questionName.toString(),
         questionType: questionType.toString(),
         questionRequired: isRequired == '1',
         questionOptions: options,
         questionInstructions: instructions,
       );
-
-      if (!sectionsMap.containsKey(sectionTitle)) {
-        sectionsMap[sectionTitle] = SectionModel(id: uuid, sectionTitle: sectionTitle, questions: []);
-      }
-      sectionsMap[sectionTitle]!.questions.add(question);
+      final currentSection = sectionsMap.putIfAbsent(
+        sectionTitle,
+        () => SectionModel(id: sectionId, sectionTitle: sectionTitle, questions: []),
+      );
+      // if (!sectionsMap.containsKey(sectionTitle)) {
+      //   sectionsMap[sectionTitle] = SectionModel(id: sectionId, sectionTitle: sectionTitle, questions: []);
+      // }
+      // sectionsMap[sectionTitle]!.questions.add(question);
+      currentSection.questions.add(question);
     }
     return FormularyModel(
       id: formularyId == 'new' ? '' : formularyId,

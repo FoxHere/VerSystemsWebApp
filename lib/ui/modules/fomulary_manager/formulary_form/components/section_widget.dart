@@ -20,8 +20,13 @@ class _SectionWidgetState extends State<SectionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.slate.shade100, borderRadius: BorderRadius.circular(10)),
+    return OutlinedContainer(
+      // decoration: BoxDecoration(
+      //   color: Colors.slate.shade100,
+      //   borderRadius: BorderRadius.circular(10),
+      //   border: Border.all(color: Colors.slate.shade300),
+      // ),
+      backgroundColor: Colors.slate.shade100,
       child: Collapsible(
         isExpanded: true,
         children: [
@@ -29,21 +34,38 @@ class _SectionWidgetState extends State<SectionWidget> {
             child: Row(
               spacing: 10,
               children: [
-                Text('S${widget.sIndex + 1}'),
                 Expanded(
-                  child: TextField(
-                    placeholder: Text('Titulo da sessão'),
-                    initialValue: widget.viewModel.questionnaire.value.sections[widget.sIndex].sectionTitle,
-                    onChanged: (value) {
-                      widget.viewModel.questionnaire.value.sections[widget.sIndex].sectionTitle = value;
-                    },
+                  child: FormTableLayout(
+                    rows: [
+                      FormField<String>(
+                        key: FormKey<String>(
+                          ValueKey('section_${widget.viewModel.questionnaire.value.sections[widget.sIndex].id}'),
+                        ),
+                        validator: const NotEmptyValidator(message: 'O título da sessão é obrigatório'),
+                        label: Text('S${widget.sIndex + 1}'),
+                        child: TextField(
+                          placeholder: const Text('Titulo da sessão'),
+                          initialValue: widget.viewModel.questionnaire.value.sections[widget.sIndex].sectionTitle,
+                          onChanged: (value) {
+                            widget.viewModel.questionnaire.value.sections[widget.sIndex].sectionTitle = value;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 IconButton(
                   icon: Icon(Symbols.add_box),
                   variance: ButtonStyle.ghost(),
                   onPressed: () {
-                    widget.viewModel.addSection();
+                    widget.viewModel.addSection(widget.sIndex);
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Symbols.content_copy),
+                  variance: ButtonStyle.ghost(),
+                  onPressed: () {
+                    widget.viewModel.duplicateSection(widget.sIndex);
                   },
                 ),
                 IconButton(

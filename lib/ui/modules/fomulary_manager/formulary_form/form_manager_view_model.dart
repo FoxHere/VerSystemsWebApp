@@ -17,7 +17,8 @@ import 'package:versystems_app/config/controllers/auth/auth_controller.dart';
 class FormManagerViewModel extends GetxController with MessageStateMixin {
   final FormularyRepositoryImpl _formManagerRepository;
 
-  FormManagerViewModel({required FormularyRepositoryImpl formManagerRepository}) : _formManagerRepository = formManagerRepository;
+  FormManagerViewModel({required FormularyRepositoryImpl formManagerRepository})
+    : _formManagerRepository = formManagerRepository;
 
   final FormListViewModel formListViewModel = Get.find<FormListViewModel>();
   final AppStateController appStateController = Get.find<AppStateController>();
@@ -47,7 +48,12 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     TypeDateInput(),
     TypeSignature(),
   ];
-  final questionTypeOptionEnable = <QuestionType>[TypeListBoxSingleSelect(), TypeListBoxMultiSelect(), TypeRadioButton(), TypeCheckbox()];
+  final questionTypeOptionEnable = <QuestionType>[
+    TypeListBoxSingleSelect(),
+    TypeListBoxMultiSelect(),
+    TypeRadioButton(),
+    TypeCheckbox(),
+  ];
   final sectionTileExpanded = true.obs;
   final pageStatus = Rx<PageStatus>(PageStatusIdle());
   final saveFormStatus = Rx<PageStatus>(PageStatusIdle());
@@ -55,7 +61,8 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
 
   /// ------------------------------------------------------
   // // UI-only: lista estável de SortableData por seção (chave = sectionId)
-  final RxMap<String, RxList<SortableData<QuestionModel>>> uiQuestionsBySectionId = <String, RxList<SortableData<QuestionModel>>>{}.obs;
+  final RxMap<String, RxList<SortableData<QuestionModel>>> uiQuestionsBySectionId =
+      <String, RxList<SortableData<QuestionModel>>>{}.obs;
 
   // cache (opcional) pra reutilizar o MESMO SortableData por questionId
   final Map<String, SortableData<QuestionModel>> _sdCacheByQuestionId = {};
@@ -91,7 +98,11 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     });
   }
 
-  void updateQuestionUi({required String sectionId, required String questionId, required QuestionModel Function(QuestionModel current) update}) {
+  void updateQuestionUi({
+    required String sectionId,
+    required String questionId,
+    required QuestionModel Function(QuestionModel current) update,
+  }) {
     final uiList = uiQuestionsBySectionId[sectionId];
     if (uiList == null) return;
 
@@ -268,7 +279,9 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
             final updatedFormulary = formularyModel.copyWith(id: questionnaire.value.id);
             formListViewModel.formularyList[index] = updatedFormulary;
             // Atualiza também na lista filtrada se o item estiver lá
-            final filteredIndex = formListViewModel.filteredFormularyList.indexWhere((form) => form.id == questionnaire.value.id);
+            final filteredIndex = formListViewModel.filteredFormularyList.indexWhere(
+              (form) => form.id == questionnaire.value.id,
+            );
             if (filteredIndex != -1) {
               formListViewModel.filteredFormularyList[filteredIndex] = updatedFormulary;
             }
@@ -337,19 +350,25 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     // questionEditModeList[sIndex].add(true.obs);
   }
 
-  Future<void> addSection() async {
-    final updatedSections = List<SectionModel>.from(questionnaire.value.sections)
-      ..add(SectionModel(id: const Uuid().v4(), sectionTitle: "Nova Sessão", questions: []));
+  Future<void> addSection([int? afterIndex]) async {
+    final newSection = SectionModel(id: const Uuid().v4(), sectionTitle: "Nova Sessão", questions: []);
+    final updatedSections = List<SectionModel>.from(questionnaire.value.sections);
+    int targetIndex = updatedSections.length;
+    if (afterIndex != null && afterIndex >= 0 && afterIndex < updatedSections.length) {
+      targetIndex = afterIndex + 1;
+      updatedSections.insert(targetIndex, newSection);
+    } else {
+      updatedSections.add(newSection);
+    }
+
     questionnaire.update((val) {
       val?.sections = updatedSections;
     });
 
     if (questionnaire.value.sections.isNotEmpty) {
-      final lastIndex = questionnaire.value.sections.length - 1;
-      addQuestion(lastIndex);
+      addQuestion(targetIndex);
     }
     _rebuildUiQuestionsFromModel();
-    // questionEditModeList.add(<RxBool>[]);
   }
 
   void duplicateQuestion(int sIndex, int qIndex) {
@@ -399,10 +418,13 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     if (sIndex >= 0 && sIndex < questionnaire.value.sections.length) {
       final sections = List<SectionModel>.from(questionnaire.value.sections);
 
+      final original = sections[sIndex];
+      final clonedQuestions = original.questions.map((q) => q.copyWith(id: const Uuid().v4())).toList();
+
       final duplicatedSection = SectionModel(
         id: const Uuid().v4(),
-        sectionTitle: '${sections[sIndex].sectionTitle} (cópia)',
-        questions: sections[sIndex].questions,
+        sectionTitle: '${original.sectionTitle} (cópia)',
+        questions: clonedQuestions,
       );
 
       sections.insert(sIndex + 1, duplicatedSection);
@@ -454,6 +476,23 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
       }
     } else {
       showError('Não é possível remover a última seção');
+    }
+  }
+
+  void showMessage(String message, MessageType type) {
+    switch (type) {
+      case MessageType.success:
+        showSuccess(message);
+        break;
+      case MessageType.error:
+        showError(message);
+        break;
+      case MessageType.warning:
+        showWarning(message);
+        break;
+      case MessageType.info:
+        showInfo(message);
+        break;
     }
   }
 }

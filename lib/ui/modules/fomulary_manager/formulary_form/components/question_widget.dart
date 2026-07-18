@@ -24,12 +24,8 @@ class _QuestionWidget2State extends State<QuestionWidget> {
   }
 
   void _showOptionsDialog(BuildContext context, QuestionModel q, String sectionId) {
-    List<String> currentOptions = q.questionOptions
-            ?.split(RegExp(r';\n|[\n;]'))
-            .map((e) => e.trim())
-            .where((e) => e.isNotEmpty)
-            .toList() ??
-        [];
+    List<String> currentOptions =
+        q.questionOptions?.split(RegExp(r';\n|[\n;]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList() ?? [];
 
     showDialog(
       context: context,
@@ -51,7 +47,7 @@ class _QuestionWidget2State extends State<QuestionWidget> {
                       child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: currentOptions.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           return Row(
                             spacing: 8,
@@ -95,10 +91,7 @@ class _QuestionWidget2State extends State<QuestionWidget> {
                 ),
               ),
               actions: [
-                OutlineButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancelar'),
-                ),
+                OutlineButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
                 PrimaryButton(
                   onPressed: () {
                     final newString = currentOptions.map((e) => e.trim()).where((e) => e.isNotEmpty).join('\n');
@@ -178,18 +171,27 @@ class _QuestionWidget2State extends State<QuestionWidget> {
                           spacing: 10,
                           children: [
                             const Icon(Icons.drag_indicator),
-                            Text('Q${i + 1}'),
+
                             Expanded(
-                              child: TextField(
-                                initialValue: q.question,
-                                placeholder: Text('Digite sua pergunta aqui...'),
-                                onChanged: (value) {
-                                  widget.viewModel.updateQuestionUi(
-                                    sectionId: section.id,
-                                    questionId: q.id,
-                                    update: (current) => current.copyWith(question: value),
-                                  );
-                                },
+                              child: FormTableLayout(
+                                rows: [
+                                  FormField<String>(
+                                    key: FormKey<String>(ValueKey('question_${q.id}')),
+                                    validator: const NotEmptyValidator(message: 'A pergunta é obrigatória'),
+                                    label: Text('Q${i + 1}'),
+                                    child: TextField(
+                                      initialValue: q.question,
+                                      placeholder: const Text('Digite sua pergunta aqui...'),
+                                      onChanged: (value) {
+                                        widget.viewModel.updateQuestionUi(
+                                          sectionId: section.id,
+                                          questionId: q.id,
+                                          update: (current) => current.copyWith(question: value),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             SizedBox(
@@ -205,10 +207,16 @@ class _QuestionWidget2State extends State<QuestionWidget> {
                                     update: (current) => current.copyWith(questionType: value?.dataType),
                                   );
                                 },
-                                value: widget.viewModel.questionTypeList.firstWhere((e) => e.dataType == q.questionType),
+                                value: widget.viewModel.questionTypeList.firstWhere(
+                                  (e) => e.dataType == q.questionType,
+                                ),
                                 popup: SelectPopup(
                                   items: SelectItemList(
-                                    children: [...widget.viewModel.questionTypeList.map((e) => SelectItemButton(value: e, child: Text(e.typeTitle)))],
+                                    children: [
+                                      ...widget.viewModel.questionTypeList.map(
+                                        (e) => SelectItemButton(value: e, child: Text(e.typeTitle)),
+                                      ),
+                                    ],
                                   ),
                                 ).call,
                               ),
