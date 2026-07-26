@@ -105,7 +105,7 @@ class CompanyFormState extends State<CompanyForm> {
                 Row(
                   spacing: 12,
                   children: [
-                    const Text('Empresa Ativa:').small().muted(),
+                    const Text('Filial Ativa:').small().muted(),
                     Switch(
                       value: _isActive,
                       onChanged: (val) {

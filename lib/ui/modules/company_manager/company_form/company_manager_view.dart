@@ -73,7 +73,7 @@ class _CompanyManagerViewState extends State<CompanyManagerView> with SingleTick
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.companyId == 'new' ? 'Nova Empresa' : 'Editar Empresa').h3(),
+                        Text(widget.companyId == 'new' ? 'Nova Filial' : 'Editar Filial').h3(),
                         const Text('Gerencie os detalhes corporativos.').muted().small(),
                       ],
                     ),

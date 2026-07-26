@@ -29,7 +29,7 @@ class _MyWidgetState extends State<SidebarWidget> {
     MenuItemModel(icon: Symbols.fact_check, name: 'Minhas Tarefas', route: RoutesHelper.tasks),
     SidebarDivider(),
     SidebarSection(label: 'Cadastros'),
-    MenuItemModel(icon: Symbols.business_center, name: 'Empresas', route: RoutesHelper.companies),
+    MenuItemModel(icon: Symbols.business_center, name: 'Filiais', route: RoutesHelper.companies),
     MenuItemModel(icon: Symbols.support_agent, name: 'Clientes', route: RoutesHelper.clients),
     MenuItemModel(icon: Symbols.group, name: 'Usuários', route: RoutesHelper.users),
     MenuItemModel(icon: Symbols.badge, name: 'Perfis', route: RoutesHelper.profiles),
@@ -222,7 +222,7 @@ class _MyWidgetState extends State<SidebarWidget> {
                           if (loggedUser?.isAppAdmin == true)
                             MenuButton(
                               leading: const Icon(LucideIcons.building2),
-                              child: const Text('Alternar Empresa'),
+                              child: const Text('Alternar Filial'),
                               onPressed: (ctx) {
                                 ctx.go(RoutesHelper.switchCompany);
                               },

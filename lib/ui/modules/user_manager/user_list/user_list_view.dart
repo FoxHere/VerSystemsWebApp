@@ -107,7 +107,7 @@ class _UserListViewState extends State<UserListView> with MessageViewMixin, Resp
             cardPosition: (content) => Positioned(left: 15, bottom: 140, child: content),
           ),
           AppTableColumnWidget(
-            title: 'Empresa',
+            title: 'Filial',
             dataSelector: (item) => Text(item.company).xSmall(color: Colors.slate.shade500),
             tableContent: (item) => Row(
               mainAxisAlignment: .end,

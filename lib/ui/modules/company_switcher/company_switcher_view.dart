@@ -85,7 +85,7 @@ class _CompanySwitcherViewState extends State<CompanySwitcherView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Selecione uma Empresa', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Text('Selecione uma Filial', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               const Text('Você está prestes a mudar o contexto da sua aplicação. Os dados exibidos serão isolados por tenant.').muted(),
               const SizedBox(height: 32),
@@ -94,7 +94,7 @@ class _CompanySwitcherViewState extends State<CompanySwitcherView> {
               else if (_error != null)
                 Center(child: Text('Erro: $_error').muted())
               else if (_companies.isEmpty)
-                const Center(child: Text('Nenhuma empresa encontrada.'))
+                const Center(child: Text('Nenhuma filial encontrada.'))
               else
                 Expanded(
                   child: ListView.builder(

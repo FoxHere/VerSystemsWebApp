@@ -34,7 +34,7 @@ class CompanyDetailsSheet extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text('Detalhes da Empresa').h3(), Text('Visualização somente leitura').muted().small()],
+                    children: [Text('Detalhes da Filial').h3(), Text('Visualização somente leitura').muted().small()],
                   ),
                 ),
                 IconButton.ghost(icon: const Icon(Symbols.close), onPressed: () => onExit()),

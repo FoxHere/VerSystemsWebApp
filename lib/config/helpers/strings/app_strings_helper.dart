@@ -39,7 +39,7 @@ class AppStringsHelper {
   static const String activityListCount = 'Total de Atividades:';
   // ----------------------------------- Client List
   static const String clientListCount = 'Total de Clientes:';
-  static const String companyListCount = 'Total de Empresas:';
+  static const String companyListCount = 'Total de Filiais:';
   // ----------------------------------- Activity Manager
   static const String activityManHeader = 'Gerenciamento de Atividade';
   static const String activityManBtnSave = 'Enviar Atividade';

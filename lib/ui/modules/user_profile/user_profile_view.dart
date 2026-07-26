@@ -195,7 +195,7 @@ class _UserProfileViewState extends State<UserProfileView> with MessageViewMixin
                             Expanded(
                               flex: isDesktop ? 1 : 0,
                               child: _buildInfoCard("Informações Profissionais", Symbols.work_outline, [
-                                _buildInfoItem(Symbols.business, "Empresa", user.company),
+                                _buildInfoItem(Symbols.business, "Filial", user.company),
                                 _buildInfoItem(Symbols.groups, "Departamento", user.department.name),
                                 _buildInfoItem(Symbols.vpn_key, "Perfil de Acesso", user.profile.name),
                                 _buildInfoItem(Symbols.check_circle, "Status", user.isActive ? 'Ativo' : 'Inativo'),

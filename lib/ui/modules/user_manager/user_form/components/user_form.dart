@@ -192,11 +192,11 @@ class UserFormState extends State<UserForm> {
                 Expanded(
                   child: FormField<String>(
                     key: _companyKey,
-                    label: const Text('Empresa Vinculada'),
-                    validator: const NotEmptyValidator(message: 'Selecione a empresa vinculada'),
+                    label: const Text('Filial Vinculada'),
+                    validator: const NotEmptyValidator(message: 'Selecione a filial vinculada'),
                     child: Select<String>(
                       value: _selectedCompany?.id,
-                      placeholder: const Text('Selecione a empresa...'),
+                      placeholder: const Text('Selecione a filial...'),
                       onChanged: (val) {
                         setState(() {
                           _selectedCompany = widget.availableCompanyList.firstWhereOrNull((c) => c.id == val);
