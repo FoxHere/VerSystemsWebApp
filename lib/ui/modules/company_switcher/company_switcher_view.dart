@@ -49,6 +49,7 @@ class _CompanySwitcherViewState extends State<CompanySwitcherView> {
 
   void _switchCompany(CompanyModel company) {
     AppSessionController.instance.setCompanyId(company.id);
+    AppSessionController.instance.clearModuleCache();
     // Force direct reload by routing to dashboard
     context.go(RoutesHelper.dashboard);
   }
