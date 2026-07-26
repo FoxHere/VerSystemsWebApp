@@ -24,7 +24,7 @@ class AppTableColumnCreatedBy<T extends HasModelStatus> extends AppTableColumn<T
     return SizedBox(
       child: Row(
         spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: isTableRow ? MainAxisAlignment.start : MainAxisAlignment.center,
         crossAxisAlignment: isTableRow ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
           Avatar(

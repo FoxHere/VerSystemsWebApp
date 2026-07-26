@@ -93,7 +93,10 @@ class DepartmentFormState extends State<DepartmentForm> {
                   key: _nameKey,
                   label: const Text('Nome do Departamento'),
                   validator: const NotEmptyValidator(message: 'Nome obrigatório'),
-                  child: TextField(initialValue: widget.model.name, placeholder: const Text('Ex: Recursos Humanos, TI...')),
+                  child: TextField(
+                    initialValue: widget.model.name,
+                    placeholder: const Text('Ex: Recursos Humanos, TI...'),
+                  ),
                 ),
               ),
               Expanded(
@@ -101,23 +104,32 @@ class DepartmentFormState extends State<DepartmentForm> {
                 child: FormField<String>(
                   key: _managerNameKey,
                   label: const Text('Responsável / Gestor'),
-                  child: TextField(initialValue: widget.model.managerName ?? '', placeholder: const Text('Nome do coordenador...')),
+                  child: TextField(
+                    initialValue: widget.model.managerName ?? '',
+                    placeholder: const Text('Nome do coordenador...'),
+                  ),
                 ),
               ),
             ],
           ).paddingOnly(bottom: 24),
 
-          FormField<String>(
-            key: _descriptionKey,
-            label: const Text('Descrição / Atribuições'),
-            validator: const NotEmptyValidator(message: 'Descrição obrigatória'),
-            child: TextArea(
-              initialValue: widget.model.description,
-              placeholder: const Text('Descreva o escopo e foco do departamento...'),
-              minLines: 2,
-              maxLines: 4,
-            ),
-          ).paddingOnly(bottom: 24),
+          Row(
+            children: [
+              Expanded(
+                child: FormField<String>(
+                  key: _descriptionKey,
+                  label: const Text('Descrição / Atribuições'),
+                  validator: const NotEmptyValidator(message: 'Descrição obrigatória'),
+                  child: TextArea(
+                    initialValue: widget.model.description,
+                    placeholder: const Text('Descreva o escopo e foco do departamento...'),
+                    minLines: 4,
+                    maxLines: 8,
+                  ),
+                ).paddingOnly(bottom: 24),
+              ),
+            ],
+          ),
 
           const FxDivider(title: 'Localização & Contato', icon: Symbols.meeting_room),
 
@@ -129,21 +141,30 @@ class DepartmentFormState extends State<DepartmentForm> {
                 child: FormField<String>(
                   key: _locationKey,
                   label: const Text('Local (Andar, Sala, Prédio)'),
-                  child: TextField(initialValue: widget.model.location ?? '', placeholder: const Text('Ex: 5º Andar, Bloco C')),
+                  child: TextField(
+                    initialValue: widget.model.location ?? '',
+                    placeholder: const Text('Ex: 5º Andar, Bloco C'),
+                  ),
                 ),
               ),
               Expanded(
                 child: FormField<String>(
                   key: _contactEmailKey,
                   label: const Text('E-mail do Departamento'),
-                  child: TextField(initialValue: widget.model.contactEmail ?? '', placeholder: const Text('Ex: rh@empresa.com')),
+                  child: TextField(
+                    initialValue: widget.model.contactEmail ?? '',
+                    placeholder: const Text('Ex: rh@empresa.com'),
+                  ),
                 ),
               ),
               Expanded(
                 child: FormField<String>(
                   key: _contactPhoneKey,
                   label: const Text('Telefone / Ramal'),
-                  child: TextField(initialValue: widget.model.contactPhone ?? '', placeholder: const Text('Ex: (11) 9999-9999 / Ramal 42')),
+                  child: TextField(
+                    initialValue: widget.model.contactPhone ?? '',
+                    placeholder: const Text('Ex: (11) 9999-9999 / Ramal 42'),
+                  ),
                 ),
               ),
             ],
@@ -151,16 +172,22 @@ class DepartmentFormState extends State<DepartmentForm> {
 
           const FxDivider(title: 'Observações Finais', icon: Symbols.notes),
 
-          FormField<String>(
-            key: _notesKey,
-            label: const Text('Anotações'),
-            child: TextArea(
-              initialValue: widget.model.notes ?? '',
-              placeholder: const Text('Pode conter custo orçamentário padrão, dependências ou regras gerais.'),
-              minLines: 3,
-              maxLines: 6,
-            ),
-          ).paddingOnly(bottom: 48),
+          Row(
+            children: [
+              Expanded(
+                child: FormField<String>(
+                  key: _notesKey,
+                  label: const Text('Anotações'),
+                  child: TextArea(
+                    initialValue: widget.model.notes ?? '',
+                    placeholder: const Text('Pode conter custo orçamentário padrão, dependências ou regras gerais.'),
+                    minLines: 5,
+                    maxLines: 10,
+                  ),
+                ).paddingOnly(bottom: 48),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -36,7 +36,9 @@ class AppTableColumnWidget<T extends HasModelStatus> extends AppTableColumn<T> {
   @override
   Positioned buildCardPosition(Widget content) {
     final carinternalCardContent = content;
-    return cardPosition != null ? cardPosition!.call(carinternalCardContent)! : Positioned(bottom: 15, left: 30, child: carinternalCardContent);
+    return cardPosition != null
+        ? cardPosition!.call(carinternalCardContent)!
+        : Positioned(bottom: 15, left: 30, child: carinternalCardContent);
   }
 
   @override
@@ -49,7 +51,13 @@ class AppTableColumnWidget<T extends HasModelStatus> extends AppTableColumn<T> {
 
   @override
   Widget buildTableCell(Widget content) {
-    return tableContent != null ? tableContent!.call(content)! : content;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: tableContent != null ? tableContent!.call(content)! : content,
+      ),
+    );
   }
 
   // @override

@@ -21,10 +21,7 @@ class DepartmentFormView extends StatefulWidget {
 }
 
 class _DepartmentFormViewState extends State<DepartmentFormView>
-    with
-        SingleTickerProviderStateMixin,
-        MessageViewMixin,
-        ResponsiveDeviceMixin {
+    with SingleTickerProviderStateMixin, MessageViewMixin, ResponsiveDeviceMixin {
   final DepartmentFormViewModel viewModel = Get.find<DepartmentFormViewModel>();
 
   late AnimationController _animationController;
@@ -34,14 +31,8 @@ class _DepartmentFormViewState extends State<DepartmentFormView>
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    );
+    _animationController = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
     _animationController.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       viewModel.initialize(widget.departmentId);
@@ -75,9 +66,7 @@ class _DepartmentFormViewState extends State<DepartmentFormView>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: theme.colorScheme.border),
-                ),
+                border: Border(bottom: BorderSide(color: theme.colorScheme.border)),
                 color: theme.colorScheme.background,
               ),
               child: Row(
@@ -86,14 +75,8 @@ class _DepartmentFormViewState extends State<DepartmentFormView>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.departmentId == 'new'
-                              ? 'Novo Departamento'
-                              : 'Editar Departamento',
-                        ).h3(),
-                        const Text(
-                          'Crie e estruture os departamentos da organização.',
-                        ).muted().small(),
+                        Text(widget.departmentId == 'new' ? 'Novo Departamento' : 'Editar Departamento').h3(),
+                        const Text('Crie e estruture os departamentos da organização.').muted().small(),
                       ],
                     ),
                   ),
@@ -102,31 +85,21 @@ class _DepartmentFormViewState extends State<DepartmentFormView>
                     children: [
                       SecondaryButton(
                         onPressed: () => context.go(RoutesHelper.departments),
-                        child: const Row(
-                          spacing: 8,
-                          children: [
-                            Icon(Symbols.arrow_back, size: 18),
-                            Text('Voltar'),
-                          ],
-                        ),
+                        child: const Row(spacing: 8, children: [Icon(Symbols.arrow_back, size: 18), Text('Voltar')]),
                       ),
                       PrimaryButton(
                         onPressed: () async {
                           final formState = formWidgetKey.currentState;
                           if (formState != null && formState.validateForm()) {
-                            final departmentFormModel =
-                                formState.departmentModel;
+                            final departmentFormModel = formState.departmentModel;
                             await viewModel.saveDepartment(departmentFormModel);
-                            if (viewModel.pageStatus.value
-                                    is PageStatusSuccess &&
-                                context.mounted) {
+                            if (viewModel.pageStatus.value is PageStatusSuccess && context.mounted) {
                               context.go(RoutesHelper.departments);
                             }
                           }
                         },
                         child: Obx(() {
-                          final isLoading =
-                              viewModel.pageStatus.value is PageStatusLoading;
+                          final isLoading = viewModel.pageStatus.value is PageStatusLoading;
                           return Row(
                             spacing: 8,
                             children: [
@@ -156,10 +129,7 @@ class _DepartmentFormViewState extends State<DepartmentFormView>
                       child: Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 800),
-                          child: DepartmentForm(
-                            key: formWidgetKey,
-                            model: model,
-                          ),
+                          child: DepartmentForm(key: formWidgetKey, model: model),
                         ),
                       ),
                     );

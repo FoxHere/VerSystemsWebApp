@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:versystems_app/config/constants/boudaries.dart';
 import 'package:versystems_app/config/constants/has_model_status.dart';
+import 'package:versystems_app/ui/shared/lists/components/form_list_empty.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/app_table_column.dart';
 import 'package:versystems_app/ui/shared/lists/fx_app_list_widget.dart';
 
@@ -14,6 +15,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
     required this.columns,
     this.onItemClicked,
     this.statusSelector,
+    this.emptyAction,
   });
   final ScreenSize screenSize;
   final bool isCardsView;
@@ -21,6 +23,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
   final List<AppTableColumn<T>> columns;
   final void Function(T item)? onItemClicked;
   final StatusVisual Function(T item)? statusSelector;
+  final Widget? emptyAction;
 
   StatusVisual _resolveStatus(T item) => statusSelector != null ? statusSelector!(item) : item.status;
 
@@ -28,6 +31,12 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Obx(() {
+      if (items.isEmpty) {
+        return FormListEmpty(
+          action: emptyAction,
+        );
+      }
+
       return screenSize == ScreenSize.isLargeScreen || screenSize == ScreenSize.isMediumScreen
           ? (isCardsView
                 ?

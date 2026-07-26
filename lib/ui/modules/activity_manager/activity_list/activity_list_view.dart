@@ -84,7 +84,7 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
         AppTableColumnWidget(
           title: 'Responsável',
           dataSelector: (item) => Row(
-            mainAxisAlignment: .center,
+            mainAxisAlignment: .start,
             spacing: 5,
             children: [
               Icon(Symbols.person, size: 16, color: Colors.slate),
@@ -100,7 +100,7 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
         AppTableColumnWidget(
           title: 'Cliente',
           dataSelector: (item) => Row(
-            mainAxisAlignment: .center,
+            mainAxisAlignment: .start,
             spacing: 5,
             children: [
               Icon(Symbols.person, size: 16, color: Colors.slate),
@@ -140,7 +140,7 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
               label: 'Ativo',
               onPressed: (context) {},
               icon: Symbols.scan_delete_rounded,
-              value: item.activityStatus == ActivityStatusEnum.active,
+              value: item.activityStatus != ActivityStatusEnum.inactive,
               onChanged: (value) {
                 viewModel.changeActivityStatus(item);
               },

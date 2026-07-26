@@ -47,6 +47,12 @@ class AppTableColumnDescription<T extends HasModelStatus> extends AppTableColumn
 
   @override
   Widget buildTableCell(Widget content) {
-    return Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: content);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: content,
+      ),
+    );
   }
 }

@@ -55,7 +55,7 @@ class AppTableColumnUpdatedAt<T extends HasModelStatus> extends AppTableColumn<T
   Widget buildTableCell(Widget content) {
     return Row(
       spacing: 10,
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Icon(Symbols.calendar_clock, size: 16, color: Colors.slate),
         content,

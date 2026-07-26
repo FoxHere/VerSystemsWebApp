@@ -60,14 +60,9 @@ class ProfileFormState extends State<ProfileForm> {
   ProfileModel get profileModel {
     return widget.model.copyWith(
       name: _formController.getValue(_nameKey) ?? widget.model.name,
-      description:
-          _formController.getValue(_descriptionKey) ?? widget.model.description,
-      level:
-          int.tryParse(_formController.getValue(_levelKey) ?? '') ??
-          widget.model.level,
-      allowedMenus:
-          _formController.getValue(_allowedMenusKey)?.toList() ??
-          _currentAllowedMenus,
+      description: _formController.getValue(_descriptionKey) ?? widget.model.description,
+      level: int.tryParse(_formController.getValue(_levelKey) ?? '') ?? widget.model.level,
+      allowedMenus: _formController.getValue(_allowedMenusKey)?.toList() ?? _currentAllowedMenus,
       profileStatus: _isActive ? ProfileStatusEnum.active : ProfileStatusEnum.inactive,
       updatedAt: DateTime.now(),
     );
@@ -80,11 +75,8 @@ class ProfileFormState extends State<ProfileForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const FxDivider(
-            title: 'Dados do Perfil',
-            icon: Symbols.manage_accounts,
-          ),
-          
+          const FxDivider(title: 'Dados do Perfil', icon: Symbols.manage_accounts),
+
           Row(
             spacing: 12,
             children: [
@@ -109,9 +101,7 @@ class ProfileFormState extends State<ProfileForm> {
                 child: FormField<String>(
                   key: _nameKey,
                   label: const Text('Nome do Perfil'),
-                  validator: const NotEmptyValidator(
-                    message: 'Nome obrigatório',
-                  ),
+                  validator: const NotEmptyValidator(message: 'Nome obrigatório'),
                   child: TextField(
                     initialValue: widget.model.name,
                     placeholder: const Text('Administrador, Operador, etc.'),
@@ -123,9 +113,7 @@ class ProfileFormState extends State<ProfileForm> {
                 child: FormField<String>(
                   key: _levelKey,
                   label: const Text('Nível de Acesso (Ex: 0 a 100)'),
-                  validator: const NotEmptyValidator(
-                    message: 'Nível é obrigatório',
-                  ),
+                  validator: const NotEmptyValidator(message: 'Nível é obrigatório'),
                   child: TextField(
                     initialValue: widget.model.level.toString(),
                     placeholder: const Text('ex: 50'),
@@ -136,57 +124,59 @@ class ProfileFormState extends State<ProfileForm> {
             ],
           ).paddingOnly(bottom: 24),
 
-          FormField<String>(
-            key: _descriptionKey,
-            label: const Text('Descrição / Detalhes'),
-            child: TextArea(
-              initialValue: widget.model.description,
-              placeholder: const Text(
-                'Descreva as atribuições deste perfil...',
+          Row(
+            children: [
+              Expanded(
+                child: FormField<String>(
+                  key: _descriptionKey,
+                  label: const Text('Descrição / Detalhes'),
+                  child: TextArea(
+                    initialValue: widget.model.description,
+                    placeholder: const Text('Descreva as atribuições deste perfil...'),
+                    minLines: 2,
+                    maxLines: 4,
+                  ),
+                ).paddingOnly(bottom: 24),
               ),
-              minLines: 2,
-              maxLines: 4,
-            ),
-          ).paddingOnly(bottom: 24),
-
-          const FxDivider(
-            title: 'Permissões e Menus',
-            icon: Symbols.format_list_bulleted,
+            ],
           ),
 
-          FormField<Iterable<String>>(
-            key: _allowedMenusKey,
-            label: const Text('Menus Permitidos'),
-            child: MultiSelect<String>(
-              value: _currentAllowedMenus,
-              placeholder: const Text('Selecione os módulos liberados...'),
-              onChanged: (values) {
-                if (values != null) {
-                  setState(() {
-                    _currentAllowedMenus = values.toList();
-                  });
-                }
-              },
-              itemBuilder: (context, menuPath) {
-                return Text(
-                  menuPath.replaceAll('/', '').capitalizeFirst ?? menuPath,
-                );
-              },
-              popup: (context) => SelectPopup(
-                items: SelectItemList(
-                  children: availableMenus.map((menuPath) {
-                    return SelectItemButton(
-                      value: menuPath,
-                      child: Text(
-                        menuPath.replaceAll('/', '').capitalizeFirst ??
-                            menuPath,
+          const FxDivider(title: 'Permissões e Menus', icon: Symbols.format_list_bulleted),
+
+          Row(
+            children: [
+              Expanded(
+                child: FormField<Iterable<String>>(
+                  key: _allowedMenusKey,
+                  label: const Text('Menus Permitidos'),
+                  child: MultiSelect<String>(
+                    value: _currentAllowedMenus,
+                    placeholder: const Text('Selecione os módulos liberados...'),
+                    onChanged: (values) {
+                      if (values != null) {
+                        setState(() {
+                          _currentAllowedMenus = values.toList();
+                        });
+                      }
+                    },
+                    itemBuilder: (context, menuPath) {
+                      return Text(menuPath.replaceAll('/', '').capitalizeFirst ?? menuPath);
+                    },
+                    popup: (context) => SelectPopup(
+                      items: SelectItemList(
+                        children: availableMenus.map((menuPath) {
+                          return SelectItemButton(
+                            value: menuPath,
+                            child: Text(menuPath.replaceAll('/', '').capitalizeFirst ?? menuPath),
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  ),
+                ).paddingOnly(bottom: 48),
               ),
-            ),
-          ).paddingOnly(bottom: 48),
+            ],
+          ),
         ],
       ),
     );

@@ -21,7 +21,11 @@ class AppTableColumnIconText<T extends HasModelStatus> extends AppTableColumn<T>
 
   @override
   Widget buildTableContent(T item) {
-    return Text(dataSelector(item), maxLines: 2, overflow: TextOverflow.ellipsis).textSmall(color: Colors.slate.shade500);
+    return Text(
+      dataSelector(item),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    ).textSmall(color: Colors.slate.shade500);
   }
 
   @override
@@ -33,7 +37,9 @@ class AppTableColumnIconText<T extends HasModelStatus> extends AppTableColumn<T>
         content,
       ],
     );
-    return cardPosition != null ? cardPosition!.call(cardContent)! : Positioned(bottom: 15, right: 15, child: cardContent);
+    return cardPosition != null
+        ? cardPosition!.call(cardContent)!
+        : Positioned(bottom: 15, right: 15, child: cardContent);
   }
 
   @override
@@ -42,12 +48,12 @@ class AppTableColumnIconText<T extends HasModelStatus> extends AppTableColumn<T>
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Icon(icon, size: 16, color: Colors.slate),
           content,
         ],
-      ),
+      ).withPadding(),
     );
   }
 
@@ -61,6 +67,8 @@ class AppTableColumnIconText<T extends HasModelStatus> extends AppTableColumn<T>
         ],
       ),
     );
-    return cardPosition != null ? cardPosition!.call(cardContent)! : Positioned(bottom: 20, right: 20, child: cardContent);
+    return cardPosition != null
+        ? cardPosition!.call(cardContent)!
+        : Positioned(bottom: 20, right: 20, child: cardContent);
   }
 }

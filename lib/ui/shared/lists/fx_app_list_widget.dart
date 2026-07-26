@@ -303,6 +303,7 @@ class _FxAppListWidgetState2<T extends HasModelStatus> extends State<FxAppListWi
                                 columns: widget.columns,
                                 onItemClicked: widget.onItemClicked,
                                 statusSelector: widget.statusSelector,
+                                emptyAction: widget.emptyAction,
                               ).paddingAll(Boudaries.spacing);
                             }),
                           if (!widget.showStatusTab)
@@ -313,6 +314,7 @@ class _FxAppListWidgetState2<T extends HasModelStatus> extends State<FxAppListWi
                                 items: widget.items,
                                 columns: widget.columns,
                                 onItemClicked: widget.onItemClicked,
+                                emptyAction: widget.emptyAction,
                               ).paddingAll(Boudaries.spacing);
                             }),
                         ],
