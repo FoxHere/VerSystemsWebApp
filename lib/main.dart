@@ -11,6 +11,7 @@ void main() async {
   //   usePathUrlStrategy();
   // }
   await initDependencies();
+
   runApp(const VerSystemsApp());
 }
 

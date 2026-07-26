@@ -46,159 +46,170 @@ class _UserListViewState extends State<UserListView> with MessageViewMixin, Resp
   }
 
   void _showDetails(BuildContext context, UserModel user) {
-    openSheet(
-      context: context,
-      builder: (_) {
-        return UserDetailsSheet(user: user, onExit: () => closeSheet(context));
-      },
-      position: OverlayPosition.right,
+    showOverlay(
+      context,
+      SheetConfiguration(
+        anchor: LinkedAnchor(#userDetailsAnchor),
+        builder: (_) {
+          return UserDetailsSheet(user: user, onExit: () => closeSheet(context));
+        },
+        position: OverlayPosition.right,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     updateScreenSize();
-    return FxAppListWidget<UserModel>(
-      screenSize: isSmallScreen
-          ? ScreenSize.isSmallScreen
-          : isMediumScreen
-          ? ScreenSize.isMediumScreen
-          : ScreenSize.isLargeScreen,
-      pageStatus: viewModel.pageStatus,
-      showStatusTab: true,
-      statusList: [UserStatusVisual(UserStatusEnum.active), UserStatusVisual(UserStatusEnum.inactive)],
-      listTitle: 'Gerenciamento de Usuários',
-      listSubtitle: 'Gerencie os usuários e suas atribuições',
-      newItemLabel: 'Novo usuário',
-      searchHint: 'Buscar usuário...',
-      statusFilterFunction: (_) {},
-      onViewChange: (_) {},
-      searchTextFunction: (_) {},
-      onRefresh: () => viewModel.findAllUsers({}),
-      onNewItem: () => context.go(RoutesHelper.usersManager),
-      onItemClicked: (user) => _showDetails(context, user),
-      items: viewModel.userList,
-      columns: [
-        AppTableColumnTitle(title: 'Nome', dataSelector: (item) => item.name),
-        AppTableColumnStatus(title: 'Status'),
-        AppTableColumnWidget(
-          title: 'Departamento',
-          dataSelector: (item) => Text(item.department.name).xSmall(color: Colors.slate.shade500),
-          tableContent: (item) => Row(
-            mainAxisAlignment: .end,
-            spacing: 5,
-            children: [
-              Icon(Symbols.corporate_fare, size: 16, color: Colors.slate),
-              SizedBox(width: 90, child: item),
-            ],
-          ),
-          cardContent: (item) => Row(
-            spacing: 5,
-            children: [
-              Icon(Symbols.business_center, size: 16, color: Colors.slate),
-              item,
-            ],
-          ),
-          cardPosition: (content) => Positioned(left: 15, bottom: 140, child: content),
-        ),
-        AppTableColumnWidget(
-          title: 'Empresa',
-          dataSelector: (item) => Text(item.company).xSmall(color: Colors.slate.shade500),
-          tableContent: (item) => Row(
-            mainAxisAlignment: .end,
-            spacing: 5,
-            children: [
-              Icon(Symbols.corporate_fare, size: 16, color: Colors.slate),
-              SizedBox(width: 130, child: item),
-            ],
-          ),
-          cardContent: (item) => Row(
-            spacing: 5,
-            children: [
-              Icon(Symbols.business_center, size: 16, color: Colors.slate),
-              item,
-            ],
-          ),
-          cardPosition: (content) => Positioned(left: 15, bottom: 120, child: content),
-        ),
-        AppTableColumnWidget(
-          title: 'Perfil',
-          dataSelector: (item) => Text(item.profile.name).xSmall(color: Colors.slate.shade500),
-          tableContent: (item) => Row(
-            mainAxisAlignment: .end,
-            spacing: 5,
-            children: [
-              Icon(Symbols.corporate_fare, size: 16, color: Colors.slate),
-              SizedBox(width: 90, child: item),
-            ],
-          ),
-          cardContent: (item) => Row(
-            spacing: 5,
-            children: [
-              Icon(Symbols.badge, size: 16, color: Colors.slate),
-              item,
-            ],
-          ),
-          cardPosition: (content) => Positioned(left: 15, bottom: 100, child: content),
-        ),
-        AppTableColumnWidget(
-          title: 'E-mail',
-          dataSelector: (item) => Text(item.email).xSmall(color: Colors.slate.shade500),
-          tableContent: (item) => Row(
-            mainAxisAlignment: .end,
-            spacing: 5,
-            children: [
-              Icon(Symbols.mail, size: 16, color: Colors.slate),
-              SizedBox(width: 100, child: item),
-            ],
-          ),
-          cardContent: (item) => Row(
-            spacing: 5,
-            children: [
-              Icon(Symbols.mail, size: 16, color: Colors.slate),
-              item,
-            ],
-          ),
-          cardPosition: (content) => Positioned(left: 15, bottom: 35, child: content),
-        ),
-        AppTableColumnWidget(
-          title: 'Celular',
-          dataSelector: (item) => Text(item.cellphones.isNotEmpty ? item.cellphones.first : 'N/A').xSmall(color: Colors.slate.shade500),
-          tableContent: (item) => Row(
-            mainAxisAlignment: .end,
-            spacing: 5,
-            children: [
-              Icon(Symbols.cell_tower, size: 16, color: Colors.slate),
-              SizedBox(width: 130, child: item),
-            ],
-          ),
-          cardContent: (item) => Row(
-            spacing: 5,
-            children: [
-              Icon(Symbols.cell_tower, size: 16, color: Colors.slate),
-              item,
-            ],
-          ),
-          cardPosition: (content) => Positioned(left: 15, bottom: 15, child: content),
-        ),
-
-        AppTableColumnUpdatedAt(
-          title: 'Última atualização',
-          needToShowOnCard: false,
-          dataSelector: (item) => item.updatedAt?.toIso8601String() ?? '',
-        ),
-        AppTableColumnActions(
-          title: 'Ações',
-          dataSelector: (item) => [
-            AppTableColumnActionPress(
-              label: 'Editar',
-              onPressed: (context) => context.go('${RoutesHelper.users}/${item.id}'),
-              icon: Symbols.edit_square_rounded,
+    return OverlayAnchor(
+      anchor: #userDetailsAnchor,
+      child: FxAppListWidget<UserModel>(
+        screenSize: isSmallScreen
+            ? ScreenSize.isSmallScreen
+            : isMediumScreen
+            ? ScreenSize.isMediumScreen
+            : ScreenSize.isLargeScreen,
+        pageStatus: viewModel.pageStatus,
+        showStatusTab: true,
+        statusList: [UserStatusVisual(UserStatusEnum.active), UserStatusVisual(UserStatusEnum.inactive)],
+        listTitle: 'Gerenciamento de Usuários',
+        listSubtitle: 'Gerencie os usuários e suas atribuições',
+        newItemLabel: 'Novo usuário',
+        searchHint: 'Buscar usuário...',
+        statusFilterFunction: (_) {},
+        onViewChange: (_) {},
+        searchTextFunction: (_) {},
+        onRefresh: () => viewModel.findAllUsers({}),
+        onNewItem: () => context.go(RoutesHelper.usersManager),
+        onItemClicked: (user) => _showDetails(context, user),
+        items: viewModel.userList,
+        columns: [
+          AppTableColumnTitle(title: 'Nome', dataSelector: (item) => item.name),
+          AppTableColumnStatus(title: 'Status'),
+          AppTableColumnWidget(
+            title: 'Departamento',
+            dataSelector: (item) => Text(item.department.name).xSmall(color: Colors.slate.shade500),
+            tableContent: (item) => Row(
+              mainAxisAlignment: .end,
+              spacing: 5,
+              children: [
+                Icon(Symbols.corporate_fare, size: 16, color: Colors.slate),
+                SizedBox(width: 90, child: item),
+              ],
             ),
-            AppTableColumnActionPress(label: 'Excluir', onPressed: (context) => viewModel.deleteUser(item.id), icon: Symbols.scan_delete_rounded),
-          ],
-        ),
-      ],
+            cardContent: (item) => Row(
+              spacing: 5,
+              children: [
+                Icon(Symbols.business_center, size: 16, color: Colors.slate),
+                item,
+              ],
+            ),
+            cardPosition: (content) => Positioned(left: 15, bottom: 140, child: content),
+          ),
+          AppTableColumnWidget(
+            title: 'Empresa',
+            dataSelector: (item) => Text(item.company).xSmall(color: Colors.slate.shade500),
+            tableContent: (item) => Row(
+              mainAxisAlignment: .end,
+              spacing: 5,
+              children: [
+                Icon(Symbols.corporate_fare, size: 16, color: Colors.slate),
+                SizedBox(width: 130, child: item),
+              ],
+            ),
+            cardContent: (item) => Row(
+              spacing: 5,
+              children: [
+                Icon(Symbols.business_center, size: 16, color: Colors.slate),
+                item,
+              ],
+            ),
+            cardPosition: (content) => Positioned(left: 15, bottom: 120, child: content),
+          ),
+          AppTableColumnWidget(
+            title: 'Perfil',
+            dataSelector: (item) => Text(item.profile.name).xSmall(color: Colors.slate.shade500),
+            tableContent: (item) => Row(
+              mainAxisAlignment: .end,
+              spacing: 5,
+              children: [
+                Icon(Symbols.corporate_fare, size: 16, color: Colors.slate),
+                SizedBox(width: 90, child: item),
+              ],
+            ),
+            cardContent: (item) => Row(
+              spacing: 5,
+              children: [
+                Icon(Symbols.badge, size: 16, color: Colors.slate),
+                item,
+              ],
+            ),
+            cardPosition: (content) => Positioned(left: 15, bottom: 100, child: content),
+          ),
+          AppTableColumnWidget(
+            title: 'E-mail',
+            dataSelector: (item) => Text(item.email).xSmall(color: Colors.slate.shade500),
+            tableContent: (item) => Row(
+              mainAxisAlignment: .end,
+              spacing: 5,
+              children: [
+                Icon(Symbols.mail, size: 16, color: Colors.slate),
+                SizedBox(width: 100, child: item),
+              ],
+            ),
+            cardContent: (item) => Row(
+              spacing: 5,
+              children: [
+                Icon(Symbols.mail, size: 16, color: Colors.slate),
+                item,
+              ],
+            ),
+            cardPosition: (content) => Positioned(left: 15, bottom: 35, child: content),
+          ),
+          AppTableColumnWidget(
+            title: 'Celular',
+            dataSelector: (item) =>
+                Text(item.cellphones.isNotEmpty ? item.cellphones.first : 'N/A').xSmall(color: Colors.slate.shade500),
+            tableContent: (item) => Row(
+              mainAxisAlignment: .end,
+              spacing: 5,
+              children: [
+                Icon(Symbols.cell_tower, size: 16, color: Colors.slate),
+                SizedBox(width: 130, child: item),
+              ],
+            ),
+            cardContent: (item) => Row(
+              spacing: 5,
+              children: [
+                Icon(Symbols.cell_tower, size: 16, color: Colors.slate),
+                item,
+              ],
+            ),
+            cardPosition: (content) => Positioned(left: 15, bottom: 15, child: content),
+          ),
+
+          AppTableColumnUpdatedAt(
+            title: 'Última atualização',
+            needToShowOnCard: false,
+            dataSelector: (item) => item.updatedAt?.toIso8601String() ?? '',
+          ),
+          AppTableColumnActions(
+            title: 'Ações',
+            dataSelector: (item) => [
+              AppTableColumnActionPress(
+                label: 'Editar',
+                onPressed: (context) => context.go('${RoutesHelper.users}/${item.id}'),
+                icon: Symbols.edit_square_rounded,
+              ),
+              AppTableColumnActionPress(
+                label: 'Excluir',
+                onPressed: (context) => viewModel.deleteUser(item.id),
+                icon: Symbols.scan_delete_rounded,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

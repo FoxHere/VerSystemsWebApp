@@ -82,7 +82,7 @@ class _ImportExcelDialogState extends State<ImportExcelDialog> {
                         onPressed: isUploading.value
                             ? null
                             : () async {
-                                final picked = await FilePicker.platform.pickFiles(
+                                final picked = await FilePicker.pickFiles(
                                   type: FileType.custom,
                                   allowedExtensions: ['xlsx'],
                                 );

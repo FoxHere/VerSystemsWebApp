@@ -40,12 +40,14 @@ class _ClientListViewState extends State<ClientListView> with MessageViewMixin, 
   }
 
   void _showDetails(BuildContext context, ClientModel client) {
-    openSheet(
-      context: context,
-      builder: (_) {
-        return ClientDetailsSheet(client: client, onExit: () => closeSheet(context));
-      },
-      position: OverlayPosition.right,
+    showOverlay(
+      context,
+      SheetConfiguration(
+        builder: (_) {
+          return ClientDetailsSheet(client: client, onExit: () => closeSheet(context));
+        },
+        position: OverlayPosition.right,
+      ),
     );
   }
 
@@ -77,8 +79,9 @@ class _ClientListViewState extends State<ClientListView> with MessageViewMixin, 
         AppTableColumnStatus(title: 'Status'),
         AppTableColumnWidget(
           title: 'Tipo',
-          dataSelector: (item) =>
-              Text(item.clientType == ClientType.legal ? 'Pessoa Jurídica' : 'Pessoa Física').xSmall(color: Colors.slate.shade500),
+          dataSelector: (item) => Text(
+            item.clientType == ClientType.legal ? 'Pessoa Jurídica' : 'Pessoa Física',
+          ).xSmall(color: Colors.slate.shade500),
           tableContent: (item) => Row(
             mainAxisAlignment: .end,
             spacing: 5,
@@ -149,7 +152,11 @@ class _ClientListViewState extends State<ClientListView> with MessageViewMixin, 
               onPressed: (context) => context.go('${RoutesHelper.clients}/${item.id}'),
               icon: Symbols.edit_square_rounded,
             ),
-            AppTableColumnActionPress(label: 'Excluir', onPressed: (context) => viewModel.deleteClient(item.id), icon: Symbols.scan_delete_rounded),
+            AppTableColumnActionPress(
+              label: 'Excluir',
+              onPressed: (context) => viewModel.deleteClient(item.id),
+              icon: Symbols.scan_delete_rounded,
+            ),
           ],
         ),
       ],

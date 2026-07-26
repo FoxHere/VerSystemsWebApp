@@ -31,19 +31,19 @@ Future<void> initDependencies() async {
   // -----------------------------------------------Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   String host = '127.0.0.1';
-  if (!kIsWeb && Platform.isAndroid) host = '10.0.2.2'; // Android emulator
-  // Verificar se o app está dem debug mode para usar o firebase local emulator
-  if (kDebugMode) {
-    try {
-      debugPrint('Initializing Firebase emulators...');
-      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
-      await FirebaseStorage.instance.useStorageEmulator(host, 9199);
-      FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-      FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
-    } catch (e) {
-      print(e);
-    }
-  }
+  // if (!kIsWeb && Platform.isAndroid) host = '10.0.2.2'; // Android emulator
+  // // Verificar se o app está dem debug mode para usar o firebase local emulator
+  // if (kDebugMode) {
+  //   try {
+  //     debugPrint('Initializing Firebase emulators...');
+  //     await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+  //     await FirebaseStorage.instance.useStorageEmulator(host, 9199);
+  //     FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+  //     FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   Get.put(ThemeController(), permanent: true);
   // Initial bindings

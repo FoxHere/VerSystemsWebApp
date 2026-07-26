@@ -29,7 +29,8 @@ class FxSignatureFormField extends StatefulWidget {
   State<FxSignatureFormField> createState() => _FxSignatureFormFieldState();
 }
 
-class _FxSignatureFormFieldState extends State<FxSignatureFormField> with FormValueSupplier<ImageItemModel, FxSignatureFormField> {
+class _FxSignatureFormFieldState extends State<FxSignatureFormField>
+    with FormValueSupplier<ImageItemModel, FxSignatureFormField> {
   late SignatureController signatureController;
   final signatureImage = Rx<ImageItemModel?>(null);
   final isSaving = RxBool(false);
@@ -37,7 +38,11 @@ class _FxSignatureFormFieldState extends State<FxSignatureFormField> with FormVa
   @override
   void initState() {
     super.initState();
-    signatureController = SignatureController(penStrokeWidth: 3, penColor: const Color(0xFF000000), exportBackgroundColor: const Color(0xFFFFFFFF));
+    signatureController = SignatureController(
+      penStrokeWidth: 3,
+      penColor: const Color(0xFF000000),
+      exportBackgroundColor: const Color(0xFFFFFFFF),
+    );
     initialize();
   }
 
@@ -74,7 +79,9 @@ class _FxSignatureFormFieldState extends State<FxSignatureFormField> with FormVa
       isSaving(true);
       final progress = 0.0.obs;
       try {
-        await widget.imageServices.convertToJpg(signatureBytes, progress, maxWidth: 720, quality: 80).then((convertedBytes) {
+        await widget.imageServices.convertToJpg(signatureBytes, progress, maxWidth: 720, quality: 80).then((
+          convertedBytes,
+        ) {
           final newSig = ImageItemModel(
             name: 'signature_${DateTime.now().millisecondsSinceEpoch}.jpg',
             bytes: convertedBytes,
@@ -95,46 +102,48 @@ class _FxSignatureFormFieldState extends State<FxSignatureFormField> with FormVa
   }
 
   void _showSignatureDialog() {
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Área de Assinatura'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text('Assine no quadro abaixo:').muted(),
-              const SizedBox(height: 16),
-              Container(
-                height: 250,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).colorScheme.border),
-                  borderRadius: BorderRadius.circular(8),
+    showOverlay(
+      context,
+      DialogConfiguration(
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Área de Assinatura'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('Assine no quadro abaixo:').muted(),
+                const SizedBox(height: 16),
+                Container(
+                  height: 250,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).colorScheme.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: Signature(controller: signatureController, backgroundColor: const Color(0xFFFFFFFF)),
                 ),
-                clipBehavior: Clip.hardEdge,
-                child: Signature(controller: signatureController, backgroundColor: const Color(0xFFFFFFFF)),
-              ),
-            ],
-          ),
-          actions: [
-            OutlineButton(
-              onPressed: () {
-                signatureController.clear();
-              },
-              child: const Text('Limpar'),
+              ],
             ),
-            OutlineButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancelar')),
-            Obx(() {
-              return PrimaryButton(
-                leading: const Icon(Symbols.save, size: 16),
-                onPressed: isSaving.value ? null : () => _saveSignature(dialogContext),
-                child: const Text('Salvar'),
-              );
-            }),
-          ],
-        );
-      },
+            actions: [
+              OutlineButton(
+                onPressed: () {
+                  signatureController.clear();
+                },
+                child: const Text('Limpar'),
+              ),
+              OutlineButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancelar')),
+              Obx(() {
+                return PrimaryButton(
+                  leading: const Icon(Symbols.save, size: 16),
+                  onPressed: isSaving.value ? null : () => _saveSignature(dialogContext),
+                  child: const Text('Salvar'),
+                );
+              }),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -187,7 +196,11 @@ class _FxSignatureFormFieldState extends State<FxSignatureFormField> with FormVa
                       spacing: 12,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        OutlineButton(onPressed: _removeSignature, leading: const Icon(Symbols.delete, size: 16), child: const Text('Remover')),
+                        OutlineButton(
+                          onPressed: _removeSignature,
+                          leading: const Icon(Symbols.delete, size: 16),
+                          child: const Text('Remover'),
+                        ),
                         PrimaryButton(
                           onPressed: _showSignatureDialog,
                           leading: const Icon(Symbols.edit, size: 16),

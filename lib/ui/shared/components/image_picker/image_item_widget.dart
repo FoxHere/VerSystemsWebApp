@@ -51,68 +51,76 @@ class ImageItemWidget extends StatelessWidget {
               }
 
               final TextEditingController nameController = TextEditingController(text: baseName);
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Detalhes da Imagem'),
-                    content: SizedBox(
-                      width: 400,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 16,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image(
-                              height: 250,
-                              width: double.infinity,
-                              image: imageItem.downloadUrl != null && imageItem.downloadUrl!.isNotEmpty
-                                  ? NetworkImage(imageItem.downloadUrl!)
-                                  : MemoryImage(imageItem.bytes) as ImageProvider,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Icon(Symbols.broken_image, size: 80, color: Theme.of(context).colorScheme.mutedForeground),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 8,
-                            children: [
-                              const Text('Nome da Imagem').medium(),
-
-                              if (imageItem.bytes.isNotEmpty)
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(controller: nameController, placeholder: const Text('Insira o nome da imagem')),
-                                    ),
-
-                                    if (extension.isNotEmpty) Text(extension).muted().marginOnly(left: 8),
-                                  ],
+              showOverlay(
+                context,
+                DialogConfiguration(
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Detalhes da Imagem'),
+                      content: SizedBox(
+                        width: 400,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 16,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image(
+                                height: 250,
+                                width: double.infinity,
+                                image: imageItem.downloadUrl != null && imageItem.downloadUrl!.isNotEmpty
+                                    ? NetworkImage(imageItem.downloadUrl!)
+                                    : MemoryImage(imageItem.bytes) as ImageProvider,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) => Icon(
+                                  Symbols.broken_image,
+                                  size: 80,
+                                  color: Theme.of(context).colorScheme.mutedForeground,
                                 ),
-                              if (imageItem.bytes.isEmpty) Text(imageItem.name),
-                            ],
-                          ),
-                        ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 8,
+                              children: [
+                                const Text('Nome da Imagem').medium(),
+
+                                if (imageItem.bytes.isNotEmpty)
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: nameController,
+                                          placeholder: const Text('Insira o nome da imagem'),
+                                        ),
+                                      ),
+
+                                      if (extension.isNotEmpty) Text(extension).muted().marginOnly(left: 8),
+                                    ],
+                                  ),
+                                if (imageItem.bytes.isEmpty) Text(imageItem.name),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    actions: [
-                      OutlineButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
-                      PrimaryButton(
-                        onPressed: () {
-                          if (onNameChanged != null && nameController.text.trim().isNotEmpty) {
-                            final newName = nameController.text.trim() + extension;
-                            onNameChanged!(newName);
-                          }
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Salvar'),
-                      ),
-                    ],
-                  );
-                },
+                      actions: [
+                        OutlineButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+                        PrimaryButton(
+                          onPressed: () {
+                            if (onNameChanged != null && nameController.text.trim().isNotEmpty) {
+                              final newName = nameController.text.trim() + extension;
+                              onNameChanged!(newName);
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Salvar'),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               );
             },
             image: imageItem.isLoading

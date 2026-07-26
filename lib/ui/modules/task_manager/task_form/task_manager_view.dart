@@ -24,7 +24,8 @@ class TaskManagerView extends StatefulWidget {
   State<TaskManagerView> createState() => _FormExecViewState();
 }
 
-class _FormExecViewState extends State<TaskManagerView> with SingleTickerProviderStateMixin, MessageViewMixin, ResponsiveDeviceMixin {
+class _FormExecViewState extends State<TaskManagerView>
+    with SingleTickerProviderStateMixin, MessageViewMixin, ResponsiveDeviceMixin {
   final taskManagerViewModel = Get.find<TaskManagerViewModel>();
   final imageServices = Get.find<ImageServices>();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -62,19 +63,22 @@ class _FormExecViewState extends State<TaskManagerView> with SingleTickerProvide
 
   Future<void> _generateReportDialog(BuildContext context, FxPdfStyles styles) async {
     if (!context.mounted) return;
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Gerar Relatório do Formulário'),
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.9,
-            child: ReportView(styles: styles, task: taskManagerViewModel.taskModel.value!),
-          ),
-          actions: [PrimaryButton(onPressed: () => context.pop(), child: const Text('Fechar'))],
-        );
-      },
+    showOverlay(
+      context,
+      DialogConfiguration(
+        // anchor: LinkedAnchor(#taskReportAnchor),
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Gerar Relatório do Formulário'),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.9,
+              child: ReportView(styles: styles, task: taskManagerViewModel.taskModel.value!),
+            ),
+            actions: [PrimaryButton(onPressed: () => context.pop(), child: const Text('Fechar'))],
+          );
+        },
+      ),
     );
   }
 
@@ -124,7 +128,9 @@ class _FormExecViewState extends State<TaskManagerView> with SingleTickerProvide
                       Obx(() {
                         return PrimaryButton(
                           leading: Icon(Symbols.save, size: 18),
-                          onPressed: isImageConverting.value == true || taskManagerViewModel.pageStatus.value is PageStatusLoading
+                          onPressed:
+                              isImageConverting.value == true ||
+                                  taskManagerViewModel.pageStatus.value is PageStatusLoading
                               ? null
                               : () async {
                                   final formState = formWidgetKey.currentState;
@@ -143,7 +149,9 @@ class _FormExecViewState extends State<TaskManagerView> with SingleTickerProvide
                         builder: (context, errors, child) => PrimaryButton(
                           leading: Icon(Icons.send, size: 18),
                           onPressed:
-                              (isImageConverting.value == true || taskManagerViewModel.pageStatus.value is PageStatusLoading) || errors.isNotEmpty
+                              (isImageConverting.value == true ||
+                                      taskManagerViewModel.pageStatus.value is PageStatusLoading) ||
+                                  errors.isNotEmpty
                               ? null
                               : () async {
                                   final formState = formWidgetKey.currentState;
@@ -177,7 +185,8 @@ class _FormExecViewState extends State<TaskManagerView> with SingleTickerProvide
                               spacing: 16,
                               children: [
                                 Text(taskModel.name).h3(),
-                                if (taskModel.instructions != null && taskModel.instructions!.isNotEmpty) Text(taskModel.instructions!).muted(),
+                                if (taskModel.instructions != null && taskModel.instructions!.isNotEmpty)
+                                  Text(taskModel.instructions!).muted(),
                                 const SizedBox(height: 16),
                                 TaskForm(
                                   isImageConverting: isImageConverting,
@@ -192,7 +201,8 @@ class _FormExecViewState extends State<TaskManagerView> with SingleTickerProvide
                                     final formState = formWidgetKey.currentState;
                                     if (formState != null && formState.validateForm()) {
                                       await taskManagerViewModel.saveTaskForm(formStructure, ActivityStatusEnum.done);
-                                      if (taskManagerViewModel.pageStatus.value is PageStatusSuccess && context.mounted) {
+                                      if (taskManagerViewModel.pageStatus.value is PageStatusSuccess &&
+                                          context.mounted) {
                                         context.go(RoutesHelper.tasks);
                                       }
                                     }

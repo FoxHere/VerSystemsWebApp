@@ -46,60 +46,74 @@ class _ProfileListViewState extends State<ProfileListView> with MessageViewMixin
   }
 
   void _showDetails(BuildContext context, ProfileModel profile) {
-    openSheet(
-      context: context,
-      builder: (context) {
-        return ProfileDetailsSheet(profile: profile, onExit: () => closeSheet(context));
-      },
-      position: OverlayPosition.right,
+    showOverlay(
+      context,
+      SheetConfiguration(
+        anchor: LinkedAnchor(#profileDetailsAnchor),
+        builder: (context) {
+          return ProfileDetailsSheet(profile: profile, onExit: () => closeSheet(context));
+        },
+        position: OverlayPosition.right,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     updateScreenSize();
-    return FxAppListWidget<ProfileModel>(
-      screenSize: isSmallScreen
-          ? ScreenSize.isSmallScreen
-          : isMediumScreen
-          ? ScreenSize.isMediumScreen
-          : ScreenSize.isLargeScreen,
-      pageStatus: viewModel.pageStatus,
-      showStatusTab: true,
-      statusList: [ProfileStatusVisual(ProfileStatusEnum.active), ProfileStatusVisual(ProfileStatusEnum.inactive)],
-      listTitle: 'Perfis',
-      listSubtitle: 'Gerencie os perfis de usuário',
-      newItemLabel: 'Novo Perfil',
-      searchHint: 'Buscar perfil...',
-      statusFilterFunction: (_) {},
-      onViewChange: (_) {},
-      searchTextFunction: (_) {},
-      onRefresh: () => viewModel.findAllProfiles({}),
-      onNewItem: () => context.go(RoutesHelper.profilesManager),
-      onItemClicked: (profile) => _showDetails(context, profile),
-      items: viewModel.profileList,
-      columns: [
-        AppTableColumnTitle(title: 'Nome', dataSelector: (item) => item.name),
-        AppTableColumnStatus(title: 'Status'),
-        AppTableColumnDescription(title: 'Descrição', dataSelector: (item) => item.description),
-        AppTableColumnIconText(title: 'Nível', icon: Symbols.signal_cellular_alt, dataSelector: (item) => item.level.toString()),
-        AppTableColumnUpdatedAt(
-          title: 'Última atualização',
-          needToShowOnCard: false,
-          dataSelector: (item) => item.updatedAt?.toIso8601String() ?? '',
-        ),
-        AppTableColumnActions(
-          title: 'Ações',
-          dataSelector: (item) => [
-            AppTableColumnActionPress(
-              label: 'Editar',
-              onPressed: (context) => context.go('${RoutesHelper.profiles}/${item.id}'),
-              icon: Symbols.edit_square_rounded,
-            ),
-            AppTableColumnActionPress(label: 'Excluir', onPressed: (context) => viewModel.deleteProfile(item.id), icon: Symbols.scan_delete_rounded),
-          ],
-        ),
-      ],
+    return OverlayAnchor(
+      anchor: #profileDetailsAnchor,
+      child: FxAppListWidget<ProfileModel>(
+        screenSize: isSmallScreen
+            ? ScreenSize.isSmallScreen
+            : isMediumScreen
+            ? ScreenSize.isMediumScreen
+            : ScreenSize.isLargeScreen,
+        pageStatus: viewModel.pageStatus,
+        showStatusTab: true,
+        statusList: [ProfileStatusVisual(ProfileStatusEnum.active), ProfileStatusVisual(ProfileStatusEnum.inactive)],
+        listTitle: 'Perfis',
+        listSubtitle: 'Gerencie os perfis de usuário',
+        newItemLabel: 'Novo Perfil',
+        searchHint: 'Buscar perfil...',
+        statusFilterFunction: (_) {},
+        onViewChange: (_) {},
+        searchTextFunction: (_) {},
+        onRefresh: () => viewModel.findAllProfiles({}),
+        onNewItem: () => context.go(RoutesHelper.profilesManager),
+        onItemClicked: (profile) => _showDetails(context, profile),
+        items: viewModel.profileList,
+        columns: [
+          AppTableColumnTitle(title: 'Nome', dataSelector: (item) => item.name),
+          AppTableColumnStatus(title: 'Status'),
+          AppTableColumnDescription(title: 'Descrição', dataSelector: (item) => item.description),
+          AppTableColumnIconText(
+            title: 'Nível',
+            icon: Symbols.signal_cellular_alt,
+            dataSelector: (item) => item.level.toString(),
+          ),
+          AppTableColumnUpdatedAt(
+            title: 'Última atualização',
+            needToShowOnCard: false,
+            dataSelector: (item) => item.updatedAt?.toIso8601String() ?? '',
+          ),
+          AppTableColumnActions(
+            title: 'Ações',
+            dataSelector: (item) => [
+              AppTableColumnActionPress(
+                label: 'Editar',
+                onPressed: (context) => context.go('${RoutesHelper.profiles}/${item.id}'),
+                icon: Symbols.edit_square_rounded,
+              ),
+              AppTableColumnActionPress(
+                label: 'Excluir',
+                onPressed: (context) => viewModel.deleteProfile(item.id),
+                icon: Symbols.scan_delete_rounded,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

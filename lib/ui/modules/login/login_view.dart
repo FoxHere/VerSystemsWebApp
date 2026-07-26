@@ -1,14 +1,18 @@
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' hide FormState;
 import 'package:versystems_app/config/constants/boudaries.dart';
 import 'package:versystems_app/config/controllers/auth/auth_controller.dart';
 import 'package:versystems_app/config/controllers/responsiveness/responsive_device_mixin.dart';
 import 'package:versystems_app/config/controllers/theme/theme_controller.dart';
 import 'package:versystems_app/config/fp/either.dart';
+import 'package:versystems_app/config/helpers/gen/assets.gen.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/config/helpers/routes/routes_helper.dart';
+import 'package:versystems_app/config/helpers/strings/app_strings_helper.dart';
 import 'package:versystems_app/ui/modules/login/login_view_model.dart';
 
 class LoginView extends StatefulWidget {
@@ -23,139 +27,201 @@ class _LoginViewState extends State<LoginView>
     with MessageViewMixin, ResponsiveDeviceMixin, SingleTickerProviderStateMixin {
   final viewModel = Get.find<LoginViewModel>();
   final authController = Get.find<AuthController>();
+  final themeController = Get.find<ThemeController>();
 
   final _emailKey = const TextFieldKey('email');
   final _passwordKey = const TextFieldKey('password');
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   final validatingForm = false.obs;
+  String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
     messageListener(viewModel);
+    _loadAppVersion();
   }
 
-  final themeController = Get.find<ThemeController>();
+  @override
+  void dispose() {
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _appVersion = info.version;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _appVersion = '1.0.0';
+        });
+      }
+    }
+  }
+
+  Future<void> _submitForm(BuildContext context, Map<FormKey<dynamic>, dynamic> values) async {
+    String email = values[_emailKey] as String;
+    String password = values[_passwordKey] as String;
+    validatingForm(true);
+    // await Future.delayed(Duration(seconds: 2));
+    final result = await viewModel.login(email, password);
+    if (result is Right) {
+      await authController.initializeIt();
+      if (context.mounted) {
+        context.go(widget.redirectTo ?? RoutesHelper.dashboard);
+      }
+    }
+    validatingForm(false);
+  }
+
   @override
   Widget build(BuildContext context) {
     updateScreenSize();
+    final currentYear = DateTime.now().year;
+
     return Scaffold(
       footers: [
-        Row(
-          mainAxisAlignment: .end,
-          children: [
-            Obx(() {
-              return Switch(
-                leading: Icon(Icons.dark_mode),
-                trailing: Icon(Icons.light_mode),
-                value: !themeController.isDarkMode,
-                onChanged: (value) {
-                  themeController.toggleThemeMode();
-                },
-              ).withPadding(all: Boudaries.spacing);
-            }),
-          ],
+        Padding(
+          padding: const EdgeInsets.all(Boudaries.spacing),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '© $currentYear VerSystems'
+                '${_appVersion.isNotEmpty ? ' • v$_appVersion' : ''}',
+              ).light.small(color: Colors.slate),
+              Obx(() {
+                return Switch(
+                  leading: const Icon(Icons.dark_mode),
+                  trailing: const Icon(Icons.light_mode),
+                  value: !themeController.isDarkMode,
+                  onChanged: (value) {
+                    themeController.toggleThemeMode();
+                  },
+                );
+              }),
+            ],
+          ),
         ),
       ],
       child: Center(
-        child: SizedBox(
-          width: (isLargeScreen || isMediumScreen) ? 480 : 350,
-          child: Form(
-            onSubmit: (context, values) async {
-              String email = values[_emailKey] as String;
-              String password = values[_passwordKey] as String;
-              validatingForm(true);
-              // await Future.delayed(Duration(seconds: 2));
-              final result = await viewModel.login(email, password);
-              if (result is Right) {
-                await authController.initializeIt();
-                if (context.mounted) {
-                  context.go(widget.redirectTo ?? RoutesHelper.dashboard);
-                }
-              }
-              validatingForm(false);
-            },
-            child: Column(
-              mainAxisSize: .min,
-              crossAxisAlignment: .center,
-              children: [
-                Text('FormBuilder Pro').h1.bold(color: Colors.violet),
-                Text('Faça login para acessar o sistema').light(color: Colors.slate),
-                Gap(Boudaries.spacing),
-                Card(
-                  padding: .all(Boudaries.spacing),
-                  borderColor: Colors.slate.shade200,
-                  child: Column(
-                    crossAxisAlignment: .stretch,
+        child: SingleChildScrollView(
+          child: SizedBox(
+            width: (isLargeScreen || isMediumScreen) ? 480 : 350,
+            child: Form(
+              onSubmit: (context, values) async {
+                await _submitForm(context, values);
+              },
+              child: Builder(
+                builder: (formContext) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Column(
-                        spacing: 5,
-                        crossAxisAlignment: .start,
-                        children: [
-                          Text('Entrar').x2Large.semiBold,
-                          Text('Digite seu e-mail e senha para continuar').light.small(color: Colors.slate),
-                        ],
-                      ),
-                      FormField(
-                        key: _emailKey,
-                        validator: EmailValidator(message: 'E-mail inválido'),
-                        label: const Text('E-mail'),
-                        child: TextField(
-                          // initialValue: '',
-                          autocorrect: true,
-                          keyboardType: TextInputType.emailAddress,
-                          features: [
-                            InputFeature.clear(),
-                            InputFeature.leading(Icon(Icons.email, color: Colors.slate.shade400)),
-                          ],
-                        ),
-                      ),
-                      FormField(
-                        key: _passwordKey,
-                        showErrors: {FormValidationMode.changed},
-                        validator: LengthValidator(min: 8, message: 'Mínimo de 8 caractéres'),
-                        label: const Text('Senha'),
-                        child: TextField(
-                          // initialValue: '',
-                          placeholder: Text('••••••••'),
-                          obscureText: true,
-                          keyboardType: TextInputType.visiblePassword,
-                          features: [
-                            InputFeature.passwordToggle(mode: PasswordPeekMode.toggle),
-                            InputFeature.leading(Icon(Icons.lock, color: Colors.slate.shade400)),
-                          ],
-                        ),
-                      ),
-                      FormErrorBuilder(
-                        builder: (context, error, child) {
-                          return Obx(() {
-                            final bool isLoading = validatingForm.value;
-                            final Widget icon = isLoading
-                                ? CircularProgressIndicator(color: Colors.white)
-                                : Icon(Symbols.login, color: Colors.white);
-                            final String label = isLoading ? 'Validando...' : 'Entrar';
-                            return PrimaryButton(
-                              density: ButtonDensity.normal,
-                              onPressed: error.isEmpty
-                                  ? isLoading
-                                        ? null
-                                        : () => context.submitForm()
-                                  : null,
-                              child: Row(
-                                spacing: 5,
-                                mainAxisAlignment: .center,
-                                children: [
-                                  icon,
-                                  Text(label).normal(color: Colors.white),
+                      Assets.images.common.logos.logo01.image(height: 60, fit: BoxFit.contain),
+                      const Gap(8),
+                      Text(AppStringsHelper.loginSubtitle).light(color: Colors.slate),
+                      Gap(Boudaries.spacing),
+                      Card(
+                        padding: const EdgeInsets.all(Boudaries.spacing),
+                        borderColor: Colors.slate.shade200,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Column(
+                              spacing: 5,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(AppStringsHelper.loginTitle).x2Large.semiBold,
+                                Text(AppStringsHelper.loginSubtitle).light.small(color: Colors.slate),
+                              ],
+                            ),
+                            Focus(
+                              onKeyEvent: (node, event) {
+                                if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
+                                  _passwordFocusNode.requestFocus();
+                                  return KeyEventResult.handled;
+                                }
+                                return KeyEventResult.ignored;
+                              },
+                              child: FormField(
+                                key: _emailKey,
+                                validator: EmailValidator(message: 'E-mail inválido'),
+                                label: Text(AppStringsHelper.loginFieldEmail),
+                                child: TextField(
+                                  focusNode: _emailFocusNode,
+                                  placeholder: Text(AppStringsHelper.loginFieldEmailHint),
+                                  autocorrect: true,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  onSubmitted: (_) {
+                                    _passwordFocusNode.requestFocus();
+                                  },
+                                  features: [
+                                    InputFeature.clear(),
+                                    InputFeature.leading(Icon(Icons.email, color: Colors.slate.shade400)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            FormField(
+                              key: _passwordKey,
+                              showErrors: const {FormValidationMode.changed},
+                              validator: LengthValidator(min: 8, message: 'Mínimo de 8 caracteres'),
+                              label: Text(AppStringsHelper.loginFieldPassword),
+                              child: TextField(
+                                focusNode: _passwordFocusNode,
+                                placeholder: Text(AppStringsHelper.loginFieldPasswordHint),
+                                obscureText: true,
+                                keyboardType: TextInputType.visiblePassword,
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: (_) {
+                                  formContext.submitForm();
+                                },
+                                features: [
+                                  InputFeature.passwordToggle(mode: PasswordPeekMode.toggle),
+                                  InputFeature.leading(Icon(Icons.lock, color: Colors.slate.shade400)),
                                 ],
                               ),
-                            );
-                          });
-                        },
+                            ),
+                            FormErrorBuilder(
+                              builder: (context, error, child) {
+                                return Obx(() {
+                                  final bool isLoading = validatingForm.value || viewModel.isLoading.value;
+                                  final Widget icon = isLoading
+                                      ? const CircularProgressIndicator(color: Colors.white)
+                                      : const Icon(Symbols.login, color: Colors.white);
+                                  final String label = isLoading ? 'Validando...' : AppStringsHelper.loginLoginBtn;
+                                  return PrimaryButton(
+                                    density: ButtonDensity.normal,
+                                    onPressed: error.isEmpty && !isLoading ? () => context.submitForm() : null,
+                                    child: Row(
+                                      spacing: 5,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        icon,
+                                        Text(label).normal(color: Colors.white),
+                                      ],
+                                    ),
+                                  );
+                                });
+                              },
+                            ),
+                          ],
+                        ).gap(Boudaries.spacing),
                       ),
                     ],
-                  ).gap(Boudaries.spacing),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
         ),

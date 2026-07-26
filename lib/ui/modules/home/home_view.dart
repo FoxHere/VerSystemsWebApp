@@ -18,7 +18,8 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> with MessageViewMixin, ResponsiveDeviceMixin, SingleTickerProviderStateMixin {
+class _HomeViewState extends State<HomeView>
+    with MessageViewMixin, ResponsiveDeviceMixin, SingleTickerProviderStateMixin {
   final viewModel = Get.find<HomeViewModel>();
   final authController = Get.find<AuthController>();
   final expanded = true.obs;
@@ -43,22 +44,24 @@ class _HomeViewState extends State<HomeView> with MessageViewMixin, ResponsiveDe
   void open(BuildContext context) {
     // Definimos sempre como true ao abrir para forçar a abertura em tamanho real no Sheet
     expanded.value = true;
-    openSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          width: 250, // Fixa a largura do sheet para não ter engasgo ao renderizar
-          child: SidebarWidget(
-            expanded: expanded,
-            homeViewModel: viewModel,
-            state: widget.state,
-            onExpanded: (value) {
-              expanded.value = value;
-            },
-          ),
-        );
-      },
-      position: OverlayPosition.left,
+    showOverlay(
+      context,
+      SheetConfiguration(
+        builder: (BuildContext context) {
+          return SizedBox(
+            width: 250, // Fixa a largura do sheet para não ter engasgo ao renderizar
+            child: SidebarWidget(
+              expanded: expanded,
+              homeViewModel: viewModel,
+              state: widget.state,
+              onExpanded: (value) {
+                expanded.value = value;
+              },
+            ),
+          );
+        },
+        position: OverlayPosition.left,
+      ),
     );
   }
 
