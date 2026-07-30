@@ -6,5 +6,5 @@
   },
   "editor.formatOnSave": true,
   "java.configuration.updateBuildConfiguration": "automatic",
-  "dart.flutterSdkPath": ".fvm/versions/3.41.5"
+  "dart.flutterSdkPath": ".fvm/versions/3.44.8"
 }

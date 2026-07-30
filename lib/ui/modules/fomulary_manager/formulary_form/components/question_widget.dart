@@ -1,8 +1,7 @@
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:versystems_app/data/models/formulary/questionnaire/question_model.dart';
-import 'package:versystems_app/data/models/formulary/questionnaire/question_type_model.dart';
+import 'package:versystems_app/data/models/formulary/questionnaire/section_model.dart';
 import 'package:versystems_app/ui/modules/fomulary_manager/formulary_form/form_manager_view_model.dart';
 
 class QuestionWidget extends StatefulWidget {
@@ -16,104 +15,6 @@ class QuestionWidget extends StatefulWidget {
 }
 
 class _QuestionWidget2State extends State<QuestionWidget> {
-  bool _requiresOptions(String dataType) {
-    return dataType == 'listboxMultiSelect' ||
-        dataType == 'listboxSingleSelect' ||
-        dataType == 'radioButtonInput' ||
-        dataType == 'checkboxInput';
-  }
-
-  void _showOptionsDialog(BuildContext context, QuestionModel q, String sectionId) {
-    List<String> currentOptions =
-        q.questionOptions?.split(RegExp(r';\n|[\n;]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList() ?? [];
-
-    showOverlay(
-      context,
-      DialogConfiguration(
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return AlertDialog(
-                title: const Text('Opções da Pergunta'),
-                content: SizedBox(
-                  width: 400,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text('Adicione as opções de escolha para esta pergunta:').muted(),
-                      const SizedBox(height: 16),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 300),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: currentOptions.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, index) {
-                            return Row(
-                              spacing: 8,
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    initialValue: currentOptions[index],
-                                    onChanged: (val) {
-                                      currentOptions[index] = val;
-                                    },
-                                    placeholder: const Text('Opção...'),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Symbols.close),
-                                  variance: ButtonStyle.ghost(),
-                                  onPressed: () {
-                                    setState(() {
-                                      currentOptions.removeAt(index);
-                                    });
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      OutlineButton(
-                        onPressed: () {
-                          setState(() {
-                            currentOptions.add('Nova Opção');
-                          });
-                        },
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [Icon(Symbols.add), SizedBox(width: 8), Text('Adicionar Opção')],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                actions: [
-                  OutlineButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
-                  PrimaryButton(
-                    onPressed: () {
-                      final newString = currentOptions.map((e) => e.trim()).where((e) => e.isNotEmpty).join('\n');
-                      widget.viewModel.updateQuestionUi(
-                        sectionId: sectionId,
-                        questionId: q.id,
-                        update: (current) => current.copyWith(questionOptions: newString),
-                      );
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Salvar'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final ScrollController scrollController = ScrollController();
@@ -123,7 +24,6 @@ class _QuestionWidget2State extends State<QuestionWidget> {
         lock: true,
         child: SortableDropFallback<int>(
           onAccept: (value) {
-            // Drop fora de um target específico -> joga pro final
             final section = widget.viewModel.questionnaire.value.sections[widget.sIndex];
             final uiList = widget.viewModel.uiQuestionsBySectionId[section.id];
             if (uiList == null) return;
@@ -136,7 +36,6 @@ class _QuestionWidget2State extends State<QuestionWidget> {
               final section = widget.viewModel.questionnaire.value.sections[widget.sIndex];
               final uiList = widget.viewModel.uiQuestionsBySectionId[section.id];
               if (uiList == null) {
-                // isso pode acontecer antes do initialize terminar
                 return const SizedBox.shrink();
               }
               const double rowHeight = 56;
@@ -147,138 +46,14 @@ class _QuestionWidget2State extends State<QuestionWidget> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, i) {
                   final sd = uiList[i]; // SortableData<QuestionModel>
-                  final q = sd.data; // QuestionModel
-                  return Sortable<QuestionModel>(
-                    // chave estável: id do model
-                    key: ValueKey(q.id),
-                    // payload estável: o mesmo SortableData que está na lista (não recria)
-                    data: sd,
-                    // placeholder fixo pra não colapsar layout durante o drag
-                    placeholder: const SizedBox(height: rowHeight),
-                    onAcceptTop: (dragged) {
-                      final fromIndex = uiList.indexOf(dragged);
-                      if (fromIndex == -1) return;
-                      widget.viewModel.moveQuestionUiByIndex(widget.sIndex, fromIndex, i);
-                    },
-                    onAcceptBottom: (dragged) {
-                      final fromIndex = uiList.indexOf(dragged);
-                      if (fromIndex == -1) return;
-                      widget.viewModel.moveQuestionUiByIndex(widget.sIndex, fromIndex, i + 1);
-                    },
-                    child: SizedBox(
-                      height: rowHeight,
-                      child: OutlinedContainer(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Row(
-                          spacing: 10,
-                          children: [
-                            const Icon(Icons.drag_indicator),
-
-                            Expanded(
-                              child: FormTableLayout(
-                                rows: [
-                                  FormField<String>(
-                                    key: FormKey<String>(ValueKey('question_${q.id}')),
-                                    validator: const NotEmptyValidator(message: 'A pergunta é obrigatória'),
-                                    label: Text('Q${i + 1}'),
-                                    child: TextField(
-                                      initialValue: q.question,
-                                      placeholder: const Text('Digite sua pergunta aqui...'),
-                                      onChanged: (value) {
-                                        widget.viewModel.updateQuestionUi(
-                                          sectionId: section.id,
-                                          questionId: q.id,
-                                          update: (current) => current.copyWith(question: value),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 150,
-                              child: Select<QuestionType>(
-                                itemBuilder: (context, item) {
-                                  return Text(item.typeTitle);
-                                },
-                                onChanged: (value) {
-                                  widget.viewModel.updateQuestionUi(
-                                    sectionId: section.id,
-                                    questionId: q.id,
-                                    update: (current) => current.copyWith(questionType: value?.dataType),
-                                  );
-                                },
-                                value: widget.viewModel.questionTypeList.firstWhere(
-                                  (e) => e.dataType == q.questionType,
-                                ),
-                                popup: SelectPopup(
-                                  items: SelectItemList(
-                                    children: [
-                                      ...widget.viewModel.questionTypeList.map(
-                                        (e) => SelectItemButton(value: e, child: Text(e.typeTitle)),
-                                      ),
-                                    ],
-                                  ),
-                                ).call,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 100,
-                              child: Center(
-                                child: Switch(
-                                  value: q.questionRequired,
-                                  onChanged: (value) {
-                                    widget.viewModel.updateQuestionUi(
-                                      sectionId: section.id,
-                                      questionId: q.id,
-                                      update: (current) => current.copyWith(questionRequired: value),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            OverlayAnchor(
-                              anchor: #questionActionsAnchor,
-                              child: SizedBox(
-                                width: 140,
-                                child: Row(
-                                  children: [
-                                    if (_requiresOptions(q.questionType))
-                                      IconButton(
-                                        icon: const Icon(Symbols.list),
-                                        variance: ButtonStyle.ghost(),
-                                        onPressed: () => _showOptionsDialog(context, q, section.id),
-                                      ),
-                                    IconButton(
-                                      icon: Icon(Symbols.add),
-                                      variance: ButtonStyle.ghost(),
-                                      onPressed: () {
-                                        widget.viewModel.addQuestion(widget.sIndex);
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Symbols.content_copy),
-                                      variance: ButtonStyle.ghost(),
-                                      onPressed: () {
-                                        widget.viewModel.duplicateQuestion(widget.sIndex, i);
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Symbols.variable_remove),
-                                      variance: ButtonStyle.ghost(),
-                                      onPressed: () {
-                                        return widget.viewModel.removeQuestion(widget.sIndex, i);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ).marginOnly(bottom: 10),
+                  return QuestionRowWidget(
+                    key: ValueKey(sd.data.id),
+                    viewModel: widget.viewModel,
+                    section: section,
+                    sd: sd,
+                    index: i,
+                    sIndex: widget.sIndex,
+                    rowHeight: rowHeight,
                   );
                 },
               );
@@ -287,21 +62,123 @@ class _QuestionWidget2State extends State<QuestionWidget> {
         ),
       ),
     );
-    // return Row(
-    //   children: [
-    //     Expanded(child: Text('Pergunta ${qIndex + 1}')),
-    //     IconButton(onPressed: () => viewModel.addQuestion(sIndex), icon: const Icon(Icons.add), variance: ButtonStyle.ghost()),
-    //     IconButton(
-    //       variance: ButtonStyle.ghost(),
-    //       onPressed: () {
-    //         viewModel.removeQuestionById(sIndex, questionId);
-    //         if (viewModel.questionnaire.value.sections[sIndex].questions.isEmpty) {
-    //           viewModel.addQuestion(sIndex);
-    //         }
-    //       },
-    //       icon: const Icon(Icons.remove),
-    //     ),
-    //   ],
-    // );
+  }
+}
+
+class QuestionRowWidget extends StatefulWidget {
+  final FormManagerViewModel viewModel;
+  final SectionModel section;
+  final SortableData<QuestionModel> sd;
+  final int index;
+  final int sIndex;
+  final double rowHeight;
+
+  const QuestionRowWidget({
+    super.key,
+    required this.viewModel,
+    required this.section,
+    required this.sd,
+    required this.index,
+    required this.sIndex,
+    required this.rowHeight,
+  });
+
+  @override
+  State<QuestionRowWidget> createState() => _QuestionRowWidgetState();
+}
+
+class _QuestionRowWidgetState extends State<QuestionRowWidget> {
+  late TextEditingController _questionController;
+  late String _questionId;
+
+  @override
+  void initState() {
+    super.initState();
+    _questionId = widget.sd.data.id;
+    _questionController = widget.viewModel.getQuestionController(_questionId, widget.sd.data.question);
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.releaseQuestionController(_questionId, _questionController);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final q = widget.sd.data;
+    return Obx(() {
+      final isSelected = widget.viewModel.selectedSectionId.value == widget.section.id &&
+          widget.viewModel.selectedQuestionId.value == q.id;
+
+      return Sortable<QuestionModel>(
+        key: ValueKey(q.id),
+        data: widget.sd,
+        placeholder: SizedBox(height: widget.rowHeight),
+        onAcceptTop: (dragged) {
+          final section = widget.viewModel.questionnaire.value.sections[widget.sIndex];
+          final uiList = widget.viewModel.uiQuestionsBySectionId[section.id];
+          if (uiList == null) return;
+          final fromIndex = uiList.indexOf(dragged);
+          if (fromIndex == -1) return;
+          widget.viewModel.moveQuestionUiByIndex(widget.sIndex, fromIndex, widget.index);
+        },
+        onAcceptBottom: (dragged) {
+          final section = widget.viewModel.questionnaire.value.sections[widget.sIndex];
+          final uiList = widget.viewModel.uiQuestionsBySectionId[section.id];
+          if (uiList == null) return;
+          final fromIndex = uiList.indexOf(dragged);
+          if (fromIndex == -1) return;
+          widget.viewModel.moveQuestionUiByIndex(widget.sIndex, fromIndex, widget.index + 1);
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            widget.viewModel.selectQuestion(widget.section.id, q.id);
+          },
+          child: SizedBox(
+            height: widget.rowHeight,
+            child: OutlinedContainer(
+              borderColor: isSelected ? Theme.of(context).colorScheme.primary : null,
+              borderWidth: isSelected ? 2.0 : null,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                spacing: 10,
+                children: [
+                  const Icon(Icons.drag_indicator),
+
+                  Expanded(
+                    child: FormTableLayout(
+                      rows: [
+                        FormField<String>(
+                          key: FormKey<String>(ValueKey('question_${q.id}')),
+                          validator: const NotEmptyValidator(message: 'A pergunta é obrigatória'),
+                          label: Text('Q${widget.index + 1}'),
+                          child: TextField(
+                            controller: _questionController,
+                            placeholder: const Text('Digite sua pergunta aqui...'),
+                            onTap: () {
+                              widget.viewModel.selectQuestion(widget.section.id, q.id);
+                            },
+                            onChanged: (value) {
+                              widget.viewModel.updateQuestionUi(
+                                sectionId: widget.section.id,
+                                questionId: q.id,
+                                update: (current) => current.copyWith(question: value),
+                              );
+                              widget.viewModel.appStateController.formHasUnsavedValues.value = true;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    });
   }
 }

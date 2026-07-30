@@ -28,6 +28,129 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     // .copyWith(id: const Uuid().v4()),
   );
 
+  final selectedSectionId = Rxn<String>();
+  final selectedQuestionId = Rxn<String>();
+
+  final Map<String, SyncedTextController> _questionControllers = {};
+  final Map<String, SyncedTextController> _questionInstructionsControllers = {};
+  final Map<String, SyncedTextController> _sectionControllers = {};
+
+  final selectedQuestionOptionControllers = <TextEditingController>[].obs;
+
+  TextEditingController getQuestionController(String id, String initialValue) {
+    final synced = _questionControllers.putIfAbsent(id, () => SyncedTextController(initialValue));
+    return synced.getController();
+  }
+
+  void releaseQuestionController(String id, TextEditingController controller) {
+    final synced = _questionControllers[id];
+    if (synced != null) {
+      synced.removeController(controller);
+    }
+  }
+
+  TextEditingController getQuestionInstructionsController(String id, String initialValue) {
+    final synced = _questionInstructionsControllers.putIfAbsent(id, () => SyncedTextController(initialValue));
+    return synced.getController();
+  }
+
+  void releaseQuestionInstructionsController(String id, TextEditingController controller) {
+    final synced = _questionInstructionsControllers[id];
+    if (synced != null) {
+      synced.removeController(controller);
+    }
+  }
+
+  TextEditingController getSectionController(String id, String initialValue) {
+    final synced = _sectionControllers.putIfAbsent(id, () => SyncedTextController(initialValue));
+    return synced.getController();
+  }
+
+  void releaseSectionController(String id, TextEditingController controller) {
+    final synced = _sectionControllers[id];
+    if (synced != null) {
+      synced.removeController(controller);
+    }
+  }
+
+  void clearControllersFor(String id) {
+    _questionControllers.remove(id)?.dispose();
+    _questionInstructionsControllers.remove(id)?.dispose();
+    _sectionControllers.remove(id)?.dispose();
+  }
+
+  void selectSection(String sectionId) {
+    selectedSectionId.value = sectionId;
+    selectedQuestionId.value = null;
+  }
+
+  void selectQuestion(String sectionId, String questionId) {
+    selectedSectionId.value = sectionId;
+    selectedQuestionId.value = questionId;
+
+    // Find the question and sync options
+    final section = questionnaire.value.sections.firstWhereOrNull((s) => s.id == sectionId);
+    final question = section?.questions.firstWhereOrNull((q) => q.id == questionId);
+    syncOptionControllers(question?.questionOptions);
+  }
+
+  void clearSelection() {
+    selectedSectionId.value = null;
+    selectedQuestionId.value = null;
+  }
+
+  void syncOptionControllers(String? optionsString) {
+    for (var c in selectedQuestionOptionControllers) {
+      c.dispose();
+    }
+    selectedQuestionOptionControllers.clear();
+    if (optionsString == null || optionsString.isEmpty) return;
+    final options = optionsString.split(RegExp(r';\n|[\n;]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    for (final opt in options) {
+      selectedQuestionOptionControllers.add(TextEditingController(text: opt));
+    }
+  }
+
+  void updateQuestionOptionsFromControllers(String sectionId, String questionId) {
+    final newOptions = selectedQuestionOptionControllers.map((c) => c.text.trim()).where((t) => t.isNotEmpty).join('\n');
+    updateQuestionUi(
+      sectionId: sectionId,
+      questionId: questionId,
+      update: (current) => current.copyWith(questionOptions: newOptions),
+    );
+    appStateController.formHasUnsavedValues.value = true;
+  }
+
+  void addOptionToSelectedQuestion() {
+    final sId = selectedSectionId.value;
+    final qId = selectedQuestionId.value;
+    if (sId == null || qId == null) return;
+    selectedQuestionOptionControllers.add(TextEditingController(text: 'Nova Opção'));
+    updateQuestionOptionsFromControllers(sId, qId);
+  }
+
+  void removeOptionFromSelectedQuestion(int index) {
+    final sId = selectedSectionId.value;
+    final qId = selectedQuestionId.value;
+    if (sId == null || qId == null) return;
+    if (index >= 0 && index < selectedQuestionOptionControllers.length) {
+      selectedQuestionOptionControllers.removeAt(index).dispose();
+      updateQuestionOptionsFromControllers(sId, qId);
+    }
+  }
+
+  int getSelectedSectionIndex() {
+    final sId = selectedSectionId.value;
+    if (sId == null) return -1;
+    return questionnaire.value.sections.indexWhere((s) => s.id == sId);
+  }
+
+  int getSelectedQuestionIndex(int sIndex) {
+    final qId = selectedQuestionId.value;
+    if (qId == null || sIndex == -1) return -1;
+    return questionnaire.value.sections[sIndex].questions.indexWhere((q) => q.id == qId);
+  }
+
   final formularyTitleEC = TextEditingController();
   final formularyDescriptionEC = TextEditingController();
   final selectedQuestionType = Rx<QuestionType>(TypeSimpleText());
@@ -112,6 +235,13 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     final current = uiList[idx].data;
     final next = update(current);
 
+    if (questionId == selectedQuestionId.value) {
+      final currentControllersString = selectedQuestionOptionControllers.map((c) => c.text.trim()).join('\n');
+      if (next.questionOptions != current.questionOptions && next.questionOptions != currentControllersString) {
+        syncOptionControllers(next.questionOptions);
+      }
+    }
+
     // mantém o MESMO SortableData? -> não dá, SortableData é imutável
     // então a gente substitui o item na UI list por um novo SortableData
     // e atualiza cache para manter estabilidade nas próximas reconstruções.
@@ -167,6 +297,11 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
 
   void removeQuestionById(int sIndex, String questionId) {
     final section = questionnaire.value.sections[sIndex];
+
+    if (selectedQuestionId.value == questionId) {
+      clearSelection();
+    }
+    clearControllersFor(questionId);
 
     // model
     final updated = List<QuestionModel>.from(section.questions)..removeWhere((q) => q.id == questionId);
@@ -438,17 +573,16 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
 
   void removeQuestion(int sIndex, int qIndex) {
     if (questionnaire.value.sections[sIndex].questions.length > 1) {
-      // if (qIndex >= 0 && qIndex < questionnaire.value.sections[sIndex].questions.length) {
-      //   final updatedQuestions = List<QuestionModel>.from(questionnaire.value.sections[sIndex].questions)..removeAt(qIndex);
-      //   questionnaire.update((val) {
-      //     val?.sections[sIndex].questions = updatedQuestions;
-      //   });
-      // }
       final section = questionnaire.value.sections[sIndex];
 
       // 1) model: remove
       if (qIndex < 0 || qIndex >= section.questions.length) return;
       final removed = section.questions[qIndex];
+
+      if (selectedQuestionId.value == removed.id) {
+        clearSelection();
+      }
+      clearControllersFor(removed.id);
 
       final updated = List<QuestionModel>.from(section.questions)..removeAt(qIndex);
       questionnaire.update((val) {
@@ -468,6 +602,15 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
   void removeSection(int sIndex) {
     if (questionnaire.value.sections.length > 1) {
       if (sIndex >= 0 && sIndex < questionnaire.value.sections.length) {
+        final removedSection = questionnaire.value.sections[sIndex];
+        if (selectedSectionId.value == removedSection.id) {
+          clearSelection();
+        }
+        for (final q in removedSection.questions) {
+          clearControllersFor(q.id);
+        }
+        clearControllersFor(removedSection.id);
+
         final updatedSections = List<SectionModel>.from(questionnaire.value.sections)..removeAt(sIndex);
         questionnaire.update((val) {
           val?.sections = updatedSections;
@@ -494,5 +637,85 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
         showInfo(message);
         break;
     }
+  }
+
+  @override
+  void onClose() {
+    for (final synced in _questionControllers.values) {
+      synced.dispose();
+    }
+    for (final synced in _questionInstructionsControllers.values) {
+      synced.dispose();
+    }
+    for (final synced in _sectionControllers.values) {
+      synced.dispose();
+    }
+    for (final controller in selectedQuestionOptionControllers) {
+      controller.dispose();
+    }
+    formularyTitleEC.dispose();
+    formularyDescriptionEC.dispose();
+    super.onClose();
+  }
+}
+
+class SyncedTextController {
+  String _value;
+  final Set<TextEditingController> _controllers = {};
+  bool _isUpdating = false;
+
+  SyncedTextController(this._value);
+
+  TextEditingController getController() {
+    final controller = TextEditingController(text: _value);
+    _controllers.add(controller);
+
+    controller.addListener(() {
+      if (_isUpdating) return;
+      if (controller.text != _value) {
+        _value = controller.text;
+        _isUpdating = true;
+        try {
+          for (final c in _controllers) {
+            if (c != controller && c.text != _value) {
+              c.text = _value;
+            }
+          }
+        } finally {
+          _isUpdating = false;
+        }
+      }
+    });
+
+    return controller;
+  }
+
+  void removeController(TextEditingController controller) {
+    _controllers.remove(controller);
+    controller.dispose();
+  }
+
+  void updateValue(String newValue) {
+    if (_value != newValue) {
+      _value = newValue;
+      _isUpdating = true;
+      try {
+        for (final c in _controllers) {
+          if (c.text != _value) {
+            c.text = _value;
+          }
+        }
+      } finally {
+        _isUpdating = false;
+      }
+    }
+  }
+
+  void dispose() {
+    _isUpdating = true;
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    _controllers.clear();
   }
 }

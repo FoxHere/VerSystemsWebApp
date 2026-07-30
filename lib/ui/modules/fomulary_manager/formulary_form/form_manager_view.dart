@@ -10,8 +10,10 @@ import 'package:versystems_app/config/helpers/routes/routes_helper.dart';
 import 'package:versystems_app/config/utils/app_page_status.dart';
 import 'package:versystems_app/config/utils/app_page_status_builder.dart';
 import 'package:versystems_app/data/models/formulary/formulary_model.dart';
+import 'package:versystems_app/data/repositories/formulary/formulary_repository_impl.dart';
 import 'package:versystems_app/ui/modules/fomulary_manager/formulary_form/components/import_excel_dialog.dart';
 import 'package:versystems_app/ui/modules/fomulary_manager/formulary_form/components/section_widget.dart';
+import 'package:versystems_app/ui/modules/fomulary_manager/formulary_form/components/property_panel.dart';
 import 'package:versystems_app/ui/modules/fomulary_manager/formulary_form/form_manager_view_model.dart';
 
 class FormManagerView extends StatefulWidget {
@@ -24,14 +26,31 @@ class FormManagerView extends StatefulWidget {
 }
 
 class _FormManagerViewState extends State<FormManagerView> with ResponsiveDeviceMixin, MessageViewMixin {
-  final viewModel = Get.find<FormManagerViewModel>();
+  late final FormManagerViewModel viewModel;
+  late final Worker _messageWorker;
   final AppStateController appStateController = Get.find<AppStateController>();
   final FormController _formController = FormController();
 
   @override
   void initState() {
     super.initState();
-    messageListener(viewModel);
+    viewModel = FormManagerViewModel(
+      formManagerRepository: Get.find<FormularyRepositoryImpl>(),
+    );
+    _messageWorker = ever<MessageState>(viewModel.messageState, (messageState) {
+      if (messageState.errorMessage.value != null) {
+        Messages.showError(messageState.errorMessage.value!, context);
+      }
+      if (messageState.infoMessage.value != null) {
+        Messages.showInfo(messageState.infoMessage.value!, context);
+      }
+      if (messageState.warningMessage.value != null) {
+        Messages.showWarning(messageState.warningMessage.value!, context);
+      }
+      if (messageState.successMessage.value != null) {
+        Messages.showSuccess(messageState.successMessage.value!, context);
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       viewModel.initialize(widget.formId);
     });
@@ -39,6 +58,8 @@ class _FormManagerViewState extends State<FormManagerView> with ResponsiveDevice
 
   @override
   void dispose() {
+    _messageWorker.dispose();
+    viewModel.onClose();
     _formController.dispose();
     super.dispose();
   }
@@ -51,269 +72,226 @@ class _FormManagerViewState extends State<FormManagerView> with ResponsiveDevice
       anchor: #formManagerAnchor,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return Form(
-            controller: _formController,
-            child: Column(
-              spacing: Boudaries.spacing,
-              children: [
-                Row(
-                  // ----------------------------------- Header ----------------------
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text('Gerenciar Formulário').h3(),
-                        Text('Monte seu formulário customizado organizando campos e seções').light(color: Colors.slate),
-                      ],
-                    ),
-                    Expanded(
-                      child: Row(
-                        spacing: 10,
-                        mainAxisAlignment: MainAxisAlignment.end,
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              viewModel.clearSelection();
+            },
+            child: Form(
+              controller: _formController,
+              child: Column(
+                spacing: Boudaries.spacing,
+                children: [
+                  Row(
+                    // ----------------------------------- Header ----------------------
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: .start,
                         children: [
-                          IconButton(
-                            icon: Icon(Symbols.arrow_back),
-                            variance: ButtonStyle.outline(),
-                            onPressed: () {
-                              context.go(RoutesHelper.formularies);
-                            },
-                          ),
-                          // ---------------------- New Item Button ----------------------
-                          OutlineButton(
-                            onPressed: () => showOverlay(
-                              context,
-                              DialogConfiguration(
-                                // anchor: LinkedAnchor(#formManagerAnchor),
-                                builder: (context) {
-                                  return ImportExcelDialog(
-                                    formularyId: widget.formId,
-                                    onImport: (formulary) {
-                                      viewModel.setNewFormulary(formulary);
-                                      setState(() {});
-                                    },
-                                  );
-                                },
-                              ),
+                          Text('Gerenciar Formulário').h3(),
+                          Text(
+                            'Monte seu formulário customizado organizando campos e seções',
+                          ).light(color: Colors.slate),
+                        ],
+                      ),
+                      Expanded(
+                        child: Row(
+                          spacing: 10,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: Icon(Symbols.arrow_back),
+                              variance: ButtonStyle.outline(),
+                              onPressed: () {
+                                context.go(RoutesHelper.formularies);
+                              },
                             ),
-                            child: Row(spacing: 10, children: [Icon(Symbols.upload), Text('Import Formulário')]),
-                          ),
-                          PrimaryButton(
-                            leading: Icon(Symbols.save),
-                            onPressed: () async {
-                              _formController.revalidate(context, FormValidationMode.submitted);
-                              if (_formController.errors.isNotEmpty) {
-                                viewModel.showMessage(
-                                  'Por favor, preencha todos os campos obrigatórios.',
-                                  MessageType.error,
-                                );
-                                return;
-                              }
-                              appStateController.formHasUnsavedValues.value = false;
-                              await viewModel.onSaveFormulary();
-                              if (!appStateController.formHasUnsavedValues.value) {
-                                if (viewModel.pageStatus.value is PageStatusSuccess && context.mounted) {
-                                  context.go(RoutesHelper.formularies);
-                                }
-                              }
-                            },
-                            child: Text('Salvar Formulário'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                // ----------------------------------- Content ----------------------
-                Row(
-                  crossAxisAlignment: .start,
-                  children: [
-                    // ----------------------------------- Left Content ----------------------
-                    SizedBox(
-                      width: constraints.maxWidth - 485,
-                      height: constraints.maxHeight - 110,
-                      child: Obx(() {
-                        return AppPageStatusBuilder<Rx<FormularyModel>>(
-                          pageStatus: viewModel.pageStatus.value,
-                          successBuilder: (model) {
-                            return Column(
-                              /// essa coluna é somente para manter os items alinhados no topo
-                              children: [
-                                Expanded(
-                                  child: CustomScrollView(
-                                    shrinkWrap: true,
-                                    slivers: [
-                                      // ----------------------------------- Basic Information ----------------------
-                                      SliverPadding(
-                                        padding: .only(right: 5),
-                                        sliver: SliverToBoxAdapter(
-                                          child: OutlinedContainer(
-                                            width: double.infinity,
-                                            child: Collapsible(
-                                              isExpanded: true,
-                                              children: [
-                                                CollapsibleTrigger(child: Text('Informações básicas').h4()),
-                                                CollapsibleContent(
-                                                  child: Column(
-                                                    spacing: 10,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            child: FormField<String>(
-                                                              key: const FormKey<String>(#title),
-                                                              label: const Text('Título do formulário'),
-                                                              validator: const NotEmptyValidator(
-                                                                message: 'O título é obrigatório',
-                                                              ),
-                                                              showErrors: const {
-                                                                FormValidationMode.changed,
-                                                                FormValidationMode.submitted,
-                                                              },
-                                                              child: TextField(
-                                                                placeholder: const Text('Título do formulário'),
-                                                                controller: viewModel.formularyTitleEC,
-                                                                onChanged: (value) {
-                                                                  viewModel.questionnaire.value.title = value;
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            child: FormField<String>(
-                                                              key: const FormKey<String>(#description),
-                                                              label: const Text('Descrição do formulário'),
-                                                              validator: const NotEmptyValidator(
-                                                                message: 'A descrição é obrigatória',
-                                                              ),
-                                                              showErrors: const {
-                                                                FormValidationMode.changed,
-                                                                FormValidationMode.submitted,
-                                                              },
-                                                              child: TextField(
-                                                                placeholder: const Text('Descrição do formulário'),
-                                                                controller: viewModel.formularyDescriptionEC,
-                                                                onChanged: (value) {
-                                                                  viewModel.questionnaire.value.description = value;
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ).paddingAll(15),
-                                                ),
-                                              ],
-                                            ).paddingSymmetric(vertical: 15),
-                                          ).marginOnly(right: 10),
-                                        ),
-                                      ),
-                                      // ----------------------------------- Sections ----------------------
-                                      SliverPadding(
-                                        padding: .only(right: 5),
-                                        sliver: SliverToBoxAdapter(
-                                          child: Obx(() {
-                                            return ListView.builder(
-                                              itemCount: viewModel.questionnaire.value.sections.length,
-                                              shrinkWrap: true,
-                                              physics: const NeverScrollableScrollPhysics(),
-                                              itemBuilder: (context, i) {
-                                                final section = viewModel.questionnaire.value.sections[i];
-                                                return SectionWidget(
-                                                  key: ValueKey(section.id),
-                                                  viewModel: viewModel,
-                                                  sIndex: i,
-                                                ).marginOnly(right: 10, top: 10);
-                                              },
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }),
-                    ),
-
-                    // ----------------------------------- Sections ----------------------
-
-                    // ----------------------------------- Right Content ----------------------
-                    SizedBox(
-                      width: 435,
-                      height: 200,
-                      child: Column(
-                        children: [
-                          Obx(() {
-                            final totalSections = viewModel.questionnaire.value.sections.length;
-                            final summary = viewModel.questionnaire.value.sections.fold(
-                              0,
-                              (sum, section) => sum + section.questions.length,
-                            );
-                            final requiredFields = viewModel.questionnaire.value.sections.fold(
-                              0,
-                              (sum, section) =>
-                                  sum + section.questions.where((question) => question.questionRequired).length,
-                            );
-                            final optionalFields = viewModel.questionnaire.value.sections.fold(
-                              0,
-                              (sum, section) =>
-                                  sum + section.questions.where((question) => !question.questionRequired).length,
-                            );
-                            return Card(
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 135,
-                                child: Column(
-                                  spacing: 3,
-                                  crossAxisAlignment: .start,
-                                  children: [
-                                    Text('Resumo').h4,
-                                    Spacer(),
-                                    Row(
-                                      mainAxisAlignment: .spaceBetween,
-                                      children: [Text('Seções:').small(), Text(totalSections.toString()).small()],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: .spaceBetween,
-                                      children: [Text('Total de campos:').small(), Text(summary.toString()).small()],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: .spaceBetween,
-                                      children: [
-                                        Text('Campos obrigatórios:').small(),
-                                        Text(requiredFields.toString()).small(),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: .spaceBetween,
-                                      children: [
-                                        Text('Campos opcionais:').small(),
-                                        Text(optionalFields.toString()).small(),
-                                      ],
-                                    ),
-                                  ],
+                            // ---------------------- New Item Button ----------------------
+                            OutlineButton(
+                              onPressed: () => showOverlay(
+                                context,
+                                DialogConfiguration(
+                                  // anchor: LinkedAnchor(#formManagerAnchor),
+                                  builder: (context) {
+                                    return ImportExcelDialog(
+                                      formularyId: widget.formId,
+                                      onImport: (formulary) {
+                                        viewModel.setNewFormulary(formulary);
+                                        setState(() {});
+                                      },
+                                    );
+                                  },
                                 ),
                               ),
-                            ).paddingOnly(left: Boudaries.spacing);
-                          }),
-                        ],
+                              child: Row(spacing: 10, children: [Icon(Symbols.upload), Text('Import Formulário')]),
+                            ),
+                            PrimaryButton(
+                              leading: Icon(Symbols.save),
+                              onPressed: () async {
+                                _formController.revalidate(context, FormValidationMode.submitted);
+                                if (_formController.errors.isNotEmpty) {
+                                  viewModel.showMessage(
+                                    'Por favor, preencha todos os campos obrigatórios.',
+                                    MessageType.error,
+                                  );
+                                  return;
+                                }
+                                appStateController.formHasUnsavedValues.value = false;
+                                await viewModel.onSaveFormulary();
+                                if (!appStateController.formHasUnsavedValues.value) {
+                                  if (viewModel.pageStatus.value is PageStatusSuccess && context.mounted) {
+                                    context.go(RoutesHelper.formularies);
+                                  }
+                                }
+                              },
+                              child: Text('Salvar Formulário'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ).paddingAll(Boudaries.spacing),
+                    ],
+                  ),
+                  // ----------------------------------- Content ----------------------
+                  Row(
+                    crossAxisAlignment: .start,
+                    children: [
+                      // ----------------------------------- Left Content ----------------------
+                      SizedBox(
+                        width: constraints.maxWidth - 485,
+                        height: constraints.maxHeight - 110,
+                        child: Obx(() {
+                          return AppPageStatusBuilder<Rx<FormularyModel>>(
+                            pageStatus: viewModel.pageStatus.value,
+                            successBuilder: (model) {
+                              return Column(
+                                /// essa coluna é somente para manter os items alinhados no topo
+                                children: [
+                                  Expanded(
+                                    child: CustomScrollView(
+                                      shrinkWrap: true,
+                                      slivers: [
+                                        // ----------------------------------- Basic Information ----------------------
+                                        SliverPadding(
+                                          padding: .only(right: 5),
+                                          sliver: SliverToBoxAdapter(
+                                            child: OutlinedContainer(
+                                              width: double.infinity,
+                                              child: Collapsible(
+                                                isExpanded: true,
+                                                children: [
+                                                  CollapsibleTrigger(child: Text('Informações básicas').h4()),
+                                                  CollapsibleContent(
+                                                    child: Column(
+                                                      spacing: 10,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: FormField<String>(
+                                                                key: const FormKey<String>(#title),
+                                                                label: const Text('Título do formulário'),
+                                                                validator: const NotEmptyValidator(
+                                                                  message: 'O título é obrigatório',
+                                                                ),
+                                                                showErrors: const {
+                                                                  FormValidationMode.changed,
+                                                                  FormValidationMode.submitted,
+                                                                },
+                                                                child: TextField(
+                                                                  placeholder: const Text('Título do formulário'),
+                                                                  controller: viewModel.formularyTitleEC,
+                                                                  onChanged: (value) {
+                                                                    viewModel.questionnaire.value.title = value;
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: FormField<String>(
+                                                                key: const FormKey<String>(#description),
+                                                                label: const Text('Descrição do formulário'),
+                                                                validator: const NotEmptyValidator(
+                                                                  message: 'A descrição é obrigatória',
+                                                                ),
+                                                                showErrors: const {
+                                                                  FormValidationMode.changed,
+                                                                  FormValidationMode.submitted,
+                                                                },
+                                                                child: TextField(
+                                                                  placeholder: const Text('Descrição do formulário'),
+                                                                  controller: viewModel.formularyDescriptionEC,
+                                                                  onChanged: (value) {
+                                                                    viewModel.questionnaire.value.description = value;
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ).paddingAll(15),
+                                                  ),
+                                                ],
+                                              ).paddingSymmetric(vertical: 15),
+                                            ).marginOnly(right: 10),
+                                          ),
+                                        ),
+                                        // ----------------------------------- Sections ----------------------
+                                        SliverPadding(
+                                          padding: .only(right: 5),
+                                          sliver: SliverToBoxAdapter(
+                                            child: Obx(() {
+                                              return ListView.builder(
+                                                itemCount: viewModel.questionnaire.value.sections.length,
+                                                shrinkWrap: true,
+                                                physics: const NeverScrollableScrollPhysics(),
+                                                itemBuilder: (context, i) {
+                                                  final section = viewModel.questionnaire.value.sections[i];
+                                                  return SectionWidget(
+                                                    key: ValueKey(section.id),
+                                                    viewModel: viewModel,
+                                                    sIndex: i,
+                                                  ).marginOnly(right: 10, top: 10);
+                                                },
+                                              );
+                                            }),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }),
+                      ),
+
+                      // ----------------------------------- Sections ----------------------
+
+                      // ----------------------------------- Right Content ----------------------
+                      SizedBox(
+                        width: 435,
+                        height: constraints.maxHeight - 110,
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: Boudaries.spacing),
+                            child: PropertyPanel(viewModel: viewModel),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ).paddingAll(Boudaries.spacing),
+            ),
           );
         },
       ),
