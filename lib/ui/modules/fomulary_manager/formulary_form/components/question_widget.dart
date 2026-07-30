@@ -136,44 +136,47 @@ class _QuestionRowWidgetState extends State<QuestionRowWidget> {
           onTap: () {
             widget.viewModel.selectQuestion(widget.section.id, q.id);
           },
-          child: SizedBox(
-            height: widget.rowHeight,
-            child: OutlinedContainer(
-              borderColor: isSelected ? Theme.of(context).colorScheme.primary : null,
-              borderWidth: isSelected ? 2.0 : null,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                spacing: 10,
-                children: [
-                  const Icon(Icons.drag_indicator),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: widget.rowHeight),
+              child: OutlinedContainer(
+                borderColor: isSelected ? Theme.of(context).colorScheme.primary : null,
+                borderWidth: isSelected ? 2.0 : null,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    const Icon(Icons.drag_indicator),
 
-                  Expanded(
-                    child: FormTableLayout(
-                      rows: [
-                        FormField<String>(
-                          key: FormKey<String>(ValueKey('question_${q.id}')),
-                          validator: const NotEmptyValidator(message: 'A pergunta é obrigatória'),
-                          label: Text('Q${widget.index + 1}'),
-                          child: TextField(
-                            controller: _questionController,
-                            placeholder: const Text('Digite sua pergunta aqui...'),
-                            onTap: () {
-                              widget.viewModel.selectQuestion(widget.section.id, q.id);
-                            },
-                            onChanged: (value) {
-                              widget.viewModel.updateQuestionUi(
-                                sectionId: widget.section.id,
-                                questionId: q.id,
-                                update: (current) => current.copyWith(question: value),
-                              );
-                              widget.viewModel.appStateController.formHasUnsavedValues.value = true;
-                            },
+                    Expanded(
+                      child: FormTableLayout(
+                        rows: [
+                          FormField<String>(
+                            key: FormKey<String>(ValueKey('question_${q.id}')),
+                            validator: const NotEmptyValidator(message: 'A pergunta é obrigatória'),
+                            label: Text('Q${widget.index + 1}'),
+                            child: TextField(
+                              controller: _questionController,
+                              placeholder: const Text('Digite sua pergunta aqui...'),
+                              onTap: () {
+                                widget.viewModel.selectQuestion(widget.section.id, q.id);
+                              },
+                              onChanged: (value) {
+                                widget.viewModel.updateQuestionUi(
+                                  sectionId: widget.section.id,
+                                  questionId: q.id,
+                                  update: (current) => current.copyWith(question: value),
+                                );
+                                widget.viewModel.appStateController.formHasUnsavedValues.value = true;
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
