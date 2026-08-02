@@ -12,7 +12,6 @@ import 'package:versystems_app/data/models/company/company_status.dart';
 import 'package:versystems_app/ui/modules/company_manager/company_list/company_list_view_model.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_actions.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_description.dart';
-import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_icon_text.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_status.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_title.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_updated_at.dart';

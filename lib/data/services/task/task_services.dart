@@ -41,7 +41,7 @@ class TaskServices {
 
   Future<Either<ServiceException, List<Map<String, dynamic>>>> findAll({Map<String, dynamic>? filters}) async {
     try {
-      Query query = await _firestore
+      Query query = _firestore
           .collection(FirestoreCollectionsHelper.branches)
           .doc(AppSessionController.instance.companyId)
           .collection(FirestoreCollectionsHelper.tasks)

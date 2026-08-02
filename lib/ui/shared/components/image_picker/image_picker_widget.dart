@@ -76,7 +76,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
         } else {
           fileName = decodedUrl.split('/').last;
         }
-        final ref = FirebaseStorage.instance.refFromURL(url);
+        // final ref = FirebaseStorage.instance.refFromURL(url);
         // final metaData = await ref.getMetadata();
         if (fileName.contains('_')) fileName = fileName.split('_').last;
         return ImageItemModel(bytes: Uint8List(0), name: fileName, sizeBytes: 0); //url: url);

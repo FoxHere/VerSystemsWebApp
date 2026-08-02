@@ -46,7 +46,7 @@ class SetupStepper extends StatelessWidget {
                 color: isCompleted
                     ? theme.colorScheme.primary
                     : isCurrent
-                        ? theme.colorScheme.primary.withOpacity(0.15)
+                        ? theme.colorScheme.primary.withValues(alpha: 0.15)
                         : theme.colorScheme.muted,
                 border: Border.all(
                   color: isCompleted || isCurrent

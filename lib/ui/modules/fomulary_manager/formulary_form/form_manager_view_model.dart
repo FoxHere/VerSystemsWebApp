@@ -100,15 +100,19 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
   }
 
   void syncOptionControllers(String? optionsString) {
-    for (var c in selectedQuestionOptionControllers) {
-      c.dispose();
-    }
+    final controllersToDispose = List<TextEditingController>.from(selectedQuestionOptionControllers);
     selectedQuestionOptionControllers.clear();
-    if (optionsString == null || optionsString.isEmpty) return;
-    final options = optionsString.split(RegExp(r';\n|[\n;]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-    for (final opt in options) {
-      selectedQuestionOptionControllers.add(TextEditingController(text: opt));
+    if (optionsString != null && optionsString.isNotEmpty) {
+      final options = optionsString.split(RegExp(r';\n|[\n;]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      for (final opt in options) {
+        selectedQuestionOptionControllers.add(TextEditingController(text: opt));
+      }
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (final c in controllersToDispose) {
+        c.dispose();
+      }
+    });
   }
 
   void updateQuestionOptionsFromControllers(String sectionId, String questionId) {
@@ -134,8 +138,11 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     final qId = selectedQuestionId.value;
     if (sId == null || qId == null) return;
     if (index >= 0 && index < selectedQuestionOptionControllers.length) {
-      selectedQuestionOptionControllers.removeAt(index).dispose();
+      final controller = selectedQuestionOptionControllers.removeAt(index);
       updateQuestionOptionsFromControllers(sId, qId);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
     }
   }
 

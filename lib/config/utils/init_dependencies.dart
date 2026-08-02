@@ -1,11 +1,5 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:versystems_app/config/controllers/app_session/app_session_controller.dart';
 import 'package:versystems_app/config/controllers/app_state/app_state_controller.dart';
@@ -30,7 +24,7 @@ import 'package:versystems_app/data/services/user/user_services_impl.dart';
 Future<void> initDependencies() async {
   // -----------------------------------------------Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  String host = '127.0.0.1';
+  // String host = '127.0.0.1';
   // if (!kIsWeb && Platform.isAndroid) host = '10.0.2.2'; // Android emulator
   // // Verificar se o app está dem debug mode para usar o firebase local emulator
   // if (kDebugMode) {
@@ -75,7 +69,6 @@ Future<void> initDependencies() async {
       userServicesImpl: Get.find<UserServicesImpl>(),
       profileServicesImpl: Get.find<ProfileServicesImpl>(),
       departmentServicesImpl: Get.find<DepartmentServicesImpl>(),
-      imageServices: Get.find<ImageServices>(),
       firebaseFunctionsServicesImpl: Get.find<FirebaseFunctionsServiceImpl>(),
     ),
   );

@@ -8,7 +8,6 @@ import 'package:versystems_app/config/helpers/routes/routes_helper.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/data/models/company/company_model.dart';
 import 'package:versystems_app/data/models/user/user_model.dart';
-import 'package:versystems_app/ui/modules/setup/components/setup_stepper.dart';
 import 'package:versystems_app/ui/modules/setup/components/step_admin_user_form.dart';
 import 'package:versystems_app/ui/modules/setup/components/step_company_form.dart';
 import 'package:versystems_app/ui/modules/setup/setup_view_model.dart';

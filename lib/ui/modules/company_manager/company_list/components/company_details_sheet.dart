@@ -1,4 +1,3 @@
-import 'package:go_router/go_router.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:get/get.dart';
 import 'package:versystems_app/data/models/company/company_model.dart';
@@ -51,7 +50,8 @@ class CompanyDetailsSheet extends StatelessWidget {
                 children: [
                   const FxDivider(title: 'Identidade e Fiscal', icon: Symbols.business),
                   _buildDetailRow('Razão Social', company.name),
-                  if (company.tradeName != null && company.tradeName!.isNotEmpty) _buildDetailRow('Nome Fantasia', company.tradeName!),
+                  if (company.tradeName != null && company.tradeName!.isNotEmpty)
+                    _buildDetailRow('Nome Fantasia', company.tradeName!),
                   _buildDetailRow('CNPJ', company.cnpj),
                   if (company.stateRegistration != null && company.stateRegistration!.isNotEmpty)
                     _buildDetailRow('Inscrição Estadual', company.stateRegistration!),
@@ -61,9 +61,12 @@ class CompanyDetailsSheet extends StatelessWidget {
 
                   const SizedBox(height: 24),
                   const FxDivider(title: 'Contato', icon: Symbols.contact_mail),
-                  if (company.email != null && company.email!.isNotEmpty) _buildDetailRow('E-mail Principal', company.email!),
-                  if (company.phone != null && company.phone!.isNotEmpty) _buildDetailRow('Telefone / WhatsApp', company.phone!),
-                  if (company.website != null && company.website!.isNotEmpty) _buildDetailRow('Site Oficial', company.website!),
+                  if (company.email != null && company.email!.isNotEmpty)
+                    _buildDetailRow('E-mail Principal', company.email!),
+                  if (company.phone != null && company.phone!.isNotEmpty)
+                    _buildDetailRow('Telefone / WhatsApp', company.phone!),
+                  if (company.website != null && company.website!.isNotEmpty)
+                    _buildDetailRow('Site Oficial', company.website!),
 
                   if (firstAddress != null && firstAddress.street.isNotEmpty) ...[
                     const SizedBox(height: 24),

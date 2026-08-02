@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:fx_ui/fx_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;

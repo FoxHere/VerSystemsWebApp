@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
-import 'package:get/get.dart';
 import 'package:versystems_app/config/helpers/routes/routes_helper.dart';
 
 class DashboardQuickActions extends StatelessWidget {

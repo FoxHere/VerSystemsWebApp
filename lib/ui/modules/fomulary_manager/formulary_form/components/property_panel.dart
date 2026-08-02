@@ -493,12 +493,14 @@ class _PropertyPanelState extends State<PropertyPanel> {
             itemCount: controllers.length,
             separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
+              final controller = controllers[index];
               return Row(
+                key: ValueKey(controller),
                 spacing: 8,
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: controllers[index],
+                      controller: controller,
                       onChanged: (val) {
                         widget.viewModel.updateQuestionOptionsFromControllers(section.id, question.id);
                       },

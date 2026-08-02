@@ -1,6 +1,4 @@
 import 'dart:developer';
-import 'dart:js_interop';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -93,7 +91,7 @@ class _ImportExcelDialogState extends State<ImportExcelDialog> {
                                   await Future.delayed(const Duration(milliseconds: 100));
 
                                   try {
-                                    final fileBytes = picked.files.single.bytes!;
+                                    final fileBytes = await picked.files.single.readAsBytes();
                                     final importedForm = await ExcelTemplateService.parseExcel(
                                       fileBytes,
                                       widget.formularyId,

@@ -10,7 +10,6 @@ import 'package:versystems_app/config/helpers/routes/routes_helper.dart';
 import 'package:versystems_app/data/models/user/user_model.dart';
 import 'package:versystems_app/ui/modules/user_manager/user_list/user_list_view_model.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_actions.dart';
-import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_icon_text.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_status.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_title.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_updated_at.dart';

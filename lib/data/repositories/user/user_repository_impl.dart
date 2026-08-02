@@ -14,7 +14,6 @@ import 'package:versystems_app/data/repositories/user/user_repository.dart';
 import 'package:versystems_app/data/services/dashboard/dashboard_functions_service.dart';
 import 'package:versystems_app/data/services/department/department_services_impl.dart';
 import 'package:versystems_app/data/services/firebase_functions/firebase_functions_service_impl.dart';
-import 'package:versystems_app/data/services/image/image_services.dart';
 import 'package:versystems_app/data/services/profile/profile_services_impl.dart';
 import 'package:versystems_app/data/services/user/user_services_impl.dart';
 import 'package:versystems_app/ui/shared/components/image_picker/image_item_model.dart';
@@ -23,7 +22,6 @@ class UserRepositoryImpl implements UserRepository {
   final UserServicesImpl _userServices;
   final ProfileServicesImpl _profileServices;
   final DepartmentServicesImpl _departmentServices;
-  final ImageServices _imageServices;
   final FirebaseFunctionsServiceImpl _firebaseFunctionsServices;
   final DashboardFunctionsService _dashboardFunctionsService;
 
@@ -31,13 +29,11 @@ class UserRepositoryImpl implements UserRepository {
     required UserServicesImpl userServicesImpl,
     required ProfileServicesImpl profileServicesImpl,
     required DepartmentServicesImpl departmentServicesImpl,
-    required ImageServices imageServices,
     required FirebaseFunctionsServiceImpl firebaseFunctionsServicesImpl,
     required DashboardFunctionsService dashboardFunctionsService,
   }) : _userServices = userServicesImpl,
        _profileServices = profileServicesImpl,
        _departmentServices = departmentServicesImpl,
-       _imageServices = imageServices,
        _firebaseFunctionsServices = firebaseFunctionsServicesImpl,
        _dashboardFunctionsService = dashboardFunctionsService;
 
@@ -69,8 +65,14 @@ class UserRepositoryImpl implements UserRepository {
           (ServiceException departmentException) => Left(RepositoryException(message: departmentException.message)),
           (Map<String, dynamic> department) => profile.fold(
             (ServiceException profileError) => Left(RepositoryException(message: profileError.message)),
-            (Map<String, dynamic> profile) =>
-                Right(UserModel.fromFirebase(id: userData['id'], userData: userData, departmentData: department, profileData: profile)),
+            (Map<String, dynamic> profile) => Right(
+              UserModel.fromFirebase(
+                id: userData['id'],
+                userData: userData,
+                departmentData: department,
+                profileData: profile,
+              ),
+            ),
           ),
         );
       },
@@ -80,7 +82,9 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<Either<RepositoryException, List<UserModel>>> findAllUsers(Map<String, dynamic> filters) async {
     final result = await _userServices.findAll();
-    return await result.fold((l) => Left(RepositoryException(message: l.message)), (List<Map<String, dynamic>> usersMap) async {
+    return await result.fold((l) => Left(RepositoryException(message: l.message)), (
+      List<Map<String, dynamic>> usersMap,
+    ) async {
       try {
         if (usersMap.isEmpty) return Right([]);
 
@@ -100,9 +104,15 @@ class UserRepositoryImpl implements UserRepository {
 
             return department.fold(
               (l) => throw RepositoryException(message: l.message),
-              (Map<String, dynamic> department) => profile.fold((l) => throw RepositoryException(message: l.message), (Map<String, dynamic> profile) {
-                return UserModel.fromFirebase(id: userMap['id'], userData: userMap, departmentData: department, profileData: profile);
-              }),
+              (Map<String, dynamic> department) =>
+                  profile.fold((l) => throw RepositoryException(message: l.message), (Map<String, dynamic> profile) {
+                    return UserModel.fromFirebase(
+                      id: userMap['id'],
+                      userData: userMap,
+                      departmentData: department,
+                      profileData: profile,
+                    );
+                  }),
             );
           }).toList(),
         );
@@ -158,11 +168,16 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<RepositoryException, UserModel>> saveUser({required UserModel userModel, bool isFirstUser = false}) async {
+  Future<Either<RepositoryException, UserModel>> saveUser({
+    required UserModel userModel,
+    bool isFirstUser = false,
+  }) async {
     try {
       final isNew = userModel.id.isEmpty;
       // criar uma função no perfil para verificar se é admin (talvez uma chave para isso)
-      final isAdmin = userModel.profile.level >= 1000 && userModel.profile.name.toLowerCase().contains("administrador") || isFirstUser;
+      final isAdmin =
+          userModel.profile.level >= 1000 && userModel.profile.name.toLowerCase().contains("administrador") ||
+          isFirstUser;
 
       /// Alterar para verificar se é admin e fazer a criação de usuário;
       final authUserPayload = {
@@ -197,12 +212,17 @@ class UserRepositoryImpl implements UserRepository {
         final uploadResult = await uploadImage(imageModel, userModel.id);
         if (uploadResult.isLeft()) {
           if (isNew) {
-            await _firebaseFunctionsServices.callFunction(functionType: FirebaseFunctionTypeEnum.deleteAuthUser, data: {'uid': uid});
+            await _firebaseFunctionsServices.callFunction(
+              functionType: FirebaseFunctionTypeEnum.deleteAuthUser,
+              data: {'uid': uid},
+            );
           }
           return Left(RepositoryException(message: uploadResult.getLeftOrThrow().message));
         }
 
-        final imageUrl = uploadResult.getOrElse(() => ImageItemModel(bytes: Uint8List(0), name: '', sizeBytes: 0, downloadUrl: '')).downloadUrl;
+        final imageUrl = uploadResult
+            .getOrElse(() => ImageItemModel(bytes: Uint8List(0), name: '', sizeBytes: 0, downloadUrl: ''))
+            .downloadUrl;
         userModel = userModel.copyWith(profileImage: imageModel.copyWith(downloadUrl: imageUrl));
       }
 
@@ -213,7 +233,10 @@ class UserRepositoryImpl implements UserRepository {
       return result.fold(
         (ServiceException se) async {
           if (isNew) {
-            await _firebaseFunctionsServices.callFunction(functionType: FirebaseFunctionTypeEnum.deleteAuthUser, data: {'uid': uid});
+            await _firebaseFunctionsServices.callFunction(
+              functionType: FirebaseFunctionTypeEnum.deleteAuthUser,
+              data: {'uid': uid},
+            );
           }
           return Left(RepositoryException(message: 'Erro ao salvar o usuário: ${se.message}'));
         },
@@ -272,5 +295,12 @@ class UploadResult {
   final String? contentType;
   final String bucket;
 
-  UploadResult({required this.downloadUrl, required this.fullPath, required this.name, this.sizeBytes, this.contentType, required this.bucket});
+  UploadResult({
+    required this.downloadUrl,
+    required this.fullPath,
+    required this.name,
+    this.sizeBytes,
+    this.contentType,
+    required this.bucket,
+  });
 }

@@ -34,9 +34,7 @@ class _FormManagerViewState extends State<FormManagerView> with ResponsiveDevice
   @override
   void initState() {
     super.initState();
-    viewModel = FormManagerViewModel(
-      formManagerRepository: Get.find<FormularyRepositoryImpl>(),
-    );
+    viewModel = FormManagerViewModel(formManagerRepository: Get.find<FormularyRepositoryImpl>());
     _messageWorker = ever<MessageState>(viewModel.messageState, (messageState) {
       if (messageState.errorMessage.value != null) {
         Messages.showError(messageState.errorMessage.value!, context);
@@ -114,7 +112,6 @@ class _FormManagerViewState extends State<FormManagerView> with ResponsiveDevice
                               onPressed: () => showOverlay(
                                 context,
                                 DialogConfiguration(
-                                  // anchor: LinkedAnchor(#formManagerAnchor),
                                   builder: (context) {
                                     return ImportExcelDialog(
                                       formularyId: widget.formId,

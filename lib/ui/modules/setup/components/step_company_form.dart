@@ -3,7 +3,7 @@ import 'package:versystems_app/data/models/company/company_model.dart';
 import 'package:versystems_app/ui/modules/company_manager/company_form/components/company_form.dart';
 
 /// Wrapper do Step 1 do wizard: dados da empresa.
-/// Expõe [companyModel] e [validateForm] via GlobalKey<StepCompanyFormState>.
+/// Expõe [companyModel] e [validateForm] via GlobalKey[StepCompanyFormState].
 class StepCompanyForm extends StatefulWidget {
   final CompanyModel model;
   const StepCompanyForm({super.key, required this.model});
