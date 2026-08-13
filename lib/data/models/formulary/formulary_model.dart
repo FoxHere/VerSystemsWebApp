@@ -105,7 +105,7 @@ class FormularyModel implements HasModelStatus<FormStatusVisual> {
       'title': title,
       'description': description,
       'status': formStatus.name,
-      'sections': sections.map((s) => s.toJson()).toList(),
+      'sections': sections.map((s) => s.toJsonForFirebase()).toList(),
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
       'createdBy': createdBy?.toJsonForFirebase(),

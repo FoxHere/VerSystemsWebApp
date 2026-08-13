@@ -1,36 +1,36 @@
 import 'package:versystems_app/config/helpers/routes/paths_helper.dart';
 
 /// Helper class para gerenciar os menus disponíveis no sistema
-/// Baseado no PathsHelper, excluindo rotas especiais como 'id' e 'new'
+/// Baseado no PathsHelper, na mesma ordem em que aparecem no sidebar.
 class MenusHelper {
   /// Lista de menus disponíveis para controle de acesso (RBAC)
   /// Exclui rotas especiais como '/:id' e '/new'
   static const List<String> availableMenus = [
     PathsHelper.dashboard,
-    PathsHelper.activities,
-    PathsHelper.settings,
     PathsHelper.formularies,
+    PathsHelper.activities,
     PathsHelper.tasks,
+    PathsHelper.companies,
+    PathsHelper.clients,
+    PathsHelper.users,
     PathsHelper.profiles,
     PathsHelper.departments,
-    PathsHelper.users,
-    PathsHelper.clients,
-    PathsHelper.companies,
+    PathsHelper.settings,
   ];
 
-  /// Retorna um mapa com o nome amigável de cada menu
+  /// Retorna um mapa com o nome amigável (em Português Brasileiro) de cada menu
   static Map<String, String> getMenuLabels() {
     return {
       PathsHelper.dashboard: 'Dashboard',
-      PathsHelper.activities: 'Gerenciamento de Atividades',
-      PathsHelper.settings: 'Configurações do sistema',
-      PathsHelper.formularies: 'Gerenciamento de Formulários',
-      PathsHelper.tasks: 'Gerenciamento de Tarefas',
-      PathsHelper.profiles: 'Gerenciamento de Perfis',
-      PathsHelper.departments: 'Gerenciamento de Departamentos',
-      PathsHelper.users: 'Gerenciamento de Usuários',
-      PathsHelper.clients: 'Gerenciamento de Clientes',
-      PathsHelper.companies: 'Gerenciamento de Empresas',
+      PathsHelper.formularies: 'Formulários',
+      PathsHelper.activities: 'Atividades',
+      PathsHelper.tasks: 'Minhas Tarefas',
+      PathsHelper.companies: 'Filiais',
+      PathsHelper.clients: 'Clientes',
+      PathsHelper.users: 'Usuários',
+      PathsHelper.profiles: 'Perfis',
+      PathsHelper.departments: 'Departamentos',
+      PathsHelper.settings: 'Configurações',
     };
   }
 
@@ -39,3 +39,4 @@ class MenusHelper {
     return getMenuLabels()[menuPath] ?? menuPath;
   }
 }
+

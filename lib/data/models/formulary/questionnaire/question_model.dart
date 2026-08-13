@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:uuid/uuid.dart';
+import 'package:versystems_app/data/models/formulary/questionnaire/gps_location_response_model.dart';
 import 'package:versystems_app/ui/shared/components/image_picker/image_item_model.dart';
 
 class QuestionModel {
@@ -11,6 +13,7 @@ class QuestionModel {
   Object? response;
   List<ImageItemModel>? imagesResponse;
   ImageItemModel? signatureResponse;
+  GpsLocationResponseModel? locationResponse;
 
   QuestionModel({
     required this.id,
@@ -22,11 +25,12 @@ class QuestionModel {
     this.response,
     this.imagesResponse,
     this.signatureResponse,
+    this.locationResponse,
   });
 
   factory QuestionModel.copy(QuestionModel original) {
     return QuestionModel(
-      id: original.id, // mantém o mesmo id (ou gere outro se for “duplicar”)
+      id: original.id,
       question: original.question,
       questionType: original.questionType,
       questionRequired: original.questionRequired,
@@ -35,6 +39,14 @@ class QuestionModel {
       response: original.response,
       imagesResponse: original.imagesResponse,
       signatureResponse: original.signatureResponse,
+      locationResponse: original.locationResponse != null
+          ? GpsLocationResponseModel(
+              latitude: original.locationResponse!.latitude,
+              longitude: original.locationResponse!.longitude,
+              accuracy: original.locationResponse!.accuracy,
+              capturedAt: original.locationResponse!.capturedAt,
+            )
+          : null,
     );
   }
 
@@ -43,12 +55,29 @@ class QuestionModel {
     question: "Pergunta de texto",
     questionType: "simpleTextInput",
     questionRequired: false,
-    questionOptions: "", //"Opção 1;\nOpção 2;\nOpção 3;",
+    questionOptions: "",
     questionInstructions: "",
   );
 
   factory QuestionModel.fromJson(Map<String, dynamic> json) {
     final id = (json['id'] as String?)?.trim();
+
+    GpsLocationResponseModel? parsedLocation;
+    if (json['locationResponse'] != null && json['locationResponse'] is Map) {
+      parsedLocation = GpsLocationResponseModel.fromJson(Map<String, dynamic>.from(json['locationResponse']));
+    } else if (json['questionType'] == 'gpsLocationInput' && json['response'] != null) {
+      if (json['response'] is Map) {
+        parsedLocation = GpsLocationResponseModel.fromJson(Map<String, dynamic>.from(json['response']));
+      } else if (json['response'] is String && (json['response'] as String).isNotEmpty) {
+        try {
+          final decoded = jsonDecode(json['response'] as String);
+          if (decoded is Map<String, dynamic>) {
+            parsedLocation = GpsLocationResponseModel.fromJson(decoded);
+          }
+        } catch (_) {}
+      }
+    }
+
     return QuestionModel(
       id: (id == null || id.isEmpty) ? const Uuid().v4() : id,
       question: json['question'],
@@ -61,6 +90,7 @@ class QuestionModel {
           ? (json['imagesResponse'] as List<dynamic>).map((e) => ImageItemModel.fromJson(e)).toList()
           : [],
       signatureResponse: json['signatureResponse'] != null ? ImageItemModel.fromJson(json['signatureResponse']) : null,
+      locationResponse: parsedLocation,
     );
   }
 
@@ -71,9 +101,10 @@ class QuestionModel {
     String? questionType,
     String? questionOptions,
     String? questionInstructions,
-    String? response,
+    Object? response,
     List<ImageItemModel>? imagesResponse,
     ImageItemModel? signatureResponse,
+    GpsLocationResponseModel? locationResponse,
   }) {
     return QuestionModel(
       id: id ?? this.id,
@@ -85,6 +116,7 @@ class QuestionModel {
       response: response ?? this.response,
       imagesResponse: imagesResponse ?? this.imagesResponse,
       signatureResponse: signatureResponse ?? this.signatureResponse,
+      locationResponse: locationResponse ?? this.locationResponse,
     );
   }
 
@@ -99,8 +131,27 @@ class QuestionModel {
       "response": response,
       "imagesResponse": imagesResponse?.map((img) => img.toJson()).toList(),
       "signatureResponse": signatureResponse?.toJson(),
+      "locationResponse": locationResponse?.toJson(),
+    };
+
+    return data;
+  }
+
+  Map<String, dynamic> toJsonForFirebase() {
+    final Map<String, dynamic> data = <String, dynamic>{
+      "id": id,
+      "question": question,
+      "questionType": questionType,
+      "questionRequired": questionRequired,
+      "questionOptions": questionOptions,
+      "questionInstructions": questionInstructions,
+      "response": locationResponse != null ? locationResponse!.toJsonForFirebase() : response,
+      "imagesResponse": imagesResponse?.map((img) => img.toJson()).toList(),
+      "signatureResponse": signatureResponse?.toJson(),
+      "locationResponse": locationResponse?.toJsonForFirebase(),
     };
 
     return data;
   }
 }
+

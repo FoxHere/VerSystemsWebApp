@@ -312,6 +312,35 @@ Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
     return pw.Wrap(spacing: 12, runSpacing: 12, children: imageWidgets);
   }
 
+  // Localização GPS
+  if (question.questionType == 'gpsLocationInput') {
+    final loc = question.locationResponse;
+    if (loc != null) {
+      final capAtStr = DateFormat('dd/MM/yyyy HH:mm:ss').format(loc.capturedAt);
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Lat: ${loc.latitude.toStringAsFixed(5)}, Lng: ${loc.longitude.toStringAsFixed(5)}',
+            style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: PdfColors.blueGrey800),
+          ),
+          pw.SizedBox(height: 2),
+          pw.Text(
+            'Precisão: ${loc.accuracy.toStringAsFixed(1)}m | Capturado em: $capAtStr',
+            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
+          ),
+        ],
+      );
+    } else if (textResponse.isNotEmpty) {
+      return pw.Text(textResponse, style: pw.TextStyle(fontSize: 11, color: PdfColors.grey800));
+    } else {
+      return pw.Text(
+        'Sem resposta',
+        style: pw.TextStyle(fontSize: 11, color: PdfColors.grey500, fontStyle: pw.FontStyle.italic),
+      );
+    }
+  }
+
   // Texto normal
   if (textResponse.isEmpty) {
     return pw.Text(

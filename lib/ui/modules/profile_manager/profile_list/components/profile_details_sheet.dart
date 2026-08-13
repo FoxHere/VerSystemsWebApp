@@ -1,5 +1,6 @@
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:get/get.dart';
+import 'package:versystems_app/config/helpers/menus_helper.dart';
 import 'package:versystems_app/data/models/profile/profile_model.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:versystems_app/ui/shared/components/divider/fx_divider.dart';
@@ -71,7 +72,7 @@ class ProfileDetailsSheet extends StatelessWidget {
                                   (m) => Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(color: theme.colorScheme.secondary, borderRadius: BorderRadius.circular(5)),
-                                    child: Text(m).small(),
+                                    child: Text(MenusHelper.getMenuLabel(m)).small(),
                                   ),
                                 )
                                 .toList(),

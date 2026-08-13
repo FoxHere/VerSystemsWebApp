@@ -9,6 +9,8 @@ import 'package:versystems_app/config/controllers/theme/theme_controller.dart';
 import 'package:versystems_app/config/utils/firebase_options.dart';
 import 'package:versystems_app/data/repositories/auth/auth_repository_impl.dart';
 import 'package:versystems_app/data/repositories/company/company_repository_impl.dart';
+import 'package:versystems_app/data/repositories/location/location_repository.dart';
+import 'package:versystems_app/data/repositories/location/location_repository_impl.dart';
 import 'package:versystems_app/data/repositories/user/user_repository_impl.dart';
 import 'package:versystems_app/data/services/activity/activity_services.dart';
 import 'package:versystems_app/data/services/auth/auth_services_impl.dart';
@@ -18,6 +20,7 @@ import 'package:versystems_app/data/services/department/department_services_impl
 import 'package:versystems_app/data/services/dev/dev_services.dart';
 import 'package:versystems_app/data/services/firebase_functions/firebase_functions_service_impl.dart';
 import 'package:versystems_app/data/services/image/image_services.dart';
+import 'package:versystems_app/data/services/location/location_services.dart';
 import 'package:versystems_app/data/services/profile/profile_services_impl.dart';
 import 'package:versystems_app/data/services/user/user_services_impl.dart';
 
@@ -50,6 +53,11 @@ Future<void> initDependencies() async {
   Get.put(ProfileServicesImpl());
   Get.put(ActivityServices(), permanent: true);
   Get.put(ImageServices(), permanent: true);
+  Get.put(LocationServices(), permanent: true);
+  Get.put<LocationRepository>(
+    LocationRepositoryImpl(locationServices: Get.find<LocationServices>()),
+    permanent: true,
+  );
   Get.put(DevServices(), permanent: true);
   Get.put(CompanyServices(), permanent: true);
   Get.put(CompanyRepositoryImpl(companyServices: Get.find<CompanyServices>()), permanent: true);

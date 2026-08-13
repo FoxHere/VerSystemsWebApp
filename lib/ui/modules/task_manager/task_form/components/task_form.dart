@@ -60,6 +60,7 @@ class TaskFormState extends State<TaskForm> {
     TypeImagePicker(),
     TypeDateInput(),
     TypeSignature(),
+    TypeGpsLocation(),
   ];
 
   @override
@@ -181,6 +182,7 @@ class TaskFormState extends State<TaskForm> {
                                     initialValue: question.response?.toString(),
                                     initialSignature: question.signatureResponse,
                                     initialImages: question.imagesResponse,
+                                    initialLocation: question.locationResponse,
                                     questionType: questionTypeList.firstWhere((element) => element.dataType == question.questionType),
                                     items:
                                         question.questionOptions
@@ -197,6 +199,10 @@ class TaskFormState extends State<TaskForm> {
                                     },
                                     onChanged: (value) {
                                       question.response = value;
+                                    },
+                                    onLocationCaptured: (location) {
+                                      question.locationResponse = location;
+                                      question.response = location.toJson();
                                     },
                                     onImagePicker: (images) async {
                                       final existingImages = question.imagesResponse

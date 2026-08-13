@@ -102,6 +102,7 @@ class ExcelTemplateService {
     typeListSheet.appendRow([TextCellValue('radioButtonInput'), TextCellValue('Pergunta com Botão Rádio')]);
     typeListSheet.appendRow([TextCellValue('checkboxInput'), TextCellValue('Pergunta de Checkbox')]);
     typeListSheet.appendRow([TextCellValue('imagePickerInput'), TextCellValue('Pergunta com Imagem')]);
+    typeListSheet.appendRow([TextCellValue('gpsLocationInput'), TextCellValue('Pergunta de Localização GPS')]);
 
     // Initialize Excel download
     final bytes = excel.encode()!;

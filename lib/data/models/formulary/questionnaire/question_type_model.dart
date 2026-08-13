@@ -280,3 +280,26 @@ class TypeDateInput extends QuestionType {
   @override
   String get typeTitle => 'Data';
 }
+
+class TypeGpsLocation extends QuestionType {
+  static final TypeGpsLocation _instance = TypeGpsLocation._internal();
+
+  factory TypeGpsLocation() {
+    return _instance;
+  }
+
+  TypeGpsLocation._internal();
+
+  @override
+  String get dataType => 'gpsLocationInput';
+
+  @override
+  String get typeDescription => 'Captura de localização GPS';
+
+  @override
+  Widget get typeIcon => const Icon(Icons.location_on_outlined, size: 20);
+
+  @override
+  String get typeTitle => 'Localização GPS';
+}
+

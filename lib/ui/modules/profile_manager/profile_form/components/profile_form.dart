@@ -1,6 +1,7 @@
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:versystems_app/config/helpers/menus_helper.dart';
 import 'package:versystems_app/data/models/profile/profile_model.dart';
 import 'package:versystems_app/data/models/profile/profile_status.dart';
 import 'package:versystems_app/ui/shared/components/divider/fx_divider.dart';
@@ -22,18 +23,7 @@ class ProfileFormState extends State<ProfileForm> {
   final _levelKey = const FormKey<String>(#level);
   final _allowedMenusKey = const FormKey<Iterable<String>>(#allowedMenus);
 
-  final List<String> availableMenus = [
-    "/dashboard",
-    "/activities",
-    "/settings",
-    "/formularies",
-    "/tasks",
-    "/profiles",
-    "/departments",
-    "/users",
-    "/clients",
-    "/companies",
-  ];
+  final List<String> availableMenus = MenusHelper.availableMenus;
 
   late List<String> _currentAllowedMenus;
   late bool _isActive;
@@ -160,14 +150,14 @@ class ProfileFormState extends State<ProfileForm> {
                       }
                     },
                     itemBuilder: (context, menuPath) {
-                      return Text(menuPath.replaceAll('/', '').capitalizeFirst ?? menuPath);
+                      return Text(MenusHelper.getMenuLabel(menuPath));
                     },
                     popup: (context) => SelectPopup(
                       items: SelectItemList(
                         children: availableMenus.map((menuPath) {
                           return SelectItemButton(
                             value: menuPath,
-                            child: Text(menuPath.replaceAll('/', '').capitalizeFirst ?? menuPath),
+                            child: Text(MenusHelper.getMenuLabel(menuPath)),
                           );
                         }).toList(),
                       ),

@@ -27,4 +27,11 @@ class SectionModel {
     "sectionTitle": sectionTitle,
     "questions": questions.map((pergunta) => pergunta.toJson()).toList(),
   };
+
+  Map<String, dynamic> toJsonForFirebase() => {
+    "id": id,
+    "sectionTitle": sectionTitle,
+    "questions": questions.map((pergunta) => pergunta.toJsonForFirebase()).toList(),
+  };
 }
+

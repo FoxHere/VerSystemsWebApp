@@ -3,10 +3,12 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:versystems_app/data/models/formulary/questionnaire/gps_location_response_model.dart';
 import 'package:versystems_app/data/models/formulary/questionnaire/question_type_model.dart';
 import 'package:versystems_app/data/services/image/image_services.dart';
 import 'package:versystems_app/ui/shared/components/image_picker/image_item_model.dart';
 import 'package:versystems_app/ui/shared/components/image_picker/image_picker_widget.dart';
+import 'package:versystems_app/ui/shared/components/location/gps_location_widget.dart';
 import 'package:versystems_app/ui/shared/components/signature/fx_signature_form_field.dart';
 
 class FormFieldRequiredValidator<T> extends Validator<T> {
@@ -293,6 +295,7 @@ class WidgetTypeBuilder extends StatelessWidget {
   final String? initialValue;
   final List<ImageItemModel>? initialImages;
   final ImageItemModel? initialSignature;
+  final GpsLocationResponseModel? initialLocation;
   final String? selectedItem;
   final List<String?>? items;
   final GlobalKey<FormState>? dropdownKey;
@@ -300,6 +303,7 @@ class WidgetTypeBuilder extends StatelessWidget {
   final dynamic Function(List<ImageItemModel>)? onImagePicker;
   final dynamic Function(ImageItemModel)? onImageRemoved;
   final dynamic Function(ImageItemModel)? onSignatureSelected;
+  final ValueChanged<GpsLocationResponseModel>? onLocationCaptured;
   final ImageServices imageServices;
   final RxBool isImageConverting;
   final bool hasValidator;
@@ -315,6 +319,7 @@ class WidgetTypeBuilder extends StatelessWidget {
     this.initialValue,
     this.initialImages,
     this.initialSignature,
+    this.initialLocation,
     this.items,
     this.dropdownKey,
     this.onSelectChanged,
@@ -322,6 +327,7 @@ class WidgetTypeBuilder extends StatelessWidget {
     this.onImagePicker,
     this.onImageRemoved,
     this.onSignatureSelected,
+    this.onLocationCaptured,
     this.selectedItem,
     this.labelBuilder,
     this.hasValidator = false,
@@ -386,6 +392,28 @@ class WidgetTypeBuilder extends StatelessWidget {
                     onSignatureSelected: onSignatureSelected ?? (image) {},
                     isReadMode: isReadMode,
                     isRequired: hasValidator,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+      //--------------------------------------------------------------------------------------------------
+      case TypeGpsLocation():
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: FormField<GpsLocationResponseModel>(
+                  key: FormKey<GpsLocationResponseModel>(fieldKey),
+                  validator: _getValidator<GpsLocationResponseModel>('É necessário capturar a localização GPS'),
+                  label: Text('${questionType.typeTitle} (${questionType.typeDescription})'),
+                  child: GpsLocationWidget(
+                    initialLocation: initialLocation,
+                    onLocationCaptured: onLocationCaptured ?? (location) {},
+                    isReadMode: isReadMode,
                   ),
                 ),
               ),

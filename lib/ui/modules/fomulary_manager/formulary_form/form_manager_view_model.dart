@@ -177,6 +177,7 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     TypeImagePicker(),
     TypeDateInput(),
     TypeSignature(),
+    TypeGpsLocation(),
   ];
   final questionTypeOptionEnable = <QuestionType>[
     TypeListBoxSingleSelect(),
