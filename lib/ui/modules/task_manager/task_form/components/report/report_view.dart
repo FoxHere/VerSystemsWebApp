@@ -48,7 +48,24 @@ class _ReportViewState extends State<ReportView> {
         if (viewModel.pdfBytes != null) {
           return FxPdfPreview(pdfBytes: (_) async => viewModel.pdfBytes!);
         }
-        return CircularProgressIndicator();
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: CircularProgressIndicator(),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Gerando relatório em PDF...',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        );
       },
     );
   }

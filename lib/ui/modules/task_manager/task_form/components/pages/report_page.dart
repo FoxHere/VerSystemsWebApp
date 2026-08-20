@@ -1,9 +1,11 @@
+import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:versystems_app/data/models/activity/activity_model.dart';
+import 'package:versystems_app/data/models/formulary/questionnaire/gps_location_response_model.dart';
 import 'package:versystems_app/data/models/formulary/questionnaire/question_model.dart';
 import 'package:versystems_app/ui/shared/components/pdf/fx_pdf_styles.dart';
 
@@ -314,22 +316,104 @@ Future<pw.Widget> _buildResponseWidget(QuestionModel question) async {
 
   // Localização GPS
   if (question.questionType == 'gpsLocationInput') {
-    final loc = question.locationResponse;
+    GpsLocationResponseModel? loc = question.locationResponse;
+    if (loc == null && question.response != null) {
+      if (question.response is GpsLocationResponseModel) {
+        loc = question.response as GpsLocationResponseModel;
+      } else if (question.response is Map) {
+        try {
+          loc = GpsLocationResponseModel.fromJson(Map<String, dynamic>.from(question.response as Map));
+        } catch (_) {}
+      }
+    }
+
     if (loc != null) {
       final capAtStr = DateFormat('dd/MM/yyyy HH:mm:ss').format(loc.capturedAt);
-      return pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            'Lat: ${loc.latitude.toStringAsFixed(5)}, Lng: ${loc.longitude.toStringAsFixed(5)}',
-            style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: PdfColors.blueGrey800),
-          ),
-          pw.SizedBox(height: 2),
-          pw.Text(
-            'Precisão: ${loc.accuracy.toStringAsFixed(1)}m | Capturado em: $capAtStr',
-            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
-          ),
-        ],
+      pw.ImageProvider? mapImageProvider;
+
+      try {
+        final staticMapUrl =
+            'https://static-maps.yandex.ru/1.x/?l=map&ll=${loc.longitude},${loc.latitude}&z=16&size=650,260&pt=${loc.longitude},${loc.latitude},pm2rdm&lang=en_US';
+        mapImageProvider = await networkImage(staticMapUrl);
+      } catch (_) {
+        try {
+          final osmStaticUrl =
+              'https://staticmap.openstreetmap.de/staticmap.php?center=${loc.latitude},${loc.longitude}&zoom=16&size=650x260&maptype=mapnik&markers=${loc.latitude},${loc.longitude},ol-marker-red';
+          mapImageProvider = await networkImage(osmStaticUrl);
+        } catch (_) {
+          try {
+            final tileUrl = _getOsmTileUrl(loc.latitude, loc.longitude, zoom: 16);
+            mapImageProvider = await networkImage(tileUrl);
+          } catch (_) {}
+        }
+      }
+
+      return pw.Container(
+        padding: const pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.grey50,
+          border: pw.Border.all(color: PdfColors.grey300),
+          borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'Localização GPS Capturada',
+                  style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: PdfColors.blueGrey800),
+                ),
+                pw.Container(
+                  padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: const pw.BoxDecoration(
+                    color: PdfColors.blueGrey100,
+                    borderRadius: pw.BorderRadius.all(pw.Radius.circular(4)),
+                  ),
+                  child: pw.Text(
+                    'Lat: ${loc.latitude.toStringAsFixed(5)}, Lng: ${loc.longitude.toStringAsFixed(5)}',
+                    style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.blueGrey900),
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 6),
+            if (mapImageProvider != null)
+              pw.Container(
+                height: 140,
+                width: double.infinity,
+                margin: const pw.EdgeInsets.only(bottom: 6),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey300),
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                ),
+                child: pw.ClipRRect(
+                  horizontalRadius: 4,
+                  verticalRadius: 4,
+                  child: pw.Stack(
+                    alignment: pw.Alignment.center,
+                    children: [
+                      pw.Image(mapImageProvider, fit: pw.BoxFit.cover),
+                      pw.Container(
+                        width: 5,
+                        height: 5,
+                        decoration: pw.BoxDecoration(
+                          color: PdfColors.red,
+                          shape: pw.BoxShape.circle,
+                          border: pw.Border.all(color: PdfColors.white, width: 2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            pw.Text(
+              'Precisão: aprox. ${loc.accuracy.toStringAsFixed(1)}m  |  Capturado em: $capAtStr',
+              style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
+            ),
+          ],
+        ),
       );
     } else if (textResponse.isNotEmpty) {
       return pw.Text(textResponse, style: pw.TextStyle(fontSize: 11, color: PdfColors.grey800));
@@ -393,4 +477,12 @@ pw.Widget _buildImageErrorContainer() {
     ),
     child: pw.Text('Erro de Imagem', style: const pw.TextStyle(fontSize: 10, color: PdfColors.red)),
   );
+}
+
+String _getOsmTileUrl(double lat, double lon, {int zoom = 16}) {
+  final n = math.pow(2, zoom);
+  final x = ((lon + 180.0) / 360.0 * n).floor();
+  final latRad = lat * math.pi / 180.0;
+  final y = ((1.0 - math.log(math.tan(latRad) + (1.0 / math.cos(latRad))) / math.pi) / 2.0 * n).floor();
+  return 'https://tile.openstreetmap.org/$zoom/$x/$y.png';
 }

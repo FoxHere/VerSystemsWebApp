@@ -66,16 +66,36 @@ class _FormExecViewState extends State<TaskManagerView>
     showOverlay(
       context,
       DialogConfiguration(
-        // anchor: LinkedAnchor(#taskReportAnchor),
         builder: (context) {
           return AlertDialog(
-            title: const Text('Gerar Relatório do Formulário'),
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: MediaQuery.of(context).size.height * 0.9,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Relatório do Formulário'),
+                GhostButton(
+                  density: ButtonDensity.compact,
+                  onPressed: () => context.pop(),
+                  child: const Icon(Symbols.close, size: 20),
+                ),
+              ],
+            ),
+            content: Container(
+              margin: const EdgeInsets.only(top: 8, bottom: 8),
+              width: MediaQuery.of(context).size.width * 0.95,
+              height: MediaQuery.of(context).size.height * 0.75,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Theme.of(context).colorScheme.border),
+              ),
+              clipBehavior: Clip.hardEdge,
               child: ReportView(styles: styles, task: taskManagerViewModel.taskModel.value!),
             ),
-            actions: [PrimaryButton(onPressed: () => context.pop(), child: const Text('Fechar'))],
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: PrimaryButton(onPressed: () => context.pop(), child: const Text('Fechar')),
+              ),
+            ],
           );
         },
       ),

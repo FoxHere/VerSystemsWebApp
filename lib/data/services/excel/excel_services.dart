@@ -78,6 +78,22 @@ class ExcelTemplateService {
       TextCellValue('Opção 1; Opção 2;'),
       TextCellValue('Instrução opcional de exemplo 3'),
     ]);
+    formularySheet.appendRow([
+      TextCellValue('Localização GPS'),
+      TextCellValue('Por favor, capture sua localização GPS.'),
+      TextCellValue('gpsLocationInput'),
+      IntCellValue(1),
+      TextCellValue(''),
+      TextCellValue(''),
+    ]);
+    formularySheet.appendRow([
+      TextCellValue('Localização e Assinatura'),
+      TextCellValue('Por favor, assine aqui.'),
+      TextCellValue('signatureInput'),
+      IntCellValue(1),
+      TextCellValue(''),
+      TextCellValue(''),
+    ]);
 
     final typeListSheet = excel['Tipos de Perguntas'];
     final typeHeaders = ['TIPO DE PERGUNTA', 'DESCRIÇÃO'];
@@ -103,6 +119,7 @@ class ExcelTemplateService {
     typeListSheet.appendRow([TextCellValue('checkboxInput'), TextCellValue('Pergunta de Checkbox')]);
     typeListSheet.appendRow([TextCellValue('imagePickerInput'), TextCellValue('Pergunta com Imagem')]);
     typeListSheet.appendRow([TextCellValue('gpsLocationInput'), TextCellValue('Pergunta de Localização GPS')]);
+    typeListSheet.appendRow([TextCellValue('signatureInput'), TextCellValue('Pergunta com Assinatura')]);
 
     // Initialize Excel download
     final bytes = excel.encode()!;
