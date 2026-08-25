@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:versystems_app/data/models/formulary/questionnaire/question_model.dart';
 import 'package:versystems_app/data/models/formulary/questionnaire/section_model.dart';
+import 'package:versystems_app/ui/modules/fomulary_manager/formulary_form/components/question_badges_widget.dart';
 import 'package:versystems_app/ui/modules/fomulary_manager/formulary_form/form_manager_view_model.dart';
 
 class QuestionWidget extends StatefulWidget {
@@ -108,7 +109,8 @@ class _QuestionRowWidgetState extends State<QuestionRowWidget> {
   Widget build(BuildContext context) {
     final q = widget.sd.data;
     return Obx(() {
-      final isSelected = widget.viewModel.selectedSectionId.value == widget.section.id &&
+      final isSelected =
+          widget.viewModel.selectedSectionId.value == widget.section.id &&
           widget.viewModel.selectedQuestionId.value == q.id;
 
       return Sortable<QuestionModel>(
@@ -156,20 +158,27 @@ class _QuestionRowWidgetState extends State<QuestionRowWidget> {
                             key: FormKey<String>(ValueKey('question_${q.id}')),
                             validator: const NotEmptyValidator(message: 'A pergunta é obrigatória'),
                             label: Text('Q${widget.index + 1}'),
-                            child: TextField(
-                              controller: _questionController,
-                              placeholder: const Text('Digite sua pergunta aqui...'),
-                              onTap: () {
-                                widget.viewModel.selectQuestion(widget.section.id, q.id);
-                              },
-                              onChanged: (value) {
-                                widget.viewModel.updateQuestionUi(
-                                  sectionId: widget.section.id,
-                                  questionId: q.id,
-                                  update: (current) => current.copyWith(question: value),
-                                );
-                                widget.viewModel.appStateController.formHasUnsavedValues.value = true;
-                              },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  controller: _questionController,
+                                  placeholder: const Text('Digite sua pergunta aqui...'),
+                                  onTap: () {
+                                    widget.viewModel.selectQuestion(widget.section.id, q.id);
+                                  },
+                                  onChanged: (value) {
+                                    widget.viewModel.updateQuestionUi(
+                                      sectionId: widget.section.id,
+                                      questionId: q.id,
+                                      update: (current) => current.copyWith(question: value),
+                                    );
+                                    widget.viewModel.appStateController.formHasUnsavedValues.value = true;
+                                  },
+                                ),
+                                QuestionBadgesWidget(question: q),
+                              ],
                             ),
                           ),
                         ],
