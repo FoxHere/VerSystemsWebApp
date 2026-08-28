@@ -59,6 +59,7 @@ class TaskFormState extends State<TaskForm> {
     TypeCheckbox(),
     TypeImagePicker(),
     TypeDateInput(),
+    TypeTimeInput(),
     TypeSignature(),
     TypeGpsLocation(),
   ];
@@ -183,7 +184,7 @@ class TaskFormState extends State<TaskForm> {
                                     initialSignature: question.signatureResponse,
                                     initialImages: question.imagesResponse,
                                     initialLocation: question.locationResponse,
-                                    questionType: questionTypeList.firstWhere((element) => element.dataType == question.questionType),
+                                    questionType: questionTypeList.firstWhere((element) => element.dataType == question.questionType, orElse: () => TypeSimpleText()),
                                     items:
                                         question.questionOptions
                                             ?.split(RegExp(r';\n|[\n;]'))

@@ -15,6 +15,29 @@ class QuestionBadgesWidget extends StatelessWidget {
     required this.question,
   });
 
+  /// Mapeamento dos tipos de pergunta para títulos amigáveis em português.
+  static const Map<String, String> _typeTitles = {
+    'simpleTextInput': 'Texto',
+    'numberInput': 'Números',
+    'telephoneInput': 'Telefone fixo',
+    'cellphoneInput': 'Celular',
+    'cnpjInput': 'CNPJ',
+    'cpfInput': 'CPF',
+    'rgInput': 'RG',
+    'hiddenTextInput': 'Texto oculto',
+    'listboxSingleSelect': 'Lista única',
+    'listboxMultiSelect': 'Lista múltipla',
+    'radioButtonInput': 'Botão rádio',
+    'checkboxInput': 'Checkbox',
+    'imagePickerInput': 'Imagem',
+    'dateInput': 'Data',
+    'signatureInput': 'Assinatura',
+    'gpsLocationInput': 'Localização GPS',
+  };
+
+  /// Retorna o título formatado em português do tipo da pergunta.
+  String get _questionTypeLabel => _typeTitles[question.questionType] ?? question.questionType;
+
   /// Verifica se a pergunta é do tipo que utiliza lista de opções.
   bool get _supportsOptions {
     final type = question.questionType;
@@ -45,7 +68,14 @@ class QuestionBadgesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final badges = <Widget>[];
 
-    // Badge 1: Obrigatória (Vermelho)
+    // Badge 1: Tipo da pergunta (Cinza neutro - Sempre visível)
+    badges.add(_buildBadge(
+      context: context,
+      label: _questionTypeLabel,
+      baseColor: const Color(0xFF64748B), // Cinza Slate 500
+    ));
+
+    // Badge 2: Obrigatória (Vermelho)
     if (question.questionRequired) {
       badges.add(_buildBadge(
         context: context,
@@ -54,7 +84,7 @@ class QuestionBadgesWidget extends StatelessWidget {
       ));
     }
 
-    // Badge 2: Instrução X caracteres (Azul)
+    // Badge 3: Instrução X caracteres (Azul)
     if (_hasInstruction) {
       final charCount = _instructionText!.length;
       badges.add(_buildBadge(
@@ -64,7 +94,7 @@ class QuestionBadgesWidget extends StatelessWidget {
       ));
     }
 
-    // Badge 3: X Opções (Laranja)
+    // Badge 4: X Opções (Laranja)
     if (_supportsOptions) {
       final count = _optionsCount;
       badges.add(_buildBadge(

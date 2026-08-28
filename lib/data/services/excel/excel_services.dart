@@ -112,6 +112,7 @@ class ExcelTemplateService {
     typeListSheet.appendRow([TextCellValue('rgInput'), TextCellValue('Pergunta de RG')]);
     typeListSheet.appendRow([TextCellValue('telephoneInput'), TextCellValue('Pergunta de Telefone')]);
     typeListSheet.appendRow([TextCellValue('dateInput'), TextCellValue('Pergunta de Data')]);
+    typeListSheet.appendRow([TextCellValue('timeInput'), TextCellValue('Pergunta de Tempo/Horário')]);
     typeListSheet.appendRow([TextCellValue('hiddenTextInput'), TextCellValue('Pergunta com Texto Oculto')]);
     typeListSheet.appendRow([TextCellValue('listboxMultiSelect'), TextCellValue('Pergunta com Lista Multipla')]);
     typeListSheet.appendRow([TextCellValue('listboxSingleSelect'), TextCellValue('Pergunta com Lista Simples')]);

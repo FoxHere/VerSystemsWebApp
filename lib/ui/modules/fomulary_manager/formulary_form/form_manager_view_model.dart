@@ -176,6 +176,7 @@ class FormManagerViewModel extends GetxController with MessageStateMixin {
     TypeCheckbox(),
     TypeImagePicker(),
     TypeDateInput(),
+    TypeTimeInput(),
     TypeSignature(),
     TypeGpsLocation(),
   ];

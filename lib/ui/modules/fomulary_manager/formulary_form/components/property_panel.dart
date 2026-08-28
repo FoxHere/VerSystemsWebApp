@@ -343,7 +343,7 @@ class _PropertyPanelState extends State<PropertyPanel> {
                     child: SizedBox(
                       width: double.infinity,
                       child: Select<QuestionType>(
-                        value: widget.viewModel.questionTypeList.firstWhere((e) => e.dataType == question.questionType),
+                        value: widget.viewModel.questionTypeList.firstWhere((e) => e.dataType == question.questionType, orElse: () => TypeSimpleText()),
                         itemBuilder: (context, item) {
                           return Text(item.typeTitle);
                         },

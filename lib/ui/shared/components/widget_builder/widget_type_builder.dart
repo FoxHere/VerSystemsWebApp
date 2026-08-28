@@ -286,6 +286,184 @@ class _ShadcnStatefulDatePickerState extends State<ShadcnStatefulDatePicker> {
   }
 }
 
+class ShadcnStatefulTimePicker extends StatefulWidget {
+  final String? initialValue;
+  final ValueChanged<String?> onChanged;
+
+  const ShadcnStatefulTimePicker({super.key, this.initialValue, required this.onChanged});
+
+  @override
+  State<ShadcnStatefulTimePicker> createState() => _ShadcnStatefulTimePickerState();
+}
+
+class _ShadcnStatefulTimePickerState extends State<ShadcnStatefulTimePicker> {
+  late final TextEditingController _controller;
+  late final MaskTextInputFormatter _maskFormatter;
+  String? selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedTime = widget.initialValue;
+    _maskFormatter = MaskTextInputFormatter(
+      mask: '##:##',
+      filter: {'#': RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy,
+    );
+    _controller = TextEditingController(text: selectedTime ?? '');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _reportValue();
+    });
+  }
+
+  void _reportValue() {
+    Data.maybeOf<FormFieldHandle>(context)?.reportNewFormValue<String>(selectedTime);
+  }
+
+  void _updateTime(String? val) {
+    setState(() {
+      selectedTime = (val == null || val.isEmpty) ? null : val;
+      if (val != null && _controller.text != val) {
+        _controller.text = val;
+      }
+      _reportValue();
+      widget.onChanged(selectedTime);
+    });
+  }
+
+  void _setCurrentTime() {
+    final nowStr = DateFormat('HH:mm').format(DateTime.now());
+    _updateTime(nowStr);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _showTimePickerModal(BuildContext context) {
+    String currentH = '12';
+    String currentM = '00';
+    if (selectedTime != null && selectedTime!.contains(':')) {
+      final parts = selectedTime!.split(':');
+      if (parts.length == 2) {
+        currentH = parts[0].padLeft(2, '0');
+        currentM = parts[1].padLeft(2, '0');
+      }
+    } else {
+      final now = DateTime.now();
+      currentH = now.hour.toString().padLeft(2, '0');
+      currentM = now.minute.toString().padLeft(2, '0');
+    }
+
+    final hours = List.generate(24, (i) => i.toString().padLeft(2, '0'));
+    final minutes = List.generate(60, (i) => i.toString().padLeft(2, '0'));
+
+    showOverlay(
+      context,
+      DialogConfiguration(
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Selecione o Horário'),
+            content: SizedBox(
+              width: 300,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 12,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Hora').xSmall().muted(),
+                          const SizedBox(height: 4),
+                          ShadcnStatefulSelect(
+                            initialValue: currentH,
+                            items: hours,
+                            onChanged: (h) {
+                              if (h != null) currentH = h;
+                            },
+                          ),
+                        ],
+                      ),
+                      const Text(':').large().bold(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Minuto').xSmall().muted(),
+                          const SizedBox(height: 4),
+                          ShadcnStatefulSelect(
+                            initialValue: currentM,
+                            items: minutes,
+                            onChanged: (m) {
+                              if (m != null) currentM = m;
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              OutlineButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              PrimaryButton(
+                onPressed: () {
+                  _updateTime('$currentH:$currentM');
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Confirmar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.start,
+      children: [
+        SizedBox(
+          width: 130,
+          child: TextField(
+            controller: _controller,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly, _maskFormatter],
+            placeholder: const Text('HH:mm'),
+            onChanged: (val) {
+              _updateTime(val);
+            },
+          ),
+        ),
+        OutlineButton(
+          leading: const Icon(Icons.access_time, size: 16),
+          onPressed: () => _showTimePickerModal(context),
+          child: const Text('Seletor'),
+        ),
+        OutlineButton(
+          leading: const Icon(Icons.schedule, size: 16),
+          onPressed: _setCurrentTime,
+          child: const Text('Agora'),
+        ),
+      ],
+    );
+  }
+}
+
 class WidgetTypeBuilder extends StatelessWidget {
   final QuestionType questionType;
   final String fieldKey;
@@ -771,6 +949,31 @@ class WidgetTypeBuilder extends StatelessWidget {
             ],
           ),
         );
+
+      //--------------------------------------------------------------------------------------------------
+      case TypeTimeInput():
+        if (isReadMode) return _buildReadMode('Sem resposta');
+
+        return _buildWrapper(
+          child: Row(
+            children: [
+              Expanded(
+                child: FormField<String>(
+                  key: FormKey<String>(fieldKey),
+                  validator: _getValidator<String>('O horário é obrigatório'),
+                  label: Text('${questionType.typeTitle} (${questionType.typeDescription})'),
+                  child: ShadcnStatefulTimePicker(
+                    initialValue: initialValue,
+                    onChanged: (timeStr) {
+                      onChanged?.call(timeStr ?? '');
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
 
       default:
         return Padding(

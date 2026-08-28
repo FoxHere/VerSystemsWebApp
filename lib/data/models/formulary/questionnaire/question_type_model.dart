@@ -303,3 +303,26 @@ class TypeGpsLocation extends QuestionType {
   String get typeTitle => 'Localização GPS';
 }
 
+class TypeTimeInput extends QuestionType {
+  static final TypeTimeInput _instance = TypeTimeInput._internal();
+
+  factory TypeTimeInput() {
+    return _instance;
+  }
+
+  TypeTimeInput._internal();
+
+  @override
+  String get dataType => 'timeInput';
+
+  @override
+  String get typeDescription => 'HH:mm';
+
+  @override
+  Widget get typeIcon => const Icon(Icons.access_time_outlined, size: 20);
+
+  @override
+  String get typeTitle => 'Tempo';
+}
+
+
