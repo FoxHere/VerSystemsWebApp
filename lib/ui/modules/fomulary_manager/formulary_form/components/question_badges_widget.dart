@@ -31,6 +31,7 @@ class QuestionBadgesWidget extends StatelessWidget {
     'checkboxInput': 'Checkbox',
     'imagePickerInput': 'Imagem',
     'dateInput': 'Data',
+    'timeInput': 'Tempo',
     'signatureInput': 'Assinatura',
     'gpsLocationInput': 'Localização GPS',
   };
@@ -68,11 +69,11 @@ class QuestionBadgesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final badges = <Widget>[];
 
-    // Badge 1: Tipo da pergunta (Cinza neutro - Sempre visível)
+    // Badge 1: Tipo da pergunta (Violeta / Cor primária - Sempre visível)
     badges.add(_buildBadge(
       context: context,
       label: _questionTypeLabel,
-      baseColor: const Color(0xFF64748B), // Cinza Slate 500
+      baseColor: Theme.of(context).colorScheme.primary,
     ));
 
     // Badge 2: Obrigatória (Vermelho)

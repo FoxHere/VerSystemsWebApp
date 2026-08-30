@@ -7,7 +7,12 @@ abstract class AppTableColumn<T extends HasModelStatus> {
   final String title;
 
   String formatDate(String date) {
-    return DateFormat('dd/MMM/yyyy HH:mm').format(DateTime.parse(date));
+    if (date.isEmpty) return '';
+    try {
+      return DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(date));
+    } catch (_) {
+      return date;
+    }
   }
 
   Widget buildCardContent(T item);

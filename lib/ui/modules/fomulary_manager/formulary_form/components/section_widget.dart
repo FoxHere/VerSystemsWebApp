@@ -35,6 +35,9 @@ class _SectionWidgetState extends State<SectionWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Obx(() {
       final section = widget.viewModel.questionnaire.value.sections[widget.sIndex];
       final isSelected = widget.viewModel.selectedSectionId.value == section.id &&
@@ -46,9 +49,9 @@ class _SectionWidgetState extends State<SectionWidget> {
           widget.viewModel.selectSection(section.id);
         },
         child: OutlinedContainer(
-          borderColor: isSelected ? Theme.of(context).colorScheme.primary : null,
+          borderColor: isSelected ? theme.colorScheme.primary : null,
           borderWidth: isSelected ? 2.0 : null,
-          backgroundColor: Colors.slate.shade100,
+          backgroundColor: isDark ? theme.colorScheme.muted.withValues(alpha: 0.3) : Colors.slate.shade100,
           child: Collapsible(
             isExpanded: true,
             children: [
@@ -86,7 +89,10 @@ class _SectionWidgetState extends State<SectionWidget> {
               ),
               CollapsibleContent(
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.white),
+                  decoration: BoxDecoration(
+                    color: isDark ? theme.colorScheme.card : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: Column(
                     spacing: 10,
                     children: [

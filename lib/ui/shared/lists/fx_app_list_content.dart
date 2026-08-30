@@ -29,6 +29,13 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final shadowColor = isDark ? Colors.black.withValues(alpha: 0.4) : Colors.slate.shade300;
+    final dividerColor = isDark ? theme.colorScheme.border : Colors.slate.shade300;
+    final tableHeaderBg = isDark ? theme.colorScheme.muted : Colors.slate.shade200;
+    final tableHeaderTextColor = isDark ? theme.colorScheme.mutedForeground : Colors.slate.shade600;
+
     final screenWidth = MediaQuery.of(context).size.width;
     return Obx(() {
       if (items.isEmpty) {
@@ -56,7 +63,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                             width: 307,
                             height: 355,
                             child: Card(
-                              boxShadow: [BoxShadow(color: Colors.slate.shade300, blurRadius: 5, offset: Offset(0, 2))],
+                              boxShadow: [BoxShadow(color: shadowColor, blurRadius: 5, offset: const Offset(0, 2))],
                               padding: EdgeInsets.zero,
                               key: ValueKey(item.id),
                               child: Stack(
@@ -70,7 +77,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                                     ),
                                   ),
                                   for (var column in columns) column.buildCardPosition(column.buildCardContent(item)),
-                                  Positioned(bottom: 60, left: 10, right: 10, child: Divider(thickness: 1, color: Colors.slate.shade300)),
+                                  Positioned(bottom: 60, left: 10, right: 10, child: Divider(thickness: 1, color: dividerColor)),
                                 ],
                               ),
                             ).marginAll(10),
@@ -88,8 +95,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                       SliverToBoxAdapter(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.slate.shade200,
-                            // color: FxColors.primary.withValues(alpha: 0.1),
+                            color: tableHeaderBg,
                           ),
                           child: Row(
                             spacing: 10,
@@ -99,7 +105,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                                   child: SizedBox(
                                     height: 52,
                                     child: Center(
-                                      child: Text(column.title, textAlign: TextAlign.center).textSmall(color: Colors.slate.shade600),
+                                      child: Text(column.title, textAlign: TextAlign.center).textSmall(color: tableHeaderTextColor),
                                     ),
                                   ),
                                 ),
@@ -115,7 +121,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                             child: Container(
                               key: ValueKey(item.id),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: Colors.slate.shade300)),
+                                border: Border(bottom: BorderSide(color: dividerColor)),
                               ),
                               child: Row(
                                 spacing: 10,
@@ -125,7 +131,6 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                                       child: SizedBox(
                                         height: 52,
                                         child: Center(
-                                          // child: column.builder(item, false, screenSize),
                                           child: column.buildTableCell(column.buildTableContent(item)),
                                         ),
                                       ),
@@ -138,21 +143,17 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                       ),
                     ],
                   ))
-          // : screenSize == ScreenSize.isMediumScreen
-          // ? Center(child: Text('Tablet'))
           : ListView.builder(
-              // crossAxisAlignment: WrapCrossAlignment.start,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.length,
               itemBuilder: (context, integer) {
-                // for (var item in items)
                 var item = items[integer];
                 return GestureDetector(
                   onTap: () => onItemClicked?.call(item),
                   child: Card(
                     key: ValueKey(item.id),
-                    boxShadow: [BoxShadow(color: Colors.slate.shade300, blurRadius: 5, offset: const Offset(0, 2))],
+                    boxShadow: [BoxShadow(color: shadowColor, blurRadius: 5, offset: const Offset(0, 2))],
                     padding: EdgeInsets.zero,
                     child: Container(
                       decoration: BoxDecoration(
@@ -164,7 +165,7 @@ class FxAppListContent<T extends HasModelStatus> extends StatelessWidget {
                       child: Stack(
                         children: [
                           for (var column in columns) column.buildCardPositionMobile(column.buildCardContentMobile(item)),
-                          Positioned(top: 75, left: 20, right: 20, child: Divider(thickness: 1, color: Colors.slate.shade300)),
+                          Positioned(top: 75, left: 20, right: 20, child: Divider(thickness: 1, color: dividerColor)),
                         ],
                       ),
                     ),
