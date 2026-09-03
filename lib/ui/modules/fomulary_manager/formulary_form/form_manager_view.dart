@@ -261,6 +261,62 @@ class _FormManagerViewState extends State<FormManagerView> with ResponsiveDevice
                                             }),
                                           ),
                                         ),
+                                        // ----------------------------------- Footer Info & Action ----------------------
+                                        SliverPadding(
+                                          padding: const EdgeInsets.only(right: 15, top: 20, bottom: 60),
+                                          sliver: SliverToBoxAdapter(
+                                            child: Obx(() {
+                                              final totalSections = viewModel.questionnaire.value.sections.length;
+                                              final totalQuestions = viewModel.questionnaire.value.sections.fold(
+                                                0,
+                                                (sum, sec) => sum + sec.questions.length,
+                                              );
+
+                                              return OutlinedContainer(
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(20.0),
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: [
+                                                          Row(
+                                                            spacing: 8,
+                                                            children: [
+                                                              Icon(Symbols.dashboard_customize, size: 20, color: Colors.slate),
+                                                              Text('Fim das Seções do Formulário').h4(),
+                                                            ],
+                                                          ),
+                                                          OutlineBadge(
+                                                            child: Text('$totalSections ${totalSections == 1 ? 'seção' : 'seções'} · $totalQuestions ${totalQuestions == 1 ? 'pergunta' : 'perguntas'}'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        'Dica: Você pode adicionar novas seções ou ajustar as propriedades das perguntas no painel lateral.',
+                                                        style: TextStyle(color: Colors.slate.shade500, fontSize: 13),
+                                                      ),
+                                                      const SizedBox(height: 16),
+                                                      Row(
+                                                        children: [
+                                                          OutlineButton(
+                                                            leading: const Icon(Symbols.add_box),
+                                                            onPressed: () {
+                                                              viewModel.addSection();
+                                                            },
+                                                            child: const Text('Adicionar Nova Seção'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),

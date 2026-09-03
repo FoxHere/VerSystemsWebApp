@@ -184,10 +184,14 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Symbols.cloud_upload, size: 48, color: Theme.of(context).colorScheme.mutedForeground),
+                    Icon(
+                      widget.isReadMode ? Symbols.image : Symbols.cloud_upload,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.mutedForeground,
+                    ),
                     const SizedBox(height: 8),
                     Text(
-                      'Upload Imagem',
+                      widget.isReadMode ? 'Sem Imagens' : 'Upload Imagem',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.foreground,
                         fontSize: 18,
@@ -196,17 +200,18 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Adicione imagens da galeria',
+                      widget.isReadMode ? 'Nenhuma imagem foi anexada nesta pergunta' : 'Adicione imagens da galeria',
                       style: TextStyle(color: Theme.of(context).colorScheme.mutedForeground, fontSize: 14),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
-                    if (_images.isEmpty && !widget.isReadMode)
+                    if (!widget.isReadMode) ...[
+                      const SizedBox(height: 16),
                       OutlineButton(
                         leading: Icon(Symbols.image),
                         onPressed: () => _pickImages(ImageSource.gallery, context: context),
                         child: const Text('Galeria'),
                       ),
+                    ],
                   ],
                 ),
               ),
@@ -252,27 +257,26 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget>
                                 },
                               ),
                             ],
-                            Container(
-                              width: 140,
-                              height: 260,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.border,
-                                  width: 1.5,
-                                  style: BorderStyle.solid,
+                            if (!widget.isReadMode)
+                              Container(
+                                width: 140,
+                                height: 260,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.border,
+                                    width: 1.5,
+                                    style: BorderStyle.solid,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Center(
-                                child: GhostButton(
-                                  leading: Icon(Symbols.image),
-                                  onPressed: widget.isReadMode
-                                      ? null
-                                      : () => _pickImages(ImageSource.gallery, context: context),
-                                  child: Text('Adicionar'),
+                                child: Center(
+                                  child: GhostButton(
+                                    leading: Icon(Symbols.image),
+                                    onPressed: () => _pickImages(ImageSource.gallery, context: context),
+                                    child: Text('Adicionar'),
+                                  ),
                                 ),
-                              ),
-                            ).paddingOnly(bottom: 48),
+                              ).paddingOnly(bottom: 48),
                           ],
                         ).gap(12);
                       }),
