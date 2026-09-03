@@ -118,7 +118,7 @@ class _GpsLocationWidgetState extends State<GpsLocationWidget>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PrimaryButton(
+        OutlineButton(
           onPressed: _captureLocation,
           leading: const Icon(Symbols.my_location, size: 18),
           child: const Text('Obter localização atual'),

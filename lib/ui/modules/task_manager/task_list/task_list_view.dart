@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:versystems_app/config/controllers/responsiveness/responsive_device_mixin.dart';
@@ -13,7 +14,6 @@ import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_actio
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_description.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_status.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_title.dart';
-import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_updated_at.dart';
 import 'package:versystems_app/ui/shared/lists/components/table_columns/tc_widget.dart';
 import 'package:versystems_app/ui/shared/lists/fx_app_list_widget.dart';
 
@@ -58,7 +58,7 @@ class _TaskListViewState extends State<TaskListView> with MessageViewMixin, Resp
         ActivityStatusVisual(ActivityStatusEnum.active, isTask: true),
         ActivityStatusVisual(ActivityStatusEnum.editing),
         ActivityStatusVisual(ActivityStatusEnum.done),
-      ], //ActivityStatusEnum.values.map((e) => ActivityStatusVisual(e)).toList(),
+      ],
       statusFilterFunction: (_) {},
       onViewChange: (_) {},
       searchTextFunction: (_) {},
@@ -87,7 +87,7 @@ class _TaskListViewState extends State<TaskListView> with MessageViewMixin, Resp
               item,
             ],
           ),
-          cardPosition: (content) => Positioned(left: 15, bottom: 70, child: content),
+          cardPosition: (content) => Positioned(left: 15, bottom: 90, child: content),
         ),
         AppTableColumnWidget(
           title: 'Responsável',
@@ -121,10 +121,46 @@ class _TaskListViewState extends State<TaskListView> with MessageViewMixin, Resp
             child: Column(crossAxisAlignment: .start, children: [Text('Cliente:').xSmall, content]),
           ),
         ),
-        AppTableColumnUpdatedAt(
-          title: 'Última atualização',
-          needToShowOnCard: false,
-          dataSelector: (item) => item.updatedAt?.toIso8601String() ?? '',
+        AppTableColumnWidget(
+          title: 'Data Limite',
+          dataSelector: (item) {
+            final DateTime date = item.endDateTime;
+            final bool isOverdue = date.isBefore(DateTime.now()) && item.taskStatus.status != ActivityStatusEnum.done;
+            final String dateStr = DateFormat('dd/MM/yyyy').format(date);
+
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              spacing: 5,
+              children: [
+                Icon(Symbols.calendar_today, size: 14, color: isOverdue ? Colors.red : Colors.slate),
+                Text(
+                  dateStr,
+                  style: TextStyle(
+                    color: isOverdue ? Colors.red : Colors.slate.shade500,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (isOverdue)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.4), width: 1),
+                    ),
+                    child: Text(
+                      'Atrasada',
+                      style: TextStyle(color: Colors.red.shade700, fontSize: 8, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+              ],
+            );
+          },
+          tableContent: (item) => item,
+          cardContent: (item) => item,
+          cardPosition: (content) => Positioned(left: 16, bottom: 70, child: content),
         ),
         AppTableColumnActions(
           title: 'Ações',

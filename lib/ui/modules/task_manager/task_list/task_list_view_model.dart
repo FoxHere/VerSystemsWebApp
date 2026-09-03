@@ -31,7 +31,7 @@ class TaskListViewModel extends BaseViewModel with MessageStateMixin {
   final taskModelList = <ActivityModel>[].obs;
   final filteredTaskModelList = <ActivityModel>[].obs;
   final pageStatus = Rx<PageStatus>(PageStatusIdle());
-  final currentUserId = Get.find<AuthController>().localUserModel.value?.id;
+  String? get currentUserId => Get.find<AuthController>().localUserModel.value?.id;
   final bottomNavigationBarIndex = 0.obs;
   final currentTab = 0.obs;
   List<ActivityModel> smallScreenFilter(List<ActivityModel> all, int tabIndex) {
@@ -78,7 +78,20 @@ class TaskListViewModel extends BaseViewModel with MessageStateMixin {
   Future<void> findAllTasks(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
     await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));
-    final result = await _taskRepositoryImpl.findAllTasks(filters);
+
+    final targetUserId = filters['userId'] ?? currentUserId;
+    if (targetUserId == null || targetUserId.toString().isEmpty) {
+      pageStatus.value = PageStatusEmpty(
+        title: 'Hora de descansar! ☕',
+        description: 'Não existem nenhuma Tarefa para você nesse momento',
+      );
+      return;
+    }
+
+    final queryFilters = Map<String, dynamic>.from(filters);
+    queryFilters['userId'] = targetUserId;
+
+    final result = await _taskRepositoryImpl.findAllTasks(queryFilters);
     result.fold(
       (exception) {
         pageStatus.value = PageStatusError(exception.message);

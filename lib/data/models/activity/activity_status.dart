@@ -11,6 +11,8 @@ class ActivityStatusVisual implements StatusVisual {
   final ActivityStatusEnum _status;
   final bool isTask;
 
+  ActivityStatusEnum get status => _status;
+
   @override
   Color get color {
     if (isTask && _status == ActivityStatusEnum.active) return Colors.orange;
@@ -116,38 +118,3 @@ class ActivityStatus extends StatelessWidget {
     return StatusWidget<ActivityStatusVisual>(status: visual, icon: status.icon);
   }
 }
-
-// class ActivityStatusWidget extends StatelessWidget {
-//   final String label;
-//   final IconData icon;
-
-//   const ActivityStatusWidget({super.key, required this.label, required this.icon});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final ActivityStatusEnum variant = ActivityStatusEnumExtension.fromLabel(label);
-//     final color = switch (variant) {
-//       ActivityStatusEnum.done => ActivityStatusEnum.done.color,
-//       ActivityStatusEnum.inactive => ActivityStatusEnum.inactive.color,
-//       ActivityStatusEnum.editing => ActivityStatusEnum.editing.color,
-//       ActivityStatusEnum.active => ActivityStatusEnum.active.color,
-//     };
-
-//     return Container(
-//       width: 100,
-//       // padding: FxTheme.smallPadding / 2,
-//       decoration: BoxDecoration(
-//         // borderRadius: FxTheme.borderRadiusAll / 2,
-//         color: color.withValues(alpha: 0.2),
-//       ),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         spacing: 7,
-//         children: [
-//           Icon(icon, color: color, size: 16),
-//           Text(label, style: Theme.of(context).textTheme.bodySmall!.copyWith(color: color)),
-//         ],
-//       ),
-//     );
-//   }
-// }
