@@ -75,6 +75,29 @@ class TaskListViewModel extends BaseViewModel with MessageStateMixin {
     }
   }
 
+  void filterTasks(String search) {
+    final query = search.trim().toLowerCase();
+    if (query.isEmpty) {
+      filteredTaskModelList.assignAll(taskModelList);
+    } else {
+      filteredTaskModelList.assignAll(
+        taskModelList.where((task) {
+          final name = task.name.toLowerCase();
+          final instructions = (task.instructions ?? '').toLowerCase();
+          final client = (task.client?.name ?? '').toLowerCase();
+          final responsible = (task.responsible?.name ?? '').toLowerCase();
+          final formulary = (task.formulary?.title ?? '').toLowerCase();
+          return name.contains(query) ||
+              instructions.contains(query) ||
+              client.contains(query) ||
+              responsible.contains(query) ||
+              formulary.contains(query);
+        }).toList(),
+      );
+    }
+    updatePageStatusBasedOnList();
+  }
+
   Future<void> findAllTasks(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
     await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));

@@ -464,6 +464,135 @@ class _ShadcnStatefulTimePickerState extends State<ShadcnStatefulTimePicker> {
   }
 }
 
+class ShadcnStatefulReadModeHiddenText extends StatefulWidget {
+  final String text;
+  const ShadcnStatefulReadModeHiddenText({super.key, required this.text});
+
+  @override
+  State<ShadcnStatefulReadModeHiddenText> createState() => _ShadcnStatefulReadModeHiddenTextState();
+}
+
+class _ShadcnStatefulReadModeHiddenTextState extends State<ShadcnStatefulReadModeHiddenText> {
+  bool isHidden = true;
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.text.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: const Text('Sem resposta').large(),
+      );
+    }
+    final displayText = isHidden ? '•' * widget.text.length : widget.text;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(displayText).large(),
+          const SizedBox(width: 8),
+          IconButton.ghost(
+            density: ButtonDensity.compact,
+            icon: Icon(
+              isHidden ? Icons.visibility : Icons.visibility_off,
+              size: 18,
+              color: Colors.slate.shade400,
+            ),
+            onPressed: () {
+              setState(() {
+                isHidden = !isHidden;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ShadcnStatefulHiddenText extends StatefulWidget {
+  final String? initialValue;
+  final ValueChanged<String>? onChanged;
+
+  const ShadcnStatefulHiddenText({
+    super.key,
+    this.initialValue,
+    this.onChanged,
+  });
+
+  @override
+  State<ShadcnStatefulHiddenText> createState() => _ShadcnStatefulHiddenTextState();
+}
+
+class _ShadcnStatefulHiddenTextState extends State<ShadcnStatefulHiddenText> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+  bool _obscureText = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+    _focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _reportValue();
+    });
+  }
+
+  void _reportValue() {
+    Data.maybeOf<FormFieldHandle>(context)?.reportNewFormValue<String>(_controller.text);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _toggleObscure() {
+    if (_focusNode.hasFocus) {
+      _focusNode.unfocus();
+    } else {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      key: ValueKey(_obscureText),
+      controller: _controller,
+      focusNode: _focusNode,
+      obscureText: _obscureText,
+      keyboardType: _obscureText ? TextInputType.visiblePassword : TextInputType.text,
+      placeholder: const Text('...'),
+      onChanged: (val) {
+        _reportValue();
+        if (widget.onChanged != null) {
+          widget.onChanged!(val);
+        }
+      },
+      features: [
+        InputFeature.trailing(
+          IconButton.ghost(
+            density: ButtonDensity.compact,
+            icon: Icon(
+              _obscureText ? Icons.visibility : Icons.visibility_off,
+              size: 18,
+              color: Colors.slate.shade400,
+            ),
+            onPressed: _toggleObscure,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class WidgetTypeBuilder extends StatelessWidget {
   final QuestionType questionType;
   final String fieldKey;
@@ -784,7 +913,7 @@ class WidgetTypeBuilder extends StatelessWidget {
 
       //--------------------------------------------------------------------------------------------------
       case TypeHiddenText():
-        if (isReadMode) return _buildReadMode('Sem resposta');
+        if (isReadMode) return ShadcnStatefulReadModeHiddenText(text: initialValue ?? '');
         return _buildWrapper(
           child: Row(
             children: [
@@ -793,11 +922,8 @@ class WidgetTypeBuilder extends StatelessWidget {
                   key: FormKey<String>(fieldKey),
                   validator: _getValidator<String>('Este campo não pode ser vazio'),
                   label: Text('${questionType.typeTitle} (${questionType.typeDescription})'),
-                  child: TextField(
-                    initialValue: initialValue ?? '',
-                    obscureText: true,
-                    keyboardType: TextInputType.text,
-                    placeholder: const Text('...'),
+                  child: ShadcnStatefulHiddenText(
+                    initialValue: initialValue,
                     onChanged: onChanged,
                   ),
                 ),

@@ -61,7 +61,7 @@ class _TaskListViewState extends State<TaskListView> with MessageViewMixin, Resp
       ],
       statusFilterFunction: (_) {},
       onViewChange: (_) {},
-      searchTextFunction: (_) {},
+      searchTextFunction: (value) => viewModel.filterTasks(value),
       onRefresh: onRefresh,
       statusSelector: (item) => item.taskStatus,
       onItemClicked: (item) => context.go('${RoutesHelper.tasks}/${item.id}'),
@@ -159,8 +159,22 @@ class _TaskListViewState extends State<TaskListView> with MessageViewMixin, Resp
             );
           },
           tableContent: (item) => item,
-          cardContent: (item) => item,
-          cardPosition: (content) => Positioned(left: 16, bottom: 70, child: content),
+          cardContent: (item) => Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 5,
+            children: [
+              Text(
+                'Vencimento:',
+                style: TextStyle(
+                  color: Colors.slate.shade600,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              item,
+            ],
+          ),
+          cardPosition: (content) => Positioned(left: 15, bottom: 68, child: content),
         ),
         AppTableColumnActions(
           title: 'Ações',

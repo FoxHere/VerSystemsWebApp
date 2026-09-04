@@ -52,6 +52,29 @@ class ActivityListViewModel extends BaseViewModel with MessageStateMixin {
     }
   }
 
+  void filterActivities(String search) {
+    final query = search.trim().toLowerCase();
+    if (query.isEmpty) {
+      filteredActivities.assignAll(activities);
+    } else {
+      filteredActivities.assignAll(
+        activities.where((activity) {
+          final name = activity.name.toLowerCase();
+          final instructions = (activity.instructions ?? '').toLowerCase();
+          final client = (activity.client?.name ?? '').toLowerCase();
+          final responsible = (activity.responsible?.name ?? '').toLowerCase();
+          final formulary = (activity.formulary?.title ?? '').toLowerCase();
+          return name.contains(query) ||
+              instructions.contains(query) ||
+              client.contains(query) ||
+              responsible.contains(query) ||
+              formulary.contains(query);
+        }).toList(),
+      );
+    }
+    updatePageStatusBasedOnList();
+  }
+
   Future<void> findAllActivities(Map<String, dynamic> filters) async {
     pageStatus.value = PageStatusLoading();
     await Future.delayed(const Duration(milliseconds: Boudaries.delayMilliseconds));

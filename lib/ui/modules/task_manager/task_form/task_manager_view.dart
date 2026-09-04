@@ -326,7 +326,7 @@ class _FormExecViewState extends State<TaskManagerView>
                                         Text(taskModel.name).h3(),
                                         const SizedBox(height: 12),
                                         OutlineButton(
-                                          leading: const Icon(Symbols.integration_instructions, size: 18),
+                                          leading: Icon(Symbols.integration_instructions, size: 18, color: Theme.of(context).colorScheme.primary),
                                           onPressed: () => _showActivityInstructionsModal(context, taskModel),
                                           child: const Text('Instruções da Atividade'),
                                         ),

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:versystems_app/config/controllers/responsiveness/responsive_device_mixin.dart';
@@ -54,10 +55,10 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
       statusList: ActivityStatusEnum.values.map((e) => ActivityStatusVisual(e)).toList(),
       statusFilterFunction: (_) {},
       onViewChange: (_) {},
-      searchTextFunction: (_) {},
+      searchTextFunction: (value) => viewModel.filterActivities(value),
       onRefresh: () => viewModel.findAllActivities({}),
       onNewItem: () => context.go(RoutesHelper.activityManager),
-      items: viewModel.activities,
+      items: viewModel.filteredActivities,
       columns: [
         AppTableColumnTitle(title: 'Nome', dataSelector: (item) => item.name),
         AppTableColumnDescription(title: 'Instruções', dataSelector: (item) => item.instructions ?? '—'),
@@ -79,7 +80,7 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
               item,
             ],
           ),
-          cardPosition: (content) => Positioned(left: 15, bottom: 70, child: content),
+          cardPosition: (content) => Positioned(left: 15, bottom: 90, child: content),
         ),
         AppTableColumnWidget(
           title: 'Responsável',
@@ -112,6 +113,61 @@ class _ActivityListViewState extends State<ActivityListView> with MessageViewMix
             bottom: 15,
             child: Column(crossAxisAlignment: .start, children: [Text('Cliente:').xSmall, content]),
           ),
+        ),
+        AppTableColumnWidget(
+          title: 'Data Limite',
+          dataSelector: (item) {
+            final DateTime date = item.endDateTime;
+            final bool isOverdue = date.isBefore(DateTime.now()) && item.activityStatus != ActivityStatusEnum.done;
+            final String dateStr = DateFormat('dd/MM/yyyy').format(date);
+
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              spacing: 5,
+              children: [
+                Icon(Symbols.calendar_today, size: 14, color: isOverdue ? Colors.red : Colors.slate),
+                Text(
+                  dateStr,
+                  style: TextStyle(
+                    color: isOverdue ? Colors.red : Colors.slate.shade500,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (isOverdue)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.4), width: 1),
+                    ),
+                    child: Text(
+                      'Atrasada',
+                      style: TextStyle(color: Colors.red.shade700, fontSize: 8, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+              ],
+            );
+          },
+          tableContent: (item) => item,
+          cardContent: (item) => Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 5,
+            children: [
+              Text(
+                'Vencimento:',
+                style: TextStyle(
+                  color: Colors.slate.shade600,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              item,
+            ],
+          ),
+          cardPosition: (content) => Positioned(left: 15, bottom: 68, child: content),
         ),
         AppTableColumnUpdatedAt(
           title: 'Última atualização',

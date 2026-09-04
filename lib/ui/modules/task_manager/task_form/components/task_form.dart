@@ -251,7 +251,7 @@ class TaskFormState extends State<TaskForm> {
                                               question.question,
                                               question.questionInstructions!,
                                             ),
-                                            leading: const Icon(Icons.description, size: 16),
+                                            leading: Icon(Icons.description, size: 16, color: Theme.of(context).colorScheme.primary),
                                             child: const Text('Instruções'),
                                           ),
                                         ],
