@@ -1,5 +1,6 @@
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:get/get.dart';
+import 'package:versystems_app/config/helpers/string_formatter_helper.dart';
 import 'package:versystems_app/data/models/company/company_model.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:versystems_app/ui/shared/components/divider/fx_divider.dart';
@@ -49,10 +50,14 @@ class CompanyDetailsSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const FxDivider(title: 'Identidade e Fiscal', icon: Symbols.business),
-                  _buildDetailRow('Razão Social', company.name),
-                  if (company.tradeName != null && company.tradeName!.isNotEmpty)
-                    _buildDetailRow('Nome Fantasia', company.tradeName!),
-                  _buildDetailRow('CNPJ', company.cnpj),
+                  _buildDetailRow('Razão Social', company.name.isNotEmpty ? company.name : 'Razão social não informada'),
+                  _buildDetailRow(
+                    'Nome Fantasia',
+                    (company.tradeName != null && company.tradeName!.isNotEmpty)
+                        ? company.tradeName!
+                        : 'Nome fantasia não informado',
+                  ),
+                  _buildDetailRow('CNPJ', StringFormatterHelper.formatCnpj(company.cnpj)),
                   if (company.stateRegistration != null && company.stateRegistration!.isNotEmpty)
                     _buildDetailRow('Inscrição Estadual', company.stateRegistration!),
                   if (company.municipalRegistration != null && company.municipalRegistration!.isNotEmpty)
@@ -61,10 +66,8 @@ class CompanyDetailsSheet extends StatelessWidget {
 
                   const SizedBox(height: 24),
                   const FxDivider(title: 'Contato', icon: Symbols.contact_mail),
-                  if (company.email != null && company.email!.isNotEmpty)
-                    _buildDetailRow('E-mail Principal', company.email!),
-                  if (company.phone != null && company.phone!.isNotEmpty)
-                    _buildDetailRow('Telefone / WhatsApp', company.phone!),
+                  _buildDetailRow('E-mail Principal', StringFormatterHelper.formatEmail(company.email)),
+                  _buildDetailRow('Contato / WhatsApp', StringFormatterHelper.formatPhone(company.phone)),
                   if (company.website != null && company.website!.isNotEmpty)
                     _buildDetailRow('Site Oficial', company.website!),
 
@@ -75,7 +78,7 @@ class CompanyDetailsSheet extends StatelessWidget {
                     if (firstAddress.complement.isNotEmpty) _buildDetailRow('Complemento', firstAddress.complement),
                     _buildDetailRow('Bairro', firstAddress.neighborhood),
                     _buildDetailRow('Cidade/UF', '${firstAddress.city} - ${firstAddress.state}'),
-                    _buildDetailRow('CEP', firstAddress.zipCode),
+                    _buildDetailRow('CEP', StringFormatterHelper.formatCep(firstAddress.zipCode)),
                   ],
 
                   if (company.notes != null && company.notes!.isNotEmpty) ...[

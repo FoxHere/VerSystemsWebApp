@@ -8,13 +8,25 @@ class AppTableColumnDescription<T extends HasModelStatus> extends AppTableColumn
   final String Function(T) dataSelector;
   final Positioned? Function(Widget content)? cardPosition;
   final Positioned? Function(Widget content)? cardPositionMobile;
+  String _getFormattedText(T item) {
+    final rawText = dataSelector(item).trim();
+    if (rawText.isEmpty || rawText == '—' || rawText == 'null') {
+      if (title.toLowerCase().contains('instruç')) {
+        return 'Sem instruções disponíveis';
+      }
+      return 'Sem descrição disponível';
+    }
+    return rawText;
+  }
+
   @override
   Widget buildCardContent(T item) {
+    final text = _getFormattedText(item);
     return Tooltip(
       tooltip: TooltipContainer(
-        child: Text(dataSelector(item), style: TextStyle(color: Colors.white)),
+        child: Text(text, style: TextStyle(color: Colors.white)),
       ).call,
-      child: Text(dataSelector(item), maxLines: 2, overflow: TextOverflow.ellipsis).xSmall(color: Colors.slate.shade500),
+      child: Text(text, maxLines: 2, overflow: TextOverflow.ellipsis).xSmall(color: Colors.slate.shade500),
     );
   }
 
@@ -25,11 +37,12 @@ class AppTableColumnDescription<T extends HasModelStatus> extends AppTableColumn
 
   @override
   Widget buildTableContent(T item) {
+    final text = _getFormattedText(item);
     return Tooltip(
       tooltip: TooltipContainer(
-        child: Text(dataSelector(item), style: TextStyle(color: Colors.white)),
+        child: Text(text, style: TextStyle(color: Colors.white)),
       ).call,
-      child: Text(dataSelector(item), maxLines: 1, overflow: TextOverflow.ellipsis).xSmall(color: Colors.slate.shade500),
+      child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis).xSmall(color: Colors.slate.shade500),
     );
   }
 

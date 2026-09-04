@@ -1,10 +1,18 @@
+import 'package:flutter/services.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:get/get.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:versystems_app/data/models/company/company_address_model.dart';
 import 'package:versystems_app/data/models/company/company_model.dart';
 import 'package:versystems_app/data/models/company/company_status.dart';
 import 'package:versystems_app/ui/shared/components/divider/fx_divider.dart';
+
+const _ufList = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
+  'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
+  'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+];
 
 class CompanyForm extends StatefulWidget {
   final CompanyModel model;
@@ -40,11 +48,16 @@ class CompanyFormState extends State<CompanyForm> {
   final _notesKey = const FormKey<String>(#notes);
 
   late bool _isActive;
+  String? _selectedUf;
 
   @override
   void initState() {
     super.initState();
     _isActive = widget.model.companyStatus == CompanyStatusEnum.active;
+    final firstAddressState = widget.model.addresses.isNotEmpty ? widget.model.addresses.first.state : '';
+    _selectedUf = _ufList.contains(firstAddressState.toUpperCase())
+        ? firstAddressState.toUpperCase()
+        : (firstAddressState.isNotEmpty ? firstAddressState : null);
   }
 
   @override
@@ -67,7 +80,7 @@ class CompanyFormState extends State<CompanyForm> {
       neighborhood:
           _formController.getValue(_neighborhoodKey) ?? (widget.model.addresses.isNotEmpty ? widget.model.addresses.first.neighborhood : ''),
       city: _formController.getValue(_cityKey) ?? (widget.model.addresses.isNotEmpty ? widget.model.addresses.first.city : ''),
-      state: _formController.getValue(_stateKey) ?? (widget.model.addresses.isNotEmpty ? widget.model.addresses.first.state : ''),
+      state: _selectedUf ?? _formController.getValue(_stateKey) ?? (widget.model.addresses.isNotEmpty ? widget.model.addresses.first.state : ''),
       zipCode: _formController.getValue(_zipCodeKey) ?? (widget.model.addresses.isNotEmpty ? widget.model.addresses.first.zipCode : ''),
     );
 
@@ -91,6 +104,24 @@ class CompanyFormState extends State<CompanyForm> {
   @override
   Widget build(BuildContext context) {
     final firstAddress = widget.model.addresses.isNotEmpty ? widget.model.addresses.first : CompanyAddressModel.empty();
+
+    var maskFormatterCnpj = MaskTextInputFormatter(
+      mask: '##.###.###/####-##',
+      filter: {'#': RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy,
+    );
+
+    var maskFormatterPhone = MaskTextInputFormatter(
+      mask: '(##) #.####-####',
+      filter: {'#': RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy,
+    );
+
+    var maskFormatterZipCode = MaskTextInputFormatter(
+      mask: '#####-###',
+      filter: {'#': RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy,
+    );
 
     return Form(
       controller: _formController,
@@ -146,7 +177,12 @@ class CompanyFormState extends State<CompanyForm> {
                   key: _cnpjKey,
                   label: const Text('CNPJ'),
                   validator: const NotEmptyValidator(message: 'O CNPJ é obrigatório'),
-                  child: TextField(initialValue: widget.model.cnpj, placeholder: const Text('00.000.000/0000-00')),
+                  child: TextField(
+                    initialValue: widget.model.cnpj,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, maskFormatterCnpj],
+                    placeholder: const Text('00.000.000/0000-00'),
+                  ),
                 ),
               ),
             ],
@@ -183,21 +219,42 @@ class CompanyFormState extends State<CompanyForm> {
                 child: FormField<String>(
                   key: _emailKey,
                   label: const Text('E-mail Principal'),
-                  child: TextField(initialValue: widget.model.email ?? '', placeholder: const Text('exemplo@empresa.com.br')),
+                  validator: ConditionalValidator<String>(
+                    (value) {
+                      if (value == null || value.trim().isEmpty) return true;
+                      final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                      return regex.hasMatch(value.trim());
+                    },
+                    message: 'E-mail inválido',
+                  ),
+                  child: TextField(
+                    initialValue: widget.model.email ?? '',
+                    keyboardType: TextInputType.emailAddress,
+                    placeholder: const Text('exemplo@empresa.com.br'),
+                  ),
                 ),
               ),
               Expanded(
                 child: FormField<String>(
                   key: _phoneKey,
-                  label: const Text('Telefone / WhatsApp'),
-                  child: TextField(initialValue: widget.model.phone ?? '', placeholder: const Text('(00) 00000-0000')),
+                  label: const Text('Contato / WhatsApp'),
+                  child: TextField(
+                    initialValue: widget.model.phone ?? '',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, maskFormatterPhone],
+                    placeholder: const Text('(00) 0.0000-0000'),
+                  ),
                 ),
               ),
               Expanded(
                 child: FormField<String>(
                   key: _websiteKey,
                   label: const Text('Site Oficial'),
-                  child: TextField(initialValue: widget.model.website ?? '', placeholder: const Text('https://www.empresa.com.br')),
+                  child: TextField(
+                    initialValue: widget.model.website ?? '',
+                    keyboardType: TextInputType.url,
+                    placeholder: const Text('https://www.empresa.com.br'),
+                  ),
                 ),
               ),
             ],
@@ -268,7 +325,21 @@ class CompanyFormState extends State<CompanyForm> {
                 child: FormField<String>(
                   key: _stateKey,
                   label: const Text('Estado/UF'),
-                  child: TextField(initialValue: firstAddress.state, placeholder: const Text('SP')),
+                  child: Select<String>(
+                    value: _selectedUf,
+                    placeholder: const Text('UF'),
+                    onChanged: (uf) {
+                      setState(() {
+                        _selectedUf = uf;
+                      });
+                    },
+                    itemBuilder: (context, uf) => Text(uf),
+                    popup: (context) => SelectPopup(
+                      items: SelectItemList(
+                        children: _ufList.map((uf) => SelectItemButton(value: uf, child: Text(uf))).toList(),
+                      ),
+                    ),
+                  ),
                 ),
               ),
               Expanded(
@@ -276,7 +347,12 @@ class CompanyFormState extends State<CompanyForm> {
                 child: FormField<String>(
                   key: _zipCodeKey,
                   label: const Text('CEP'),
-                  child: TextField(initialValue: firstAddress.zipCode, placeholder: const Text('00000-000')),
+                  child: TextField(
+                    initialValue: firstAddress.zipCode,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, maskFormatterZipCode],
+                    placeholder: const Text('00000-000'),
+                  ),
                 ),
               ),
             ],

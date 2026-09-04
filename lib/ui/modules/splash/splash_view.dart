@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:versystems_app/config/controllers/auth/auth_controller.dart';
 import 'package:versystems_app/config/helpers/routes/routes_helper.dart';
 import 'package:versystems_app/config/helpers/gen/assets.gen.dart';
@@ -45,11 +45,16 @@ class _SplashViewState extends State<SplashView> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [Assets.images.common.logos.logo01.image(), Center(child: CircularProgressIndicator())],
+    return Scaffold(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 24,
+          children: [
+            Assets.images.common.logos.logo01.image(height: 60, fit: BoxFit.contain),
+            const CircularProgressIndicator(),
+          ],
+        ),
       ),
     );
   }

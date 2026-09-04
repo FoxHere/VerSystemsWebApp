@@ -7,6 +7,7 @@ import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:versystems_app/config/controllers/responsiveness/responsive_device_mixin.dart';
 import 'package:versystems_app/config/helpers/messages/messages.dart';
 import 'package:versystems_app/config/helpers/routes/routes_helper.dart';
+import 'package:versystems_app/config/helpers/string_formatter_helper.dart';
 import 'package:versystems_app/data/models/company/company_model.dart';
 import 'package:versystems_app/data/models/company/company_status.dart';
 import 'package:versystems_app/ui/modules/company_manager/company_list/company_list_view_model.dart';
@@ -78,20 +79,25 @@ class _CompanyListViewState extends State<CompanyListView> with MessageViewMixin
         onItemClicked: (company) => _showDetails(context, company),
         items: viewModel.companies,
         columns: [
-          AppTableColumnTitle(title: 'Nome', dataSelector: (item) => item.name),
+          AppTableColumnTitle(
+            title: 'Nome',
+            dataSelector: (item) => item.name.isNotEmpty ? item.name : 'Razão social não informada',
+          ),
           AppTableColumnDescription(
             title: 'Nome Fantasia',
-            dataSelector: (item) => item.tradeName ?? 'Nome fantasia não informado',
+            dataSelector: (item) => (item.tradeName != null && item.tradeName!.isNotEmpty)
+                ? item.tradeName!
+                : 'Nome fantasia não informado',
           ),
           AppTableColumnStatus(title: 'Status'),
           AppTableColumnWidget(
             title: 'CNPJ',
-            dataSelector: (item) => Text(item.cnpj).xSmall(color: Colors.slate.shade500),
+            dataSelector: (item) => Text(StringFormatterHelper.formatCnpj(item.cnpj)).xSmall(color: Colors.slate.shade500),
             tableContent: (item) => Row(
               spacing: 5,
               children: [
                 Icon(Symbols.business_center, size: 16, color: Colors.slate),
-                SizedBox(width: 130, child: item),
+                SizedBox(width: 150, child: item),
               ],
             ),
             cardContent: (item) => Row(
@@ -105,12 +111,12 @@ class _CompanyListViewState extends State<CompanyListView> with MessageViewMixin
           ),
           AppTableColumnWidget(
             title: 'E-mail',
-            dataSelector: (item) => Text(item.email ?? '').xSmall(color: Colors.slate.shade500),
+            dataSelector: (item) => Text(StringFormatterHelper.formatEmail(item.email)).xSmall(color: Colors.slate.shade500),
             tableContent: (item) => Row(
               spacing: 5,
               children: [
                 Icon(Symbols.email, size: 16, color: Colors.slate),
-                SizedBox(width: 130, child: item),
+                SizedBox(width: 160, child: item),
               ],
             ),
             cardContent: (item) => Row(
@@ -123,13 +129,13 @@ class _CompanyListViewState extends State<CompanyListView> with MessageViewMixin
             cardPosition: (content) => Positioned(left: 15, bottom: 35, child: content),
           ),
           AppTableColumnWidget(
-            title: 'Telefone',
-            dataSelector: (item) => Text(item.phone ?? '').xSmall(color: Colors.slate.shade500),
+            title: 'Contato',
+            dataSelector: (item) => Text(StringFormatterHelper.formatPhone(item.phone)).xSmall(color: Colors.slate.shade500),
             tableContent: (item) => Row(
               spacing: 5,
               children: [
                 Icon(Symbols.phone, size: 16, color: Colors.slate),
-                SizedBox(width: 130, child: item),
+                SizedBox(width: 160, child: item),
               ],
             ),
             cardContent: (item) => Row(
